@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
+const fs = require('fs');
+const path = require('path');
 const { escapeRegex, verifyAndUpgradePassword } = require('../utils/helpers');
 const Admin = require('../models/Admin');
 
@@ -13,6 +15,36 @@ const loginLimiter = rateLimit({
     legacyHeaders: false,
     skipSuccessfulRequests: true,
 });
+
+const cleanPanelCredential = (value) => {
+    if (!value) return '';
+    const cleaned = value.toString().replace(/^\uFEFF/, '').trim();
+    if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+        return cleaned.slice(1, -1).trim();
+    }
+    return cleaned;
+};
+
+const readPanelCredentialsFromEnvFile = () => {
+    const envPath = path.resolve(process.cwd(), '.env');
+    if (!fs.existsSync(envPath)) return {};
+
+    const credentials = {};
+    const lines = fs.readFileSync(envPath, 'utf8').replace(/^\uFEFF/, '').split(/\r?\n/);
+    for (const line of lines) {
+        const match = line.match(/^\s*(PANEL_USER|PANEL_PASS)\s*=\s*(.*)\s*$/);
+        if (match) credentials[match[1]] = cleanPanelCredential(match[2]);
+    }
+    return credentials;
+};
+
+const getPanelCredentials = () => {
+    const fileCredentials = readPanelCredentialsFromEnvFile();
+    return {
+        user: cleanPanelCredential(fileCredentials.PANEL_USER || process.env.PANEL_USER),
+        pass: cleanPanelCredential(fileCredentials.PANEL_PASS || process.env.PANEL_PASS)
+    };
+};
 
 router.get('/login', (req, res) => {
     if (req.session.isLoggedIn) return res.redirect('/');
@@ -29,8 +61,7 @@ router.post('/login', loginLimiter, async (req, res) => {
         const trimmedUser = username.trim();
         const trimmedPass = password.trim();
 
-        const envAdminUser = (process.env.PANEL_USER || '').trim();
-        const envAdminPass = (process.env.PANEL_PASS || '').trim();
+        const { user: envAdminUser, pass: envAdminPass } = getPanelCredentials();
 
         if (envAdminUser && envAdminPass &&
             trimmedUser.toLowerCase() === envAdminUser.toLowerCase() &&
@@ -56,6 +87,10 @@ router.post('/login', loginLimiter, async (req, res) => {
                 req.session.adminRole = adminData.role || 'admin';
                 return req.session.save(() => res.redirect('/'));
             }
+        }
+
+        if (!envAdminUser || !envAdminPass) {
+            return res.render('login', { error: 'بيانات دخول الإدارة غير مضبوطة في ملف .env على السيرفر.' });
         }
 
         return res.render('login', { error: 'بيانات الدخول غير صحيحة.' });
