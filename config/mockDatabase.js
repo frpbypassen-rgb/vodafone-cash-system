@@ -6,13 +6,18 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+const { MongoMemoryReplSet } = require('mongodb-memory-server');
 
 let mongoServer;
 
 const connectMockDB = async () => {
     try {
-        mongoServer = await MongoMemoryServer.create();
+        mongoServer = await MongoMemoryReplSet.create({
+            replSet: {
+                count: 1,
+                storageEngine: 'wiredTiger'
+            }
+        });
         const uri = mongoServer.getUri();
         
         await mongoose.connect(uri);
