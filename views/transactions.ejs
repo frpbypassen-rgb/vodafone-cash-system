@@ -289,9 +289,7 @@
                                             <% } %>
 
                                             <% if (['pending', 'processing', 'accepted'].includes(tx.status)) { %>
-                                                <form action="/transaction/<%= tx._id %>/manual-complete-with-receipt" method="POST" class="m-0" onsubmit="return confirm('تأكيد إنجاح العملية وتوليد إيصال وإرساله للعميل؟')">
-                                                    <button type="submit" class="btn-action-sm manual-success" title="إنجاح العملية وتوليد إيصال"><i class="fa-solid fa-circle-check"></i></button>
-                                                </form>
+                                                <button type="button" class="btn-action-sm manual-success" onclick="completeWithReceipt('<%= tx._id %>', this)" title="إنجاح العملية وتوليد إيصال"><i class="fa-solid fa-circle-check"></i></button>
                                             <% } %>
 
                                             <% if (tx.status === 'completed' && (tx.proofImage || (tx.proofImages && tx.proofImages.length > 0))) { %>
@@ -689,6 +687,53 @@
         return true;
     }
 
+    async function completeWithReceipt(txId, button) {
+        const confirmed = await Swal.fire({
+            title: 'تأكيد الإنجاح',
+            text: 'سيتم إنجاح العملية وتوليد إيصال وإرساله للعميل.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'تنفيذ الآن',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#16a34a'
+        });
+        if (!confirmed.isConfirmed) return;
+
+        const oldHtml = button.innerHTML;
+        window.manualCompletionInProgress = true;
+        button.disabled = true;
+        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+        try {
+            const response = await fetch('/transaction/' + txId + '/manual-complete-with-receipt', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const result = await response.json().catch(() => null);
+            if (!response.ok || !result || !result.success) {
+                throw new Error((result && result.error) || 'تعذر تنفيذ الطلب من السيرفر');
+            }
+
+            await Swal.fire({
+                title: 'تم التنفيذ',
+                text: result.message || 'تم إنجاح العملية وتوليد الإيصال.',
+                icon: result.sentToClient ? 'success' : 'warning',
+                confirmButtonText: 'حسنًا',
+                confirmButtonColor: '#16a34a'
+            });
+            window.location.reload();
+        } catch (error) {
+            Swal.fire('تعذر التنفيذ', error.message, 'error');
+            window.manualCompletionInProgress = false;
+            button.disabled = false;
+            button.innerHTML = oldHtml;
+        }
+    }
+
     let currentDepTxId = null;
     function showAcceptDepositModal(id) { 
         currentDepTxId = id; 
@@ -716,6 +761,7 @@
     };
 
     setInterval(() => {
+        if (window.manualCompletionInProgress) return;
         const isModalOpen = document.querySelector('.modal.show'); const isDropdownOpen = document.querySelector('.dropdown-menu.show'); 
         if (isModalOpen || isDropdownOpen) return;
         fetch(window.location.href).then(res => res.text()).then(htmlText => {

@@ -113,6 +113,13 @@ const clearCompletionMessages = async (tx, completionMsg) => {
     }
 };
 
+const manualCompletionResponse = (req, res, statusCode, payload) => {
+    if (req.xhr || (req.headers && req.headers.accept && req.headers.accept.includes('application/json'))) {
+        return res.status(statusCode).json(payload);
+    }
+    return res.redirect('/transactions');
+};
+
 
 
 router.get('/transactions', async (req, res) => {
@@ -433,13 +440,16 @@ router.post('/transaction/:id/emergency-alert', async (req, res) => {
 const manualCompleteWithReceipt = async (req, res) => {
     try {
         const tx = await Transaction.findById(req.params.id);
-        if (!tx || !['pending', 'processing', 'accepted', 'completed'].includes(tx.status)) {
-            return res.redirect('/transactions');
+        if (!tx) {
+            return manualCompletionResponse(req, res, 404, { success: false, error: 'العملية غير موجودة' });
+        }
+        if (!['pending', 'processing', 'accepted', 'completed'].includes(tx.status)) {
+            return manualCompletionResponse(req, res, 400, { success: false, error: 'هذه العملية لا يمكن إنجاحها من هذه الحالة' });
         }
 
         const wasCompleted = tx.status === 'completed';
         const adminName = req.session.adminName || 'الإدارة';
-        const referenceNumber = (req.body.referenceNumber || tx.customId || tx._id.toString()).toString().trim();
+        const referenceNumber = (((req.body && req.body.referenceNumber) || tx.customId || tx._id.toString())).toString().trim();
         const receiptResult = {
             success: true,
             reference_number: referenceNumber,
@@ -451,7 +461,7 @@ const manualCompleteWithReceipt = async (req, res) => {
         if (!localImagePath || !fullLocalPath || !fs.existsSync(fullLocalPath)) {
             tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[فشل الإنجاح اليدوي: تعذر توليد إيصال العملية بواسطة ${adminName}]`;
             await tx.save();
-            return res.redirect('/transactions');
+            return manualCompletionResponse(req, res, 500, { success: false, error: 'تعذر توليد إيصال العملية' });
         }
 
         let managerBotId = tx.managerBotId;
@@ -491,10 +501,17 @@ const manualCompleteWithReceipt = async (req, res) => {
             await tx.save();
         }
 
-        res.redirect('/transactions');
+        return manualCompletionResponse(req, res, 200, {
+            success: true,
+            message: delivery.sent ? 'تم إنجاح العملية وتوليد الإيصال وإرساله للعميل' : 'تم إنجاح العملية وتوليد الإيصال، لكن تعذر إرساله تلقائياً للعميل',
+            referenceNumber,
+            proofImage: localImagePath,
+            sentToClient: delivery.sent,
+            sentCount: delivery.count
+        });
     } catch (error) {
         console.error('[manual-complete-with-receipt] خطأ:', error.message);
-        res.redirect('/transactions');
+        return manualCompletionResponse(req, res, 500, { success: false, error: error.message });
     }
 };
 
