@@ -8,7 +8,7 @@ const ClientEmployee = require('../models/ClientEmployee');
 const Admin = require('../models/Admin');
 const Employee = require('../models/Employee');
 const { Telegram } = require('telegraf');
-const { executeTransferViaApi, generateCustomReceipt } = require('./externalApiService');
+const { executeTransferViaApi, generateCustomReceipt, getApiReferenceNumber } = require('./externalApiService');
 const { updateBalanceWithLedger } = require('./walletService');
 
 const updateExecutorLog = async (tx, newText, execAPI) => {
@@ -70,11 +70,9 @@ class ApiTransferQueue {
                 const admins = await Admin.find({});
 
                 if (apiResult.success === true) {
-                    let exactRefNumber = apiResult.external_transaction_id || '';
-                    if (apiResult.processLog) { const refMatch = apiResult.processLog.match(/"RefTransactionNumber"\s*:\s*"([^"]+)"/); if (refMatch && refMatch[1]) exactRefNumber = refMatch[1]; }
-                    const hasAsterisk = exactRefNumber.includes('*');
+                    const exactRefNumber = getApiReferenceNumber(apiResult);
 
-                    if (hasAsterisk) {
+                    if (exactRefNumber) {
                         tx.status = 'completed'; tx.executorName = 'تنفيذ آلي (API)';
                         tx.notes = prevNotes + `[نجاح آلي | المرجع: ${exactRefNumber}]` + detailedLog;
 

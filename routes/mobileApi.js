@@ -21,6 +21,7 @@ const { Telegram } = require('telegraf');
 const { authenticateJWT, JWT_SECRET, JWT_REFRESH_SECRET } = require('../middlewares/jwtAuth');
 const { logAction } = require('../services/auditService');
 const { getRateForTier } = require('../utils/rateHelper');
+const { getLocalProofPath } = require('../utils/proofImage');
 const { validationResult } = require('express-validator');
 const {
     loginValidator,
@@ -645,6 +646,10 @@ router.get('/transaction/image/:id', authenticateJWT, async (req, res) => {
 
         let photoId = tx.proofImages && tx.proofImages.length > 0 ? tx.proofImages[0] : tx.proofImage;
         if (!photoId) return res.status(404).json({ success: false, message: 'لا توجد صورة إثبات' });
+
+        if (getLocalProofPath(photoId)) {
+            return res.json({ success: true, url: `${req.protocol}://${req.get('host')}${photoId}` });
+        }
 
         let fileLink = null;
         let tokensToTry = [process.env.ADMIN_BOT_TOKEN, process.env.CLIENT_BOT_TOKEN];

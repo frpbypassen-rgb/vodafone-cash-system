@@ -1,7 +1,106 @@
 // services/externalApiService.js
 const axios = require('axios');
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const puppeteer = require('puppeteer');
+
+const isUsableReference = (value) => {
+    const ref = value ? value.toString().trim() : '';
+    return ref && ref !== '---' && ref !== 'غير متوفر';
+};
+
+const getApiReferenceNumber = (apiResult = {}) => {
+    const directRefs = [
+        apiResult.reference_number,
+        apiResult.sender_number,
+        apiResult.ref_transaction_number
+    ];
+
+    for (const ref of directRefs) {
+        if (isUsableReference(ref)) return ref.toString().trim();
+    }
+
+    if (apiResult.processLog) {
+        const refMatch = apiResult.processLog.match(/"(?:RefTransactionNumber|RefNumber)"\s*:\s*"([^"]+)"/);
+        if (refMatch && isUsableReference(refMatch[1])) return refMatch[1].trim();
+    }
+
+    if (isUsableReference(apiResult.external_transaction_id)) {
+        return apiResult.external_transaction_id.toString().trim();
+    }
+
+    return '';
+};
+
+const generateFallbackReceipt = (tx, apiResult) => {
+    try {
+        const { createCanvas } = require('canvas');
+        const canvas = createCanvas(900, 1300);
+        const ctx = canvas.getContext('2d');
+        const referenceNumber = getApiReferenceNumber(apiResult) || '---';
+        const targetNumber = tx.vodafoneNumber || tx.accountNumber || '---';
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-GB');
+        const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#111111';
+        ctx.textAlign = 'center';
+        ctx.direction = 'rtl';
+
+        const line = (y) => {
+            ctx.setLineDash([18, 14]);
+            ctx.beginPath();
+            ctx.moveTo(80, y);
+            ctx.lineTo(820, y);
+            ctx.strokeStyle = '#111111';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.setLineDash([]);
+        };
+
+        ctx.font = 'bold 62px Arial';
+        ctx.fillText('المحافظ الذكية', 450, 95);
+        line(145);
+
+        ctx.font = '38px Arial';
+        ctx.fillText('رقم العميل', 450, 215);
+        ctx.font = 'bold 68px Arial';
+        ctx.fillText(targetNumber, 450, 300);
+        line(355);
+
+        ctx.font = '42px Arial';
+        ctx.fillText(`القيمة: ${tx.amount} جنية`, 450, 430);
+        ctx.font = 'bold 70px Arial';
+        ctx.fillText('عملية ناجحة', 450, 540);
+
+        ctx.font = '42px Arial';
+        ctx.fillText('الرقم المرجعي', 450, 635);
+        ctx.direction = 'ltr';
+        ctx.font = 'bold 56px Arial';
+        ctx.fillText(referenceNumber, 450, 715);
+        ctx.direction = 'rtl';
+
+        ctx.font = '34px Arial';
+        ctx.fillText('الرقم المرجعي للاستدلال على العملية', 450, 790);
+        ctx.fillText(`التاريخ: ${dateStr} ${timeStr}`, 450, 870);
+        line(930);
+
+        ctx.font = '36px Arial';
+        ctx.fillText('التاجر: Zone Tech - 01108172258', 450, 1005);
+        line(1065);
+
+        ctx.font = '30px Arial';
+        ctx.fillText('في حالة بطئ الشبكات قد تستغرق العملية حتي 60 دقيقة', 450, 1150);
+        line(1210);
+
+        return canvas.toBuffer('image/jpeg', { quality: 0.95 });
+    } catch (error) {
+        return null;
+    }
+};
 
 // 🚀 دالة التخاطب مع شركة زين
 const executeTransferViaApi = async (tx, apiBot) => {
@@ -93,9 +192,9 @@ const executeTransferViaApi = async (tx, apiBot) => {
                 addLog("API_FULL_RESPONSE", prettyLog);
                 return { success: 'pending', external_transaction_id: extRef, message: 'قيد الانتظار', processLog: processLog.join('\n') };
             }
-            addLog("PAYMENT_SUCCESS", `اكتملت العملية بنجاح! رقم المرجع: ${extRef}`);
+            addLog("PAYMENT_SUCCESS", `اكتملت العملية بنجاح! رقم المرجع: ${refTxNum}`);
             addLog("API_FULL_RESPONSE", prettyLog);
-            return { success: true, external_transaction_id: extRef, message: paymentRes.data.Message || 'تم التحويل الآلي', sender_number: refTxNum, processLog: processLog.join('\n') };
+            return { success: true, external_transaction_id: extRef, reference_number: refTxNum, message: paymentRes.data.Message || 'تم التحويل الآلي', sender_number: refTxNum, processLog: processLog.join('\n') };
         } else {
             addLog("PAYMENT_FAIL", paymentRes.data.Message || "تم الرفض أثناء التنفيذ النهائي");
             addLog("API_FULL_RESPONSE", prettyLog);
@@ -117,15 +216,38 @@ const generateCustomReceipt = async (tx, apiResult) => {
         await page.setViewport({ width: 450, height: 800 }); 
         
         const now = new Date(); const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-'); const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const referenceNumber = getApiReferenceNumber(apiResult) || '---';
         
-        const htmlContent = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><style>@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');body { margin: 0; padding: 0; background: #fff; }#receipt-container { width: 450px; padding: 40px; background: white; color: black; font-family: 'Tajawal', sans-serif; text-align: center; box-sizing: border-box; display: inline-block; }.dashed-line { border-top: 2px dashed #000; margin: 20px 0; }h1 { font-size: 40px; font-weight: 500; margin: 0; }h2 { font-size: 32px; font-weight: 500; margin: 10px 0; }h3 { font-size: 44px; font-weight: 500; margin: 15px 0; }p { font-size: 24px; margin: 8px 0; font-weight: 400; }.success { font-size: 44px; font-weight: 500; margin: 25px 0; }.time-row { display: flex; justify-content: center; gap: 5px; font-size: 24px; direction: ltr; }</style></head><body><div id="receipt-container"><h1>المحافظ الذكية</h1><div class="dashed-line"></div><p>رقم العميل</p><h3>${tx.vodafoneNumber || tx.accountNumber}</h3><div class="dashed-line"></div><p>القيمة: ${tx.amount} جنية</p><div class="success">عملية ناجحة</div><p>المحول منه: ${apiResult.sender_number || '---'}</p><p>الرقم المحول منه للاستدلال فقط</p><p>لا يجوز التحويل له نهائيا</p><div class="time-row"><span>التاريخ:</span><span>${dateStr}</span><span>${timeStr}</span></div><div class="dashed-line"></div><p>التاجر: Zone Tech - 01108172258</p><div class="dashed-line"></div><p>في حالة بطئ الشبكات قد تستغرق العملية حتي 60 دقيقة</p><div class="dashed-line"></div></div></body></html>`;
+        const htmlContent = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><style>@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');body { margin: 0; padding: 0; background: #fff; }#receipt-container { width: 450px; padding: 40px; background: white; color: black; font-family: 'Tajawal', sans-serif; text-align: center; box-sizing: border-box; display: inline-block; }.dashed-line { border-top: 2px dashed #000; margin: 20px 0; }h1 { font-size: 40px; font-weight: 500; margin: 0; }h2 { font-size: 32px; font-weight: 500; margin: 10px 0; }h3 { font-size: 44px; font-weight: 500; margin: 15px 0; }p { font-size: 24px; margin: 8px 0; font-weight: 400; }.success { font-size: 44px; font-weight: 500; margin: 25px 0; }.ref { direction: ltr; font-size: 34px; font-weight: 700; word-break: break-word; }.time-row { display: flex; justify-content: center; gap: 5px; font-size: 24px; direction: ltr; }</style></head><body><div id="receipt-container"><h1>المحافظ الذكية</h1><div class="dashed-line"></div><p>رقم العميل</p><h3>${tx.vodafoneNumber || tx.accountNumber}</h3><div class="dashed-line"></div><p>القيمة: ${tx.amount} جنية</p><div class="success">عملية ناجحة</div><p>الرقم المرجعي</p><div class="ref">${referenceNumber}</div><p>الرقم المرجعي للاستدلال على العملية</p><div class="time-row"><span>التاريخ:</span><span>${dateStr}</span><span>${timeStr}</span></div><div class="dashed-line"></div><p>التاجر: Zone Tech - 01108172258</p><div class="dashed-line"></div><p>في حالة بطئ الشبكات قد تستغرق العملية حتي 60 دقيقة</p><div class="dashed-line"></div></div></body></html>`;
         
         await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 15000 });
         await page.evaluateHandle('document.fonts.ready');
         await new Promise(resolve => setTimeout(resolve, 500)); 
         const element = await page.$('#receipt-container');
         return await element.screenshot({ type: 'jpeg', quality: 100 });
-    } catch (error) { return null; } finally { if (browser) await browser.close(); }
+    } catch (error) { return generateFallbackReceipt(tx, apiResult); } finally { if (browser) await browser.close(); }
 };
 
-module.exports = { executeTransferViaApi, generateCustomReceipt };
+const generateAndAttachApiReceipt = async (tx, apiResult) => {
+    const referenceNumber = getApiReferenceNumber(apiResult);
+    if (!referenceNumber) return { referenceNumber: '', localImagePath: null, fullLocalPath: null };
+
+    const receiptBuffer = await generateCustomReceipt(tx, apiResult);
+    if (!receiptBuffer) return { referenceNumber, localImagePath: null, fullLocalPath: null };
+
+    const uploadDir = path.join(process.cwd(), 'uploads', 'proofs');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+    const fileName = `api_proof_${tx._id}_${Date.now()}.jpg`;
+    const fullLocalPath = path.join(uploadDir, fileName);
+    fs.writeFileSync(fullLocalPath, receiptBuffer);
+
+    const localImagePath = `/uploads/proofs/${fileName}`;
+    tx.proofImage = localImagePath;
+    tx.proofImages = [localImagePath];
+    tx.set('localProofImage', localImagePath, { strict: false });
+
+    return { referenceNumber, localImagePath, fullLocalPath };
+};
+
+module.exports = { executeTransferViaApi, generateCustomReceipt, generateAndAttachApiReceipt, getApiReferenceNumber };

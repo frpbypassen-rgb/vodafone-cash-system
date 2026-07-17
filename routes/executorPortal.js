@@ -15,6 +15,7 @@ const ClientEmployee = require('../models/ClientEmployee');
 const Admin = require('../models/Admin');
 const SupportTicket = require('../models/SupportTicket');
 const { escapeRegex, verifyAndUpgradePassword, getTodayString } = require('../utils/helpers');
+const { sendLocalProofIfExists } = require('../utils/proofImage');
 
 const requireExecutorAuth = (req, res, next) => {
     if (req.session.isExecutorLoggedIn && req.session.executorId) return next();
@@ -207,6 +208,8 @@ router.get(['/proxy/image/:id', '/proxy/image/:id/:index'], requireExecutorAuth,
         if (tx.proofImages && tx.proofImages.length > index) { photoId = tx.proofImages[index]; }
         else if (tx.proofImage && index === 0) { photoId = tx.proofImage; }
         if (!photoId) return res.status(404).send('No photo');
+
+        if (sendLocalProofIfExists(res, photoId)) return;
 
         let tokensToTry = [process.env.ADMIN_BOT_TOKEN, process.env.CLIENT_BOT_TOKEN];
         if (tx.executorBotId) { const execBot = await ExecutorBot.findById(tx.executorBotId); if (execBot && execBot.token) tokensToTry.push(execBot.token); }

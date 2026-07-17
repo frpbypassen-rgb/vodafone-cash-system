@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const https = require('https');
+const fs = require('fs');
 const { Telegram } = require('telegraf');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
@@ -19,7 +20,7 @@ const { syncBotBalance } = require('../utils/helpers');
 const { escapeRegex } = require('../middlewares/sanitize');
 
 // 🚀 استدعاء محرك الـ API 
-const { executeTransferViaApi } = require('../services/externalApiService');
+const { executeTransferViaApi, generateAndAttachApiReceipt, getApiReferenceNumber } = require('../services/externalApiService');
 
 router.use(requireAuth);
 
@@ -144,11 +145,14 @@ router.post('/transaction/:id/assign-executor', async (req, res) => {
                 // التخاطب مع سيرفر الشركة الخارجية
                 const apiResult = await executeTransferViaApi(tx, executorBot);
 
-                if (apiResult.success) {
+                const apiReferenceNumber = getApiReferenceNumber(apiResult);
+
+                if (apiResult.success === true && apiReferenceNumber) {
                     // 1. إكمال العملية بنجاح
                     tx.status = 'completed';
                     tx.executorName = 'تنفيذ آلي (API)';
-                    tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[مرجع الشركة الآلي: ${apiResult.external_transaction_id}]`;
+                    tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[مرجع الشركة الآلي: ${apiReferenceNumber}]`;
+                    const { fullLocalPath } = await generateAndAttachApiReceipt(tx, apiResult);
                     await tx.save();
 
                     executorBot.balance -= tx.amount;
@@ -161,7 +165,11 @@ router.post('/transaction/:id/assign-executor', async (req, res) => {
                         const comp = await ClientBot.findById(tx.clientBotId);
                         if (comp) clientAPI = new Telegram(comp.token);
                     }
-                    await clientAPI.sendMessage(tx.userId, clientMsg, { parse_mode: 'HTML' }).catch(()=>{});
+                    if (fullLocalPath && fs.existsSync(fullLocalPath)) {
+                        await clientAPI.sendPhoto(tx.userId, { source: fs.createReadStream(fullLocalPath) }, { caption: clientMsg, parse_mode: 'HTML' }).catch(()=>{});
+                    } else {
+                        await clientAPI.sendMessage(tx.userId, clientMsg, { parse_mode: 'HTML' }).catch(()=>{});
+                    }
 
                     // 3. 🟢 إرسال Log النجاح لـ "بوت المراقبة البشري" (إن وجد)
                     if (executorBot.parentBotId) {
@@ -170,7 +178,7 @@ router.post('/transaction/:id/assign-executor', async (req, res) => {
                             if (monitorBot && monitorBot.token) {
                                 const monitorAPI = new Telegram(monitorBot.token);
                                 const monitorStaff = await Employee.find({ botId: monitorBot._id, status: 'active' });
-                                const monitorMsg = `🟢 <b>سجل API (عملية ناجحة)</b>\n\n🤖 <b>عبر:</b> ${executorBot.name}\n🧾 <b>الطلب:</b> <code>${tx.customId}</code>\n📞 <b>الرقم:</b> <code>${tx.vodafoneNumber}</code>\n💵 <b>المبلغ:</b> ${tx.amount} EGP\n📝 <b>المرجع:</b> <code>${apiResult.external_transaction_id}</code>`;
+                                const monitorMsg = `🟢 <b>سجل API (عملية ناجحة)</b>\n\n🤖 <b>عبر:</b> ${executorBot.name}\n🧾 <b>الطلب:</b> <code>${tx.customId}</code>\n📞 <b>الرقم:</b> <code>${tx.vodafoneNumber}</code>\n💵 <b>المبلغ:</b> ${tx.amount} EGP\n📝 <b>المرجع:</b> <code>${apiReferenceNumber}</code>`;
                                 for (const staff of monitorStaff) {
                                     if(staff.telegramId) await monitorAPI.sendMessage(staff.telegramId, monitorMsg, { parse_mode: 'HTML' }).catch(()=>{});
                                 }

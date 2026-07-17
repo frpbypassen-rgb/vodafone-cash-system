@@ -137,17 +137,23 @@ const startAdminBot = require('./bots/admin/index');
 const { startAllClientBots } = require('./bots/client/manager');
 const { startAllExecutorBots } = require('./bots/executor/manager');
 let sessionStore;
-try {
-    const { default: MongoStore } = require('connect-mongo');
-    sessionStore = MongoStore.create({ 
-        mongoUrl: process.env.MONGO_URI, 
-        ttl: 24 * 60 * 60,
-        autoRemove: 'native'
-    });
-    console.log('✅ Session Store: MongoDB (connect-mongo)');
-} catch (error) {
-    console.warn("⚠️ تحذير: تعذر تحميل connect-mongo — استخدام MemoryStore.");
+const sessionMongoUri = process.env.MONGO_URI;
+if (!sessionMongoUri || sessionMongoUri === 'demo' || sessionMongoUri === 'DEMO') {
+    console.warn("Session Store: MemoryStore (development/demo mode).");
     sessionStore = new session.MemoryStore();
+} else {
+    try {
+        const { default: MongoStore } = require('connect-mongo');
+        sessionStore = MongoStore.create({
+            mongoUrl: sessionMongoUri,
+            ttl: 24 * 60 * 60,
+            autoRemove: 'native'
+        });
+        console.log('✅ Session Store: MongoDB (connect-mongo)');
+    } catch (error) {
+        console.warn("⚠️ تحذير: تعذر تحميل connect-mongo — استخدام MemoryStore.");
+        sessionStore = new session.MemoryStore();
+    }
 }
 
 app.use(session({
@@ -166,6 +172,21 @@ app.use((req, res, next) => {
 });
 
 const { syncBotBalance } = require('./services/balanceService');
+
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString(), version: '2.0.0' });
+});
+
+app.get('/health/ready', async (req, res) => {
+    try {
+        const dbState = require('mongoose').connection.readyState;
+        const dbStatus = dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected';
+        res.json({ status: dbState === 1 ? 'ok' : 'degraded', db: dbStatus, uptime: process.uptime() });
+    } catch (e) {
+        res.status(503).json({ status: 'error', db: 'unreachable' });
+    }
+});
 
 // ==========================================
 // 🔗 ربط المسارات المنفصلة
@@ -200,22 +221,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     customSiteTitle: 'Al-Ahram Pay API Docs'
 }));
 
-// 📊 Prometheus Metrics Endpoint
 app.get('/metrics', metricsEndpoint);
 
-// 🏥 Health Check Endpoints
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString(), version: '2.0.0' });
-});
-app.get('/health/ready', async (req, res) => {
-    try {
-        const dbState = require('mongoose').connection.readyState;
-        const dbStatus = dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected';
-        res.json({ status: dbState === 1 ? 'ok' : 'degraded', db: dbStatus, uptime: process.uptime() });
-    } catch (e) {
-        res.status(503).json({ status: 'error', db: 'unreachable' });
-    }
-});
 
 app.use(notFoundHandler);
 app.use(errorHandler);
@@ -225,11 +232,15 @@ connectDB().then(() => {
     server.listen(PORT, () => {
         logger.info(`🟢 Al-Ahram Pay v2.0 running on port ${PORT}`, { port: PORT, env: process.env.NODE_ENV || 'development' });
         console.log(`🟢 السيرفر يعمل بقوة الزمن الفعلي والحماية الشاملة على البورت ${PORT}`);
-        try {
-            startAdminBot();
-            startAllClientBots();
-            startAllExecutorBots();
-        } catch (e) { console.error('⚠️ خطأ أثناء تشغيل البوتات:', e.message); }
+        if (process.env.START_BOTS === 'false') {
+            console.log('[Bots] Startup skipped by START_BOTS=false');
+        } else {
+            try {
+                startAdminBot();
+                startAllClientBots();
+                startAllExecutorBots();
+            } catch (e) { console.error('⚠️ خطأ أثناء تشغيل البوتات:', e.message); }
+        }
 
         // تسجيل بدء تشغيل النظام في Audit Log
         const { logAction } = require('./services/auditService');

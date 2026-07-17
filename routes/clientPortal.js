@@ -7,6 +7,7 @@ const { Telegram } = require('telegraf');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { verifyAndUpgradePassword, escapeRegex, getTodayString } = require('../utils/helpers');
+const { sendLocalProofIfExists } = require('../utils/proofImage');
 
 const User = require('../models/User');
 const ClientEmployee = require('../models/ClientEmployee');
@@ -17,6 +18,8 @@ const Admin = require('../models/Admin');
 const ExecutorBot = require('../models/ExecutorBot');
 const SupportTicket = require('../models/SupportTicket'); 
 const Card = require('../models/Card');
+const StoreCategory = require('../models/StoreCategory');
+const StoreProduct = require('../models/StoreProduct');
 
 const SubAccount = require('../models/SubAccount');
 const Counter = require('../models/Counter'); 
@@ -593,6 +596,8 @@ router.get(['/proxy/image/:id', '/proxy/image/:id/:index'], requireClientAuth, a
         }
 
         if (!photoId) return res.status(404).send('لا توجد صورة إثبات');
+
+        if (sendLocalProofIfExists(res, photoId)) return;
 
         let tokensToTry = [process.env.ADMIN_BOT_TOKEN, process.env.CLIENT_BOT_TOKEN];
 
