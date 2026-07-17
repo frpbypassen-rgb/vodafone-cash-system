@@ -430,7 +430,7 @@ router.post('/transaction/:id/emergency-alert', async (req, res) => {
     } catch (error) { res.redirect('/transactions'); }
 });
 
-router.post('/transaction/:id/manual-complete-with-receipt', async (req, res) => {
+const manualCompleteWithReceipt = async (req, res) => {
     try {
         const tx = await Transaction.findById(req.params.id);
         if (!tx || !['pending', 'processing', 'accepted', 'completed'].includes(tx.status)) {
@@ -496,7 +496,10 @@ router.post('/transaction/:id/manual-complete-with-receipt', async (req, res) =>
         console.error('[manual-complete-with-receipt] خطأ:', error.message);
         res.redirect('/transactions');
     }
-});
+};
+
+router.all('/transaction/:id/manual-complete-with-receipt', manualCompleteWithReceipt);
+router.all('/transactions/:id/manual-complete-with-receipt', manualCompleteWithReceipt);
 
 router.post('/transaction/:id/accept-deposit-web', async (req, res) => {
     try {
