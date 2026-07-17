@@ -24,6 +24,95 @@ const { executeTransferViaApi, generateAndAttachApiReceipt, getApiReferenceNumbe
 
 router.use(requireAuth);
 
+const getTransferTypeLabel = (tx) => {
+    if (tx.transferType === 'post_account') return 'حساب بريد';
+    if (tx.transferType === 'post_card') return 'بطاقة عميل';
+    return 'تحويل كاش';
+};
+
+const getClientTelegram = async (tx) => {
+    let token = process.env.CLIENT_BOT_TOKEN;
+    if (tx.clientBotId) {
+        const company = await ClientBot.findById(tx.clientBotId);
+        if (company && company.token) token = company.token;
+    }
+    return token ? new Telegram(token) : null;
+};
+
+const sendReceiptImageToClient = async (tx, fullLocalPath, referenceNumber) => {
+    if (!fullLocalPath || !fs.existsSync(fullLocalPath)) return { sent: false, count: 0 };
+
+    const clientAPI = await getClientTelegram(tx);
+    if (!clientAPI) return { sent: false, count: 0 };
+
+    const targetNumber = tx.vodafoneNumber || tx.accountNumber || '---';
+    const costText = Number(tx.costLYD || 0).toFixed(2);
+    const caption = `✅ <b>تم تنفيذ طلبك بنجاح! (${getTransferTypeLabel(tx)})</b>\n\n` +
+        `🧾 <b>رقم الطلب:</b> <code>${tx.customId || tx._id}</code>\n` +
+        `📞 <b>الرقم/الحساب:</b> <code>${targetNumber}</code>\n` +
+        `💵 <b>المبلغ:</b> ${tx.amount} EGP\n` +
+        `💸 <b>التكلفة:</b> ${costText} LYD\n` +
+        `🔢 <b>المرجع:</b> <code>${referenceNumber}</code>\n\n` +
+        `👇 <b>إيصال التنفيذ:</b>`;
+
+    const recipients = [];
+    if (tx.userId) recipients.push(tx.userId);
+
+    if (tx.clientBotId) {
+        const employees = await ClientEmployee.find({
+            clientBotId: tx.clientBotId,
+            status: 'active',
+            telegramId: { $exists: true, $ne: tx.userId }
+        });
+        employees.forEach(emp => {
+            if (emp.telegramId) recipients.push(emp.telegramId);
+        });
+    }
+
+    let sentCount = 0;
+    for (const telegramId of [...new Set(recipients)]) {
+        try {
+            await clientAPI.sendPhoto(telegramId, { source: fs.createReadStream(fullLocalPath) }, { caption, parse_mode: 'HTML' });
+            sentCount++;
+        } catch (e) {}
+    }
+
+    return { sent: sentCount > 0, count: sentCount };
+};
+
+const clearCompletionMessages = async (tx, completionMsg) => {
+    if (tx.broadcastMessages && tx.broadcastMessages.length > 0 && tx.executorBotId) {
+        try {
+            const execBot = await ExecutorBot.findById(tx.executorBotId);
+            if (execBot && execBot.token) {
+                const execAPI = new Telegram(execBot.token);
+                for (const msg of tx.broadcastMessages) {
+                    try {
+                        await execAPI.callApi('editMessageText', { chat_id: msg.telegramId, message_id: msg.messageId, text: completionMsg, parse_mode: 'HTML', reply_markup: { inline_keyboard: [] } });
+                    } catch (e) {
+                        try { await execAPI.callApi('editMessageCaption', { chat_id: msg.telegramId, message_id: msg.messageId, caption: completionMsg, parse_mode: 'HTML', reply_markup: { inline_keyboard: [] } }); } catch (err) {}
+                    }
+                }
+            }
+        } catch (e) {}
+        tx.broadcastMessages = [];
+    }
+
+    if (tx.adminMessages && tx.adminMessages.length > 0) {
+        try {
+            const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
+            for (const msg of tx.adminMessages) {
+                try {
+                    await adminAPI.callApi('editMessageText', { chat_id: msg.telegramId, message_id: msg.messageId, text: completionMsg, parse_mode: 'HTML', reply_markup: { inline_keyboard: [] } });
+                } catch (e) {
+                    try { await adminAPI.callApi('editMessageCaption', { chat_id: msg.telegramId, message_id: msg.messageId, caption: completionMsg, parse_mode: 'HTML', reply_markup: { inline_keyboard: [] } }); } catch (err) {}
+                }
+            }
+        } catch (e) {}
+        tx.adminMessages = [];
+    }
+};
+
 
 
 router.get('/transactions', async (req, res) => {
@@ -339,6 +428,74 @@ router.post('/transaction/:id/emergency-alert', async (req, res) => {
         }
         res.redirect('/transactions');
     } catch (error) { res.redirect('/transactions'); }
+});
+
+router.post('/transaction/:id/manual-complete-with-receipt', async (req, res) => {
+    try {
+        const tx = await Transaction.findById(req.params.id);
+        if (!tx || !['pending', 'processing', 'accepted', 'completed'].includes(tx.status)) {
+            return res.redirect('/transactions');
+        }
+
+        const wasCompleted = tx.status === 'completed';
+        const adminName = req.session.adminName || 'الإدارة';
+        const referenceNumber = (req.body.referenceNumber || tx.customId || tx._id.toString()).toString().trim();
+        const receiptResult = {
+            success: true,
+            reference_number: referenceNumber,
+            message: 'تم الإنجاح اليدوي من الإدارة',
+            processLog: `[ADMIN_MANUAL_SUCCESS] reference=${referenceNumber}`
+        };
+
+        const { fullLocalPath, localImagePath } = await generateAndAttachApiReceipt(tx, receiptResult);
+        if (!localImagePath || !fullLocalPath || !fs.existsSync(fullLocalPath)) {
+            tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[فشل الإنجاح اليدوي: تعذر توليد إيصال العملية بواسطة ${adminName}]`;
+            await tx.save();
+            return res.redirect('/transactions');
+        }
+
+        let managerBotId = tx.managerBotId;
+        if (tx.executorBotId && !managerBotId) {
+            const executorBot = await ExecutorBot.findById(tx.executorBotId);
+            if (executorBot && executorBot.parentBotId) {
+                managerBotId = executorBot.parentBotId;
+                tx.managerBotId = managerBotId;
+            }
+        }
+
+        tx.status = 'completed';
+        tx.executorName = tx.executorName && tx.executorName !== '---' ? tx.executorName : `الإدارة (${adminName})`;
+        tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[تم الإنجاح من موقع الإدارة بواسطة ${adminName} | المرجع: ${referenceNumber}]`;
+        tx.set('manualCompletionReference', referenceNumber, { strict: false });
+        tx.set('manualCompletedBy', adminName, { strict: false });
+        tx.updatedAt = new Date();
+
+        const completionMsg = `✅ <b>تم إنجاح العملية من موقع الإدارة</b>\n\n` +
+            `🧾 <b>الطلب:</b> <code>${tx.customId || tx._id}</code>\n` +
+            `📞 <b>الرقم/الحساب:</b> <code>${tx.vodafoneNumber || tx.accountNumber || '---'}</code>\n` +
+            `💵 <b>المبلغ:</b> ${tx.amount} EGP\n` +
+            `🔢 <b>المرجع:</b> <code>${referenceNumber}</code>\n` +
+            `👤 <b>بواسطة:</b> ${adminName}`;
+        await clearCompletionMessages(tx, completionMsg);
+
+        await tx.save();
+
+        if (!wasCompleted) {
+            if (tx.executorBotId) await syncBotBalance(tx.executorBotId);
+            if (managerBotId) await syncBotBalance(managerBotId);
+        }
+
+        const delivery = await sendReceiptImageToClient(tx, fullLocalPath, referenceNumber);
+        if (!delivery.sent) {
+            tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[تم توليد الإيصال محلياً لكن تعذر إرساله تلقائياً للعميل]`;
+            await tx.save();
+        }
+
+        res.redirect('/transactions');
+    } catch (error) {
+        console.error('[manual-complete-with-receipt] خطأ:', error.message);
+        res.redirect('/transactions');
+    }
 });
 
 router.post('/transaction/:id/accept-deposit-web', async (req, res) => {

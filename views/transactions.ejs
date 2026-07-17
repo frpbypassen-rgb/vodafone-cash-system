@@ -28,6 +28,8 @@
         .btn-action-sm.edit:hover { background: var(--brand-gold); color: black; border-color: var(--brand-gold); }
         .btn-action-sm.send:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
         .btn-action-sm.del:hover { background: #ef4444; color: white; border-color: #ef4444; }
+        .btn-action-sm.manual-success { color: #16a34a; background: rgba(22, 163, 74, 0.1); border-color: rgba(22, 163, 74, 0.25); }
+        .btn-action-sm.manual-success:hover { background: #16a34a; color: white; border-color: #16a34a; }
         
         /* 🟢 تنسيق زر الـ API الجديد */
         .btn-action-sm.api-log { color: #10b981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);}
@@ -284,6 +286,12 @@
                                              
                                             <% if (tx.notes && tx.notes.includes('--- سجل الـ API')) { %>
                                                 <button class="btn-action-sm api-log" data-log="<%= encodeURIComponent(tx.notes) %>" onclick="showApiLog(this)" title="سجل Terminal للـ API"><i class="fa-solid fa-terminal"></i></button>
+                                            <% } %>
+
+                                            <% if (['pending', 'processing', 'accepted'].includes(tx.status)) { %>
+                                                <form action="/transaction/<%= tx._id %>/manual-complete-with-receipt" method="POST" class="m-0" onsubmit="return confirm('تأكيد إنجاح العملية وتوليد إيصال وإرساله للعميل؟')">
+                                                    <button type="submit" class="btn-action-sm manual-success" title="إنجاح العملية وتوليد إيصال"><i class="fa-solid fa-circle-check"></i></button>
+                                                </form>
                                             <% } %>
 
                                             <% if (tx.status === 'completed' && (tx.proofImage || (tx.proofImages && tx.proofImages.length > 0))) { %>
