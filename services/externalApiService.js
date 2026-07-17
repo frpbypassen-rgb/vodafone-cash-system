@@ -7,7 +7,48 @@ const puppeteer = require('puppeteer');
 
 const isUsableReference = (value) => {
     const ref = value ? value.toString().trim() : '';
-    return ref && ref !== '---' && ref !== 'غير متوفر';
+    return ref && !['---', 'null', 'undefined', 'n/a', 'not available', 'غير متوفر'].includes(ref.toLowerCase());
+};
+
+const isReferenceKey = (key = '') => {
+    const normalized = key.toString().replace(/[^a-z0-9]/gi, '').toLowerCase();
+    return [
+        'reftransactionnumber',
+        'reftransactionno',
+        'refnumber',
+        'refno',
+        'referencenumber',
+        'referenceno',
+        'referencenum',
+        'reference'
+    ].includes(normalized);
+};
+
+const findNestedReference = (value, seen = new Set()) => {
+    if (!value || typeof value !== 'object') return '';
+    if (seen.has(value)) return '';
+    seen.add(value);
+
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            const nestedRef = findNestedReference(item, seen);
+            if (nestedRef) return nestedRef;
+        }
+        return '';
+    }
+
+    for (const [key, nestedValue] of Object.entries(value)) {
+        if (isReferenceKey(key) && isUsableReference(nestedValue)) {
+            return nestedValue.toString().trim();
+        }
+    }
+
+    for (const nestedValue of Object.values(value)) {
+        const nestedRef = findNestedReference(nestedValue, seen);
+        if (nestedRef) return nestedRef;
+    }
+
+    return '';
 };
 
 const getApiReferenceNumber = (apiResult = {}) => {
@@ -21,13 +62,18 @@ const getApiReferenceNumber = (apiResult = {}) => {
         if (isUsableReference(ref)) return ref.toString().trim();
     }
 
-    if (apiResult.processLog) {
-        const refMatch = apiResult.processLog.match(/"(?:RefTransactionNumber|RefNumber)"\s*:\s*"([^"]+)"/);
-        if (refMatch && isUsableReference(refMatch[1])) return refMatch[1].trim();
-    }
+    const nestedRef = findNestedReference(apiResult);
+    if (nestedRef) return nestedRef;
 
-    if (isUsableReference(apiResult.external_transaction_id)) {
-        return apiResult.external_transaction_id.toString().trim();
+    if (apiResult.processLog) {
+        const refPatterns = [
+            /"(?:RefTransactionNumber|RefNumber|reference_number|ref_transaction_number)"\s*:\s*"?([^",\n\r}]+)"?/i,
+            /(?:الرقم المرجعي|رقم المرجع)\s*[:：]\s*([^\n\r]+)/u
+        ];
+        for (const pattern of refPatterns) {
+            const refMatch = apiResult.processLog.match(pattern);
+            if (refMatch && isUsableReference(refMatch[1])) return refMatch[1].trim();
+        }
     }
 
     return '';
@@ -170,7 +216,14 @@ const executeTransferViaApi = async (tx, apiBot) => {
         const pd = paymentRes.data.Data || {};
         const print = pd.PrintBill || {};
         const extRef = pd.TransactionNumber ? pd.TransactionNumber.toString() : '---';
-        const refTxNum = pd.RefTransactionNumber || print.RefTransactionNumber || print.RefNumber || '';
+        const refTxNum = getApiReferenceNumber({
+            reference_number: pd.RefTransactionNumber || print.RefTransactionNumber || print.RefNumber,
+            Data: pd,
+            raw_response: paymentRes.data
+        });
+        const statusText = `${pd.Status || ''} ${paymentRes.data.Message || ''}`;
+        const hasSuccessfulStatus = paymentRes.data.Code === 200 || /success|successful|completed|ناجح/i.test(statusText);
+        const hasPaymentIdentity = !!(paymentRes.data.Data && (pd.TransactionNumber || refTxNum));
 
         const prettyLog = `
 =========================================
@@ -186,15 +239,15 @@ const executeTransferViaApi = async (tx, apiBot) => {
 =========================================
 [ الاستجابة البرمجية الخام - Raw JSON ]\n${JSON.stringify(paymentRes.data, null, 2)}`;
 
-        if (paymentRes.data.Code === 200 && paymentRes.data.Data && paymentRes.data.Data.TransactionNumber) {
+        if (hasSuccessfulStatus && hasPaymentIdentity) {
             if (!refTxNum || refTxNum.trim() === '') {
                 addLog("PAYMENT_PENDING", `تم إرسال الدفعة ولكن لم يتم استلام المرجع من الشبكة.`);
                 addLog("API_FULL_RESPONSE", prettyLog);
-                return { success: 'pending', external_transaction_id: extRef, message: 'قيد الانتظار', processLog: processLog.join('\n') };
+                return { success: 'pending', external_transaction_id: extRef, message: 'قيد الانتظار', raw_response: paymentRes.data, processLog: processLog.join('\n') };
             }
             addLog("PAYMENT_SUCCESS", `اكتملت العملية بنجاح! رقم المرجع: ${refTxNum}`);
             addLog("API_FULL_RESPONSE", prettyLog);
-            return { success: true, external_transaction_id: extRef, reference_number: refTxNum, message: paymentRes.data.Message || 'تم التحويل الآلي', sender_number: refTxNum, processLog: processLog.join('\n') };
+            return { success: true, external_transaction_id: extRef, reference_number: refTxNum, message: paymentRes.data.Message || 'تم التحويل الآلي', sender_number: refTxNum, raw_response: paymentRes.data, processLog: processLog.join('\n') };
         } else {
             addLog("PAYMENT_FAIL", paymentRes.data.Message || "تم الرفض أثناء التنفيذ النهائي");
             addLog("API_FULL_RESPONSE", prettyLog);

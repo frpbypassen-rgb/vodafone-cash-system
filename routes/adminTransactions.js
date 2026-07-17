@@ -147,7 +147,7 @@ router.post('/transaction/:id/assign-executor', async (req, res) => {
 
                 const apiReferenceNumber = getApiReferenceNumber(apiResult);
 
-                if (apiResult.success === true && apiReferenceNumber) {
+                if (apiReferenceNumber) {
                     // 1. إكمال العملية بنجاح
                     tx.status = 'completed';
                     tx.executorName = 'تنفيذ آلي (API)';

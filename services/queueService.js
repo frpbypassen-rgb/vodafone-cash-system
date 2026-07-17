@@ -66,13 +66,11 @@ class ApiTransferQueue {
                 let prevNotes = tx.notes ? tx.notes + '\n\n' : '';
                 let detailedLog = `\n--- سجل الـ API ---\n${apiResult.processLog}`;
 
+                const exactRefNumber = getApiReferenceNumber(apiResult);
                 const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
                 const admins = await Admin.find({});
 
-                if (apiResult.success === true) {
-                    const exactRefNumber = getApiReferenceNumber(apiResult);
-
-                    if (exactRefNumber) {
+                if (exactRefNumber) {
                         tx.status = 'completed'; tx.executorName = 'تنفيذ آلي (API)';
                         tx.notes = prevNotes + `[نجاح آلي | المرجع: ${exactRefNumber}]` + detailedLog;
 
@@ -161,7 +159,7 @@ class ApiTransferQueue {
                                 }
                             } catch(err) { }
                         }
-                    } else {
+                } else if (apiResult.success === true) {
                         tx.status = 'pending'; tx.executorBotId = executorBot._id; tx.executorName = 'في انتظار تحديث (API)';
                         tx.notes = prevNotes + `[في الانتظار - بانتظار رقم مرجعي مشفر من الـ API | المرجع الحالي: ${exactRefNumber}]` + detailedLog;
                         tx.set('isApiReview', undefined, { strict: false }); tx.set('apiResultData', undefined, { strict: false }); tx.set('originalApiBotId', undefined, { strict: false });
@@ -169,7 +167,6 @@ class ApiTransferQueue {
 
                         if (execAPI) await updateExecutorLog(tx, `🟠 <b>سجل API (معلق بانتظار تحديث)</b>\n\n🤖 البوت: ${executorBot.name}\n🧾 الطلب: <code>${tx.customId}</code>\n📞 الرقم: <code>${tx.vodafoneNumber || tx.accountNumber}</code>\n💵 المبلغ: ${tx.amount} EGP\n🔢 المرجع (مكشوف): <code>${exactRefNumber}</code>\n⚠️ العملية قيد الانتظار التلقائي لحين وصول الرد النهائي المشفر لإكمالها.`, execAPI);
                         for (const admin of admins) { if (admin.telegramId) adminAPI.sendMessage(admin.telegramId, `⏳ <b>عملية قيد الانتظار التلقائي (API)</b>\nالطلب <code>${tx.customId}</code> برقم مرجعي مكشوف، وينتظر وصول الرد النهائي لإكماله.`, { parse_mode: 'HTML' }).catch(()=>{}); }
-                    }
                 } else if (apiResult.success === 'pending') {
                     tx.status = 'pending'; tx.notes = prevNotes + `[العملية معلقة بانتظار شبكة المحمول | المرجع: ${apiResult.external_transaction_id}]` + detailedLog;
                     tx.executorBotId = executorBot._id; tx.executorBotName = executorBot.name; await tx.save();
