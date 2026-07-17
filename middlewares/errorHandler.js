@@ -29,6 +29,9 @@ const errorHandler = (err, req, res, next) => {
 
 // معالج الصفحات غير الموجودة (404)
 const notFoundHandler = (req, res, next) => {
+    if (req.xhr || (req.headers && req.headers.accept && req.headers.accept.includes('application/json'))) {
+        return res.status(404).json({ success: false, error: 'المسار غير موجود على السيرفر. تأكد أن آخر تحديث تم سحبه وتشغيله.' });
+    }
     res.status(404).send('الصفحة أو المسار غير موجود (404)');
 };
 

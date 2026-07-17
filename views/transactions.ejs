@@ -707,15 +707,30 @@
         try {
             const response = await fetch('/transaction/' + txId + '/manual-complete-with-receipt', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
-                }
+                },
+                body: JSON.stringify({})
             });
 
-            const result = await response.json().catch(() => null);
+            const contentType = response.headers.get('content-type') || '';
+            const rawText = await response.text();
+            let result = null;
+            if (contentType.includes('application/json')) {
+                try { result = rawText ? JSON.parse(rawText) : null; } catch (e) { result = null; }
+            }
+
+            if (response.redirected || (rawText && rawText.includes('/login'))) {
+                throw new Error('انتهت جلسة الإدارة. سجل الدخول مرة أخرى ثم أعد المحاولة.');
+            }
+
             if (!response.ok || !result || !result.success) {
-                throw new Error((result && result.error) || 'تعذر تنفيذ الطلب من السيرفر');
+                const serverMessage = result && (result.error || result.message);
+                const textMessage = rawText && rawText.length < 200 ? rawText : '';
+                throw new Error(serverMessage || textMessage || `تعذر تنفيذ الطلب من السيرفر (HTTP ${response.status})`);
             }
 
             await Swal.fire({
