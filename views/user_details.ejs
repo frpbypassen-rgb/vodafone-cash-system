@@ -81,6 +81,71 @@
 
         /* توحيد الارتفاعات */
         .unified-height { min-height: 42px; display: flex; align-items: center; }
+
+        @media (max-width: 991.98px) {
+            .client-detail-title {
+                align-items: stretch !important;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .client-detail-title h3 {
+                font-size: 1.05rem;
+                line-height: 1.45;
+            }
+            .client-detail-title .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .glass-card {
+                border-radius: 16px;
+                padding: 16px;
+            }
+            .info-box {
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .statement-card {
+                background: var(--glass-bg);
+                border: 1px solid var(--glass-border);
+                border-radius: 16px;
+                padding: 14px;
+                box-shadow: var(--shadow-3d);
+                overflow: hidden;
+            }
+            .statement-card + .statement-card {
+                margin-top: 12px;
+            }
+            .statement-head,
+            .statement-row {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 10px;
+                align-items: center;
+            }
+            .statement-row {
+                padding-top: 10px;
+                margin-top: 10px;
+                border-top: 1px dashed var(--glass-border);
+            }
+            .statement-label {
+                display: block;
+                color: var(--text-muted);
+                font-size: 0.72rem;
+                font-weight: 800;
+            }
+            .statement-value {
+                display: block;
+                color: var(--text-main);
+                font-size: 0.88rem;
+                font-weight: 900;
+                overflow-wrap: anywhere;
+            }
+            .statement-note {
+                color: var(--text-muted);
+                font-size: 0.82rem;
+                line-height: 1.6;
+            }
+        }
     </style>
 
     <!-- PWA Setup -->
@@ -97,7 +162,7 @@
 
 <div class="main-content">
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 client-detail-title">
             <h3 class="fw-bold m-0" style="color: var(--text-main);"><i class="fa-solid fa-user-circle text-primary me-2"></i> بيانات العميل الفردي</h3>
             <a href="/clients" class="btn btn-secondary fw-bold rounded-pill shadow-sm px-4 btn-3d-hover"><i class="fa-solid fa-arrow-right me-2"></i> عودة للقائمة</a>
         </div>
@@ -234,7 +299,7 @@
 
         <h5 class="fw-bold mb-3" style="color: var(--text-main);"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> آخر 50 عملية للعميل</h5>
         <div class="glass-card p-0 overflow-hidden">
-            <div class="table-responsive m-0 border-0">
+            <div class="table-responsive m-0 border-0 d-none d-lg-block">
                 <table class="table text-center align-middle m-0 table-hover">
                     <thead class="table-light">
                         <tr><th>الرقم</th><th>المبلغ (EGP)</th><th>التكلفة (LYD)</th><th>البيان / الحساب</th><th>الملاحظة</th><th>الوقت</th><th>الحالة</th></tr>
@@ -262,6 +327,58 @@
                         <% }) %>
                     </tbody>
                 </table>
+            </div>
+            <div class="d-lg-none p-3">
+                <% if(transactions.length === 0) { %>
+                    <div class="text-center py-4 text-muted fw-bold">
+                        <i class="fa-solid fa-folder-open fs-2 d-block mb-2 opacity-25"></i>لا توجد عمليات.
+                    </div>
+                <% } %>
+                <% transactions.forEach(tx => { %>
+                    <div class="statement-card">
+                        <div class="statement-head">
+                            <div>
+                                <span class="statement-label">رقم العملية</span>
+                                <span class="statement-value mono-num">#<%= tx.customId || tx._id.toString().slice(-6) %></span>
+                            </div>
+                            <div class="text-end">
+                                <% if(tx.status === 'completed') { %><span class="badge bg-success">منفذ</span>
+                                <% } else if(tx.status === 'deposit') { %><span class="badge bg-primary">إيداع</span>
+                                <% } else if(tx.status === 'deduction') { %><span class="badge bg-danger">خصم</span>
+                                <% } else if(tx.status === 'rejected' || tx.status === 'cancelled_by_admin') { %><span class="badge bg-secondary">ملغي</span>
+                                <% } else { %><span class="badge bg-warning text-dark">معلق</span><% } %>
+                            </div>
+                        </div>
+                        <div class="statement-row">
+                            <div>
+                                <span class="statement-label">المبلغ</span>
+                                <span class="statement-value mono-num <%= tx.status === 'deposit' ? 'text-success' : 'text-primary' %>"><%= tx.amount.toFixed(2) %> EGP</span>
+                            </div>
+                            <div>
+                                <span class="statement-label">التكلفة</span>
+                                <span class="statement-value mono-num text-danger"><%= tx.costLYD ? tx.costLYD.toFixed(2) : '---' %> LYD</span>
+                            </div>
+                        </div>
+                        <div class="statement-row">
+                            <div>
+                                <span class="statement-label">البيان</span>
+                                <span class="statement-value" dir="ltr"><%= tx.status === 'deposit' ? 'إيداع نقدي' : (tx.status === 'deduction' ? 'خصم مديونية' : (tx.vodafoneNumber || '---')) %></span>
+                            </div>
+                            <div>
+                                <span class="statement-label">الوقت</span>
+                                <span class="statement-value mono-num" dir="ltr"><%= new Date(tx.updatedAt).toLocaleString('en-GB') %></span>
+                            </div>
+                        </div>
+                        <% if (tx.notes) { %>
+                            <div class="statement-row" style="grid-template-columns: 1fr;">
+                                <div>
+                                    <span class="statement-label">الملاحظة</span>
+                                    <div class="statement-note"><%= tx.notes %></div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
             </div>
         </div>
 

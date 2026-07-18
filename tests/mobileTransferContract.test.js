@@ -230,7 +230,7 @@ describe('💸 Contract Tests: Transfer (Mobile API)', () => {
         expect(res.body).toMatchObject({
             success: true,
             code: 'SUCCESS',
-            txId: 'ATT-2606-1001',
+            txId: expect.stringMatching(/^ATT-\d{4}-1001$/),
             status: 'pending',
             exchangeRate: 6.45,
             newBalance: 4984.496
@@ -243,13 +243,14 @@ describe('💸 Contract Tests: Transfer (Mobile API)', () => {
             idempotencyFingerprint: fingerprintFor(validPayload),
             transferType: 'vodafone',
             vodafoneNumber: '01012345678',
+            customId: res.body.txId,
             amount: 100,
             exchangeRate: 6.45,
             costLYD: 15.504,
             status: 'pending'
         });
         expect(Ledger).toHaveBeenCalledTimes(1);
-        expect(Ledger.mock.calls[0][0].description).toContain('ATT-2606-1001');
+        expect(Ledger.mock.calls[0][0].description).toContain(res.body.txId);
         expect(Ledger.mock.calls[0][0].description).not.toContain(validPayload.number);
         expect(logAction).toHaveBeenCalledTimes(1);
         const auditPayload = logAction.mock.calls[0][0];
