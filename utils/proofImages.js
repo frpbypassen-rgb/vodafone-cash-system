@@ -44,6 +44,7 @@ function trySendLocalProof(res, photoRef) {
 
 module.exports = {
     getProofReference,
+    getLocalProofFilePath,
     getLocalProofPublicUrl,
     trySendLocalProof,
 };

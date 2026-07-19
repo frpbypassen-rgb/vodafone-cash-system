@@ -19,6 +19,10 @@ const SupportTicket = require('../models/SupportTicket');
 const { requireAuth } = require('../middlewares/auth');
 const { syncBotBalance } = require('../utils/helpers');
 const { escapeRegex } = require('../middlewares/sanitize');
+const {
+    sendMessageToClientRecipients,
+    sendProofToClientRecipients
+} = require('../services/proofDeliveryService');
 
 // 🚀 استدعاء محرك الـ API 
 const { executeTransferViaApi, generateCustomReceipt } = require('../services/externalApiService');
@@ -176,12 +180,12 @@ router.post('/transaction/:id/assign-executor', async (req, res) => {
 
                     // 2. إشعار العميل
                     const clientMsg = `✅ <b>تـم تـنـفـيـذ طـلـبـك بـنـجـاح! (تحويل آلي)</b> ⚡\n\n🧾 <b>رقم الطلب:</b> <code>${tx.customId}</code>\n📞 <b>الرقم/الحساب:</b> <code>${tx.vodafoneNumber || tx.accountNumber}</code>\n💵 <b>المبلغ:</b> ${tx.amount} EGP\n💸 <b>التكلفة:</b> ${tx.costLYD.toFixed(2)} LYD`;
-                    let clientAPI = new Telegram(process.env.CLIENT_BOT_TOKEN);
-                    if (tx.clientBotId) {
-                        const comp = await ClientBot.findById(tx.clientBotId);
-                        if (comp) clientAPI = new Telegram(comp.token);
+                    const proofDelivery = await sendProofToClientRecipients(tx, {
+                        caption: `${clientMsg}\n\n<i>صورة الإثبات مرفقة.</i>`
+                    });
+                    if (!proofDelivery.sent) {
+                        await sendMessageToClientRecipients(tx, { text: clientMsg });
                     }
-                    await clientAPI.sendMessage(tx.userId, clientMsg, { parse_mode: 'HTML' }).catch(()=>{});
 
                     // 3. 🟢 إرسال Log النجاح لـ "بوت المراقبة البشري" (إن وجد)
                     if (executorBot.parentBotId) {

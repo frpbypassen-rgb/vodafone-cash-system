@@ -30,6 +30,7 @@ const {
     refreshTokenValidator
 } = require('../validators/mobileValidators');
 const { getLocalProofPublicUrl, getProofReference } = require('../utils/proofImages');
+const { sendProofToClientRecipients } = require('../services/proofDeliveryService');
 
 // =======================================================
 // 🛡️ Rate Limiters مخصصة لكل مسار حساس
@@ -601,8 +602,16 @@ router.post('/executor/complete-task/:id', authenticateJWT, completeTaskValidato
 
         tx.status = 'completed';
         tx.proofImage = savedFileId;
+        if (savedFileId) tx.proofImages = [savedFileId];
         if (senderPhone) tx.executorSenderPhone = senderPhone;
         await tx.save();
+
+        const clientMsg = `✅ <b>تم تنفيذ طلبك بنجاح!</b>\n\n🧾 <b>رقم الطلب:</b> <code>${tx.customId || tx._id}</code>\n📞 <b>الرقم/الحساب:</b> <code>${tx.vodafoneNumber || tx.accountNumber || '---'}</code>\n💵 <b>المبلغ:</b> ${tx.amount} EGP\n\n<i>صورة الإثبات مرفقة.</i>`;
+        await sendProofToClientRecipients(tx, {
+            caption: clientMsg,
+            proofRefs: savedFileId ? [savedFileId] : [],
+            imageBuffer: buffer
+        });
 
         // 🟢 تسجيل إتمام المهمة في Audit Log
         await logAction({

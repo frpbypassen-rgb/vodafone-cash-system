@@ -12,6 +12,7 @@ const Settings = require('../models/Settings');
 const Counter = require('../models/Counter');
 const Admin = require('../models/Admin');
 const { Telegram } = require('telegraf');
+const { sendProofToClientRecipients } = require('../services/proofDeliveryService');
 
 // ========================================================
 // 🛡️ Middleware للمصادقة وتحديد هوية البوت
@@ -713,19 +714,17 @@ router.post('/executor/transactions/proof', async (req, res) => {
         if (!tx || tx.status === 'completed') return res.status(400).json({ success: false, message: 'Invalid transaction' });
         
         tx.proofImage = proofImage;
+        tx.proofImages = [proofImage];
         tx.status = 'completed';
         if(employeeName) tx.executorEmployeeName = employeeName;
         await tx.save();
 
-        let clientAPI;
-        if (tx.clientBotId) {
-            const comp = await ClientBot.findById(tx.clientBotId);
-            if (comp) clientAPI = new Telegram(comp.token);
-        }
-        if (!clientAPI) clientAPI = new Telegram(process.env.CLIENT_BOT_TOKEN);
-        
         const clientMsg = `✅ <b>تم تنفيذ طلبك بنجاح!</b>\n\n🧾 الطلب: <code>${tx.customId || tx._id}</code>\n\n<i>مرفق الإثبات أدناه.</i>`;
-        try { await clientAPI.sendPhoto(tx.userId, proofImage, { caption: clientMsg, parse_mode: 'HTML' }); } catch(e){}
+        await sendProofToClientRecipients(tx, {
+            caption: clientMsg,
+            proofRefs: [proofImage],
+            sourceBotToken: req.botContext.botData.token
+        });
 
         const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
         const adminMsg = `✅ <b>تم تنفيذ حوالة بنجاح!</b>\n\n👤 <b>الجهة/العميل:</b> ${tx.companyName || 'عميل فردي'}\n👤 <b>اسم المرسل:</b> ${tx.employeeName || 'غير مسجل'}\n🤖 <b>بواسطة المنفذ:</b> ${tx.executorName || 'غير محدد'}\n━━━━━━━━━━━━━━\n🧾 <b>رقم الطلب:</b> <code>${tx.customId || tx._id}</code>\n📞 <b>الرقم المحول إليه:</b> <code>${tx.vodafoneNumber}</code>\n💵 <b>المبلغ:</b> ${tx.amount} EGP`;
@@ -790,19 +789,17 @@ router.post('/executor/transactions/edit', async (req, res) => {
         }
 
         tx.proofImage = proofImage;
+        tx.proofImages = [proofImage];
         tx.status = 'completed';
         tx.notes = (tx.notes ? tx.notes + ' | ' : '') + `تعديل مبلغ من ${oldAmount} إلى ${newAmount}`;
         await tx.save();
 
-        let clientAPI;
-        if (tx.clientBotId) {
-            const comp = await ClientBot.findById(tx.clientBotId);
-            if (comp) clientAPI = new Telegram(comp.token);
-        }
-        if (!clientAPI) clientAPI = new Telegram(process.env.CLIENT_BOT_TOKEN);
-        
         const clientMsg = `✅ <b>تم تنفيذ طلبك جزئياً!</b>\n\n🧾 الطلب: <code>${tx.customId || tx._id}</code>\n⚠️ <b>ملاحظة:</b> تم التحويل بمبلغ ${newAmount} EGP (بدلاً من ${oldAmount} EGP)\n💰 <b>تم إرجاع الفارق:</b> ${refundLYD.toFixed(2)} دينار لحسابك.\n\n<i>مرفق الإثبات أدناه.</i>`;
-        try { await clientAPI.sendPhoto(tx.userId, proofImage, { caption: clientMsg, parse_mode: 'HTML' }); } catch(e){}
+        await sendProofToClientRecipients(tx, {
+            caption: clientMsg,
+            proofRefs: [proofImage],
+            sourceBotToken: req.botContext.botData.token
+        });
 
         const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
         const adminMsg = `⚠️ <b>تم تنفيذ حوالة بنجاح (مع تعديل المبلغ)!</b>\n\n👤 <b>الجهة/العميل:</b> ${tx.companyName || 'عميل فردي'}\n👤 <b>اسم المرسل:</b> ${tx.employeeName || 'غير مسجل'}\n🤖 <b>بواسطة بوت:</b> ${tx.executorBotName || 'غير محدد'}\n👨‍💻 <b>الموظف المنفذ:</b> ${tx.executorName || 'غير محدد'}\n━━━━━━━━━━━━━━\n🧾 <b>رقم الطلب:</b> <code>${tx.customId || tx._id}</code>\n📞 <b>الرقم المحول إليه:</b> <code>${tx.vodafoneNumber}</code>\n💵 <b>المبلغ الجديد:</b> ${newAmount} EGP (كان ${oldAmount})\n💰 <b>تم إرجاع:</b> ${refundLYD.toFixed(2)} LYD للعميل.`;
