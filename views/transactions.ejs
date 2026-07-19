@@ -53,6 +53,78 @@
         .timeline-item { position: relative; padding-bottom: 25px; text-align: right; }
         .timeline-item::after { content: ''; position: absolute; right: -36px; top: 5px; width: 10px; height: 10px; background: var(--brand-gold); border-radius: 50%; box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 6px rgba(212, 175, 55, 0.2); }
         .data-line { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-glass); padding: 12px 0; font-size: 0.9rem; }
+        .mobile-tx-card { display: none; }
+
+        @media (max-width: 991.98px) {
+            .tx-page-title {
+                align-items: stretch !important;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .tx-page-title h3 {
+                font-size: 1.05rem;
+                line-height: 1.45;
+                flex: 1 1 100%;
+            }
+            .tx-page-title .btn {
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+            .summary-box {
+                border-radius: 16px;
+                padding: 14px;
+            }
+            .summary-val {
+                font-size: 1rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .mobile-tx-card {
+                display: block;
+                background: var(--card-bg);
+                border: 1px solid var(--border-glass);
+                border-right: 4px solid var(--brand-primary);
+                border-radius: 16px;
+                padding: 14px;
+                box-shadow: var(--shadow-soft);
+            }
+            .mobile-tx-card + .mobile-tx-card { margin-top: 12px; }
+            .mobile-card-row {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 10px;
+                align-items: center;
+            }
+            .mobile-card-row + .mobile-card-row {
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px dashed var(--border-glass);
+            }
+            .mobile-card-label {
+                display: block;
+                color: var(--text-muted);
+                font-size: 0.72rem;
+                font-weight: 800;
+            }
+            .mobile-card-value {
+                display: block;
+                color: var(--text-main);
+                font-size: 0.88rem;
+                font-weight: 900;
+                overflow-wrap: anywhere;
+            }
+            .mobile-card-actions {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+            .mobile-card-actions .btn,
+            .mobile-card-actions button {
+                width: 100%;
+                min-height: 40px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -65,7 +137,7 @@
 <div class="main-content">
     <div class="container-fluid">
         
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 tx-page-title">
             <h3 class="fw-bold m-0" style="color: var(--text-main);"><i class="fa-solid fa-server text-primary me-2"></i> السجل المركزي والمراقبة <span class="spinner-grow spinner-grow-sm text-success ms-2 opacity-50" title="تحديث تلقائي"></span></h3>
         </div>
 
@@ -140,7 +212,7 @@
         </div>
 
         <div class="data-card border-0 p-0 overflow-hidden">
-            <div class="table-responsive border-0 m-0">
+            <div class="table-responsive border-0 m-0 d-none d-lg-block">
                 <table class="table text-center align-middle m-0" id="transactionsTable">
                     <thead class="table-light">
                         <tr>
@@ -307,6 +379,77 @@
                         <% }) %>
                     </tbody>
                 </table>
+            </div>
+
+            <div class="d-lg-none p-3" id="mobileCardsContainer">
+                <% if (transactions.length === 0) { %>
+                    <div class="text-center py-5 text-muted fw-bold border-0 fs-5">
+                        <i class="fa-solid fa-folder-open fs-1 d-block mb-3 opacity-25"></i>
+                        لا توجد عمليات مطابقة.
+                    </div>
+                <% } %>
+                <% transactions.forEach(tx => { %>
+                    <div class="mobile-tx-card">
+                        <div class="mobile-card-row">
+                            <div>
+                                <span class="mobile-card-label">رقم العملية</span>
+                                <a class="clickable-id mono-num mobile-card-value" data-tx='<%- JSON.stringify(tx).replace(/'/g, "&#39;") %>' onclick="viewTransactionDetails(this)">
+                                    #<%= tx.customId || tx._id.toString().slice(-6) %>
+                                </a>
+                            </div>
+                            <div class="text-end">
+                                <% if(tx.status === 'completed') { %> <span class="badge-st st-done"><i class="fa-solid fa-check"></i> مكتمل</span>
+                                <% } else if(tx.status === 'pending') { %> <span class="badge-st st-wait"><i class="fa-solid fa-pause"></i> معلق</span>
+                                <% } else if(tx.status === 'processing') { %> <span class="badge-st st-proc"><i class="fa-solid fa-spinner fa-spin"></i> توجيه</span>
+                                <% } else if(tx.status === 'accepted') { %> <span class="badge-st st-work"><i class="fa-solid fa-user-gear"></i> قيد العمل</span>
+                                <% } else if(tx.status === 'deposit_pending') { %> <span class="badge-st st-wait"><i class="fa-solid fa-hand"></i> طلب إيداع</span>
+                                <% } else if(tx.status === 'deposit') { %> <span class="badge-st st-done"><i class="fa-solid fa-arrow-down"></i> إيداع</span>
+                                <% } else if(tx.status === 'deduction') { %> <span class="badge-st" style="background: rgba(108,117,125,0.1); color:#6c757d;"><i class="fa-solid fa-arrow-up"></i> خصم</span>
+                                <% } else { %> <span class="badge-st st-fail"><i class="fa-solid fa-ban"></i> ملغي</span> <% } %>
+                            </div>
+                        </div>
+                        <div class="mobile-card-row">
+                            <div>
+                                <span class="mobile-card-label">الجهة</span>
+                                <span class="mobile-card-value"><%= tx.companyName || tx.employeeName || 'عميل فردي' %></span>
+                            </div>
+                            <div>
+                                <span class="mobile-card-label">الموظف</span>
+                                <span class="mobile-card-value"><%= tx.employeeName || '---' %></span>
+                            </div>
+                        </div>
+                        <div class="mobile-card-row">
+                            <div>
+                                <span class="mobile-card-label">المبلغ</span>
+                                <span class="mobile-card-value mono-num <%= tx.status === 'deduction' ? 'text-danger' : 'text-success' %>"><%= tx.amount.toFixed(2) %> EGP</span>
+                            </div>
+                            <div>
+                                <span class="mobile-card-label">التكلفة</span>
+                                <span class="mobile-card-value mono-num text-danger"><%= tx.costLYD ? tx.costLYD.toFixed(2) : '---' %> LYD</span>
+                            </div>
+                        </div>
+                        <div class="mobile-card-row">
+                            <div>
+                                <span class="mobile-card-label">الرقم/الحساب</span>
+                                <span class="mobile-card-value mono-num" dir="ltr"><%= tx.vodafoneNumber || tx.accountNumber || '---' %></span>
+                            </div>
+                            <div>
+                                <span class="mobile-card-label">التاريخ</span>
+                                <span class="mobile-card-value mono-num" dir="ltr"><%= tx.createdAt.toLocaleDateString('en-GB') %> <%= tx.createdAt.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) %></span>
+                            </div>
+                        </div>
+                        <div class="mobile-card-row" style="grid-template-columns: 1fr;">
+                            <div class="mobile-card-actions">
+                                <button type="button" class="btn btn-sm btn-primary fw-bold" data-tx='<%- JSON.stringify(tx).replace(/'/g, "&#39;") %>' onclick="viewTransactionDetails(this)">
+                                    <i class="fa-solid fa-eye me-1"></i> التفاصيل
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light fw-bold" onclick="openEditTxModal('<%= tx._id %>', '<%= tx.amount %>', '<%= tx.createdAt.toISOString() %>')">
+                                    <i class="fa-solid fa-pen me-1"></i> تعديل
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
             </div>
 
             <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
@@ -712,7 +855,12 @@
         if (isModalOpen || isDropdownOpen) return;
         fetch(window.location.href).then(res => res.text()).then(htmlText => {
             const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-            const newTbody = doc.querySelector('tbody'); if (newTbody) document.querySelector('tbody').innerHTML = newTbody.innerHTML;
+            const newTbody = doc.querySelector('#transactionsTable tbody');
+            const currentTbody = document.querySelector('#transactionsTable tbody');
+            if (newTbody && currentTbody) currentTbody.innerHTML = newTbody.innerHTML;
+            const newMobileCards = doc.querySelector('#mobileCardsContainer');
+            const currentMobileCards = document.querySelector('#mobileCardsContainer');
+            if (newMobileCards && currentMobileCards) currentMobileCards.innerHTML = newMobileCards.innerHTML;
             const newPagination = doc.querySelector('.pagination'); const currentPagination = document.querySelector('.pagination'); if (newPagination && currentPagination) currentPagination.innerHTML = newPagination.innerHTML;
         }).catch(()=>{});
     }, 5000);

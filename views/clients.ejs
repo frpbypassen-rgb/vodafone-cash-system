@@ -113,6 +113,40 @@
         @media (max-width: 768px) {
             .nav-pills { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px; border: none !important; background: transparent !important; }
             .nav-pills .nav-link { white-space: nowrap; padding: 10px 20px; font-size: 0.9rem; }
+            .admin-nav {
+                align-items: stretch !important;
+            }
+            .admin-nav h3 {
+                font-size: 1.1rem;
+                line-height: 1.45;
+            }
+            .client-card-3d {
+                border-radius: 16px;
+                padding: 16px;
+            }
+            .profile-icon {
+                width: 52px;
+                height: 52px;
+                border-radius: 16px;
+                font-size: 1.35rem;
+            }
+            .balance-box {
+                border-radius: 14px;
+                padding: 14px;
+                margin: 14px 0;
+            }
+            .mono-num {
+                font-size: 1.25rem;
+                overflow-wrap: anywhere;
+            }
+            .btn-3d {
+                min-height: 44px;
+                border-radius: 12px;
+            }
+            .client-search-box {
+                padding: 12px !important;
+                border-radius: 16px !important;
+            }
         }
     </style>
 </head>
@@ -138,6 +172,13 @@
             </ul>
         </div>
 
+        <div class="data-card client-search-box border-0 mb-4 p-3">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="clientSearch" class="form-control fw-bold" placeholder="ابحث بالاسم أو الهاتف أو تيليجرام..." oninput="searchClients()">
+            </div>
+        </div>
+
         <div class="tab-content mt-4">
             <div class="tab-pane fade show active" id="users-tab">
                 <div class="row g-4 pb-5">
@@ -149,7 +190,7 @@
                     <% } %>
 
                     <% users.forEach(u => { %>
-                        <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="col-xl-3 col-lg-4 col-md-6 client-card-item" data-name="<%= u.name || '' %>" data-phone="<%= u.phone || '' %>" data-telegram="<%= u.telegramId || '' %>">
                             <div class="card-3d-wrapper">
                                 <div class="client-card-3d" style="border-top: 5px solid #3b82f6;">
                                     <div>
@@ -204,7 +245,7 @@
                     <% } %>
 
                     <% companies.forEach(c => { %>
-                        <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="col-xl-3 col-lg-4 col-md-6 client-card-item" data-name="<%= c.name || '' %>" data-phone="<%= c.phone || '' %>" data-telegram="">
                             <div class="card-3d-wrapper">
                                 <div class="client-card-3d" style="border-top: 5px solid #8b5cf6;">
                                     <div>
@@ -256,6 +297,18 @@
     function toggleSidebar() { 
         document.querySelector('.sidebar').classList.toggle('active');
         document.querySelector('.sidebar-overlay').classList.toggle('active'); 
+    }
+
+    function searchClients() {
+        const query = (document.getElementById('clientSearch')?.value || '').toLowerCase().trim();
+        document.querySelectorAll('.client-card-item').forEach((item) => {
+            const haystack = [
+                item.getAttribute('data-name') || '',
+                item.getAttribute('data-phone') || '',
+                item.getAttribute('data-telegram') || ''
+            ].join(' ').toLowerCase();
+            item.classList.toggle('d-none', query && !haystack.includes(query));
+        });
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

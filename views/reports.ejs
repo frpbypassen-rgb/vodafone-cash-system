@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سجل الكشوفات | الأهرام</title>
+
+    <script>
+        const savedTheme = localStorage.getItem('ahram_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+
+    <style>
+        .reports-shell { max-width: 1500px; margin: 0 auto; }
+        .reports-title { gap: 12px; }
+        .report-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            box-shadow: var(--shadow-soft);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .summary-tile {
+            min-width: 0;
+            padding: 16px;
+            border-radius: 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-soft);
+        }
+        .summary-label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .summary-value {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .statement-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            border-right: 4px solid var(--brand-primary);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: var(--shadow-soft);
+        }
+        .statement-card + .statement-card { margin-top: 12px; }
+        .statement-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 10px;
+            align-items: center;
+        }
+        .statement-row + .statement-row {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-glass);
+        }
+        .statement-label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+        .statement-value {
+            display: block;
+            color: var(--text-main);
+            font-size: 0.88rem;
+            font-weight: 900;
+            overflow-wrap: anywhere;
+        }
+        .mono-num { font-family: 'JetBrains Mono', monospace; }
+        .report-actions .btn { min-height: 42px; }
+        @media (max-width: 991.98px) {
+            .reports-title {
+                align-items: stretch !important;
+                flex-direction: column;
+            }
+            .reports-title .btn { width: 100%; justify-content: center; }
+            .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .summary-tile { padding: 13px; }
+            .summary-value { font-size: 1rem; }
+            .report-card { border-radius: 16px; }
+            .report-actions {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px !important;
+            }
+            .report-actions .btn,
+            .report-actions a { width: 100%; }
+        }
+        @media (max-width: 575.98px) {
+            .summary-grid { grid-template-columns: 1fr; }
+            .statement-row { grid-template-columns: 1fr; }
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .reports-shell { max-width: none; }
+            .summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .report-card, .summary-tile {
+                box-shadow: none !important;
+                border-color: #d1d5db !important;
+            }
+            .d-none.d-lg-block { display: block !important; }
+            .d-lg-none { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<%- include('partials/sidebar', { activePage: 'reports' }) %>
+
+<div class="main-content">
+    <div class="container-fluid reports-shell">
+        <%
+            const exportUrl = '/reports/export?'
+                + 'entityKey=' + encodeURIComponent(filters.entityKey || '')
+                + '&status=' + encodeURIComponent(filters.status || '')
+                + '&fromDate=' + encodeURIComponent(filters.fromDate || '')
+                + '&toDate=' + encodeURIComponent(filters.toDate || '')
+                + '&search=' + encodeURIComponent(filters.search || '');
+            const statusBadge = (status) => {
+                if (status === 'completed') return 'bg-success';
+                if (status === 'deposit') return 'bg-primary';
+                if (status === 'deduction') return 'bg-danger';
+                if (['pending', 'processing', 'accepted', 'deposit_pending'].includes(status)) return 'bg-warning text-dark';
+                return 'bg-secondary';
+            };
+        %>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 reports-title">
+            <div>
+                <h3 class="fw-bold m-0"><i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i> سجل الكشوفات وتقفيل الحسابات</h3>
+                <div class="text-muted small fw-bold mt-1">مراجعة عمليات العملاء وتحميل ملف تقفيل الحسابات حسب الفترة.</div>
+            </div>
+            <a href="/transactions" class="btn btn-light fw-bold rounded-3 px-3 no-print">
+                <i class="fa-solid fa-list-check me-1"></i> سجل العمليات
+            </a>
+        </div>
+
+        <div class="report-card p-3 p-lg-4 mb-4 no-print">
+            <form method="GET" action="/reports" class="row g-3 align-items-end">
+                <div class="col-lg-4">
+                    <label class="form-label fw-bold small text-muted">العميل أو الشركة</label>
+                    <select name="entityKey" class="form-select fw-bold">
+                        <option value="">كل العملاء والشركات</option>
+                        <optgroup label="العملاء الأفراد">
+                            <% users.forEach(u => { const key = 'user:' + u._id; %>
+                                <option value="<%= key %>" <%= filters.entityKey === key ? 'selected' : '' %>><%= u.name || 'عميل فردي' %> - <%= u.phone || u.telegramId || 'بدون هاتف' %></option>
+                            <% }) %>
+                        </optgroup>
+                        <optgroup label="الشركات والوكلاء">
+                            <% companies.forEach(c => { const key = 'company:' + c._id; %>
+                                <option value="<%= key %>" <%= filters.entityKey === key ? 'selected' : '' %>><%= c.name %> - <%= c.phone || 'بدون هاتف' %></option>
+                            <% }) %>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-bold small text-muted">الحالة</label>
+                    <select name="status" class="form-select fw-bold">
+                        <option value="">كل الحالات</option>
+                        <% Object.keys(statusLabels).forEach(status => { %>
+                            <option value="<%= status %>" <%= filters.status === status ? 'selected' : '' %>><%= statusLabels[status] %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-bold small text-muted">من تاريخ</label>
+                    <input type="date" name="fromDate" class="form-control fw-bold" value="<%= filters.fromDate %>">
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-bold small text-muted">إلى تاريخ</label>
+                    <input type="date" name="toDate" class="form-control fw-bold" value="<%= filters.toDate %>">
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-bold small text-muted">بحث داخل الكشف</label>
+                    <input type="text" name="search" class="form-control fw-bold mono-num" value="<%= filters.search %>" placeholder="رقم أو اسم">
+                </div>
+                <div class="col-12 d-flex gap-2 report-actions">
+                    <button type="submit" class="btn btn-primary fw-bold px-4"><i class="fa-solid fa-filter me-1"></i> عرض الكشف</button>
+                    <a href="/reports" class="btn btn-light fw-bold px-4"><i class="fa-solid fa-rotate-left me-1"></i> تفريغ</a>
+                    <button type="button" class="btn fw-bold px-4" style="background: var(--brand-gold); color:#000;" onclick="window.print()"><i class="fa-solid fa-print me-1"></i> طباعة</button>
+                    <a href="<%= exportUrl %>" class="btn btn-success fw-bold px-4"><i class="fa-solid fa-file-arrow-down me-1"></i> تحميل التقفيل</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="summary-grid mb-4">
+            <div class="summary-tile">
+                <span class="summary-label">الرصيد الحالي</span>
+                <span class="summary-value <%= totals.closingBalance !== null && totals.closingBalance < 0 ? 'text-danger' : 'text-success' %>"><%= totals.closingBalance === null ? '---' : totals.closingBalance.toFixed(2) %> LYD</span>
+            </div>
+            <div class="summary-tile">
+                <span class="summary-label">تحويلات مكتملة</span>
+                <span class="summary-value text-primary"><%= totals.transfersEGP.toFixed(2) %> EGP</span>
+                <span class="small text-danger fw-bold mono-num"><%= totals.transfersLYD.toFixed(2) %> LYD</span>
+            </div>
+            <div class="summary-tile">
+                <span class="summary-label">صافي الإيداع والخصم</span>
+                <span class="summary-value <%= totals.netSettlements < 0 ? 'text-danger' : 'text-success' %>"><%= totals.netSettlements.toFixed(2) %></span>
+            </div>
+            <div class="summary-tile">
+                <span class="summary-label">عدد العمليات</span>
+                <span class="summary-value"><%= totals.count %></span>
+                <span class="small text-muted fw-bold">معلق: <%= totals.pendingCount %> | ملغي: <%= totals.cancelledCount %></span>
+            </div>
+        </div>
+
+        <% if (selectedEntity) { %>
+            <div class="alert alert-info border-0 fw-bold mb-4">
+                <i class="fa-solid fa-user-check me-1"></i>
+                الكشف الحالي خاص بـ <%= selectedEntity.name %> <span class="mono-num" dir="ltr">(<%= selectedEntity.phone || selectedEntity.id %>)</span>
+            </div>
+        <% } %>
+
+        <div class="report-card p-0 overflow-hidden">
+            <div class="table-responsive d-none d-lg-block">
+                <table class="table text-center align-middle m-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>رقم العملية</th>
+                            <th>التاريخ</th>
+                            <th>الجهة</th>
+                            <th>الحالة</th>
+                            <th>المبلغ EGP</th>
+                            <th>التكلفة LYD</th>
+                            <th>الرقم/الحساب</th>
+                            <th>الملاحظة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (transactions.length === 0) { %>
+                            <tr><td colspan="8" class="py-5 text-muted fw-bold">لا توجد عمليات مطابقة للكشف.</td></tr>
+                        <% } %>
+                        <% transactions.forEach(tx => { %>
+                            <tr>
+                                <td class="fw-bold mono-num">#<%= tx.customId || tx._id.toString().slice(-6) %></td>
+                                <td class="small mono-num" dir="ltr"><%= new Date(tx.createdAt).toLocaleString('en-GB') %></td>
+                                <td class="fw-bold">
+                                    <div><%= tx.companyName || 'عميل فردي' %></div>
+                                    <div class="small text-muted"><%= tx.employeeName || '---' %></div>
+                                </td>
+                                <td><span class="badge <%= statusBadge(tx.status) %>"><%= statusLabels[tx.status] || tx.status %></span></td>
+                                <td class="fw-bold mono-num <%= tx.status === 'deduction' ? 'text-danger' : 'text-success' %>"><%= Number(tx.amount || 0).toFixed(2) %></td>
+                                <td class="fw-bold mono-num text-danger"><%= tx.costLYD ? Number(tx.costLYD).toFixed(2) : '---' %></td>
+                                <td class="mono-num fw-bold" dir="ltr"><%= tx.vodafoneNumber || tx.accountNumber || '---' %></td>
+                                <td class="small text-muted text-wrap" style="max-width: 260px;"><%= tx.notes || '---' %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-lg-none p-3">
+                <% if (transactions.length === 0) { %>
+                    <div class="text-center py-5 text-muted fw-bold">
+                        <i class="fa-solid fa-folder-open fs-1 d-block mb-3 opacity-25"></i>
+                        لا توجد عمليات مطابقة للكشف.
+                    </div>
+                <% } %>
+                <% transactions.forEach(tx => { %>
+                    <div class="statement-card">
+                        <div class="statement-row">
+                            <div>
+                                <span class="statement-label">رقم العملية</span>
+                                <span class="statement-value mono-num">#<%= tx.customId || tx._id.toString().slice(-6) %></span>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge <%= statusBadge(tx.status) %>"><%= statusLabels[tx.status] || tx.status %></span>
+                            </div>
+                        </div>
+                        <div class="statement-row">
+                            <div>
+                                <span class="statement-label">الجهة</span>
+                                <span class="statement-value"><%= tx.companyName || 'عميل فردي' %></span>
+                            </div>
+                            <div>
+                                <span class="statement-label">الموظف</span>
+                                <span class="statement-value"><%= tx.employeeName || '---' %></span>
+                            </div>
+                        </div>
+                        <div class="statement-row">
+                            <div>
+                                <span class="statement-label">المبلغ</span>
+                                <span class="statement-value mono-num <%= tx.status === 'deduction' ? 'text-danger' : 'text-success' %>"><%= Number(tx.amount || 0).toFixed(2) %> EGP</span>
+                            </div>
+                            <div>
+                                <span class="statement-label">التكلفة</span>
+                                <span class="statement-value mono-num text-danger"><%= tx.costLYD ? Number(tx.costLYD).toFixed(2) : '---' %> LYD</span>
+                            </div>
+                        </div>
+                        <div class="statement-row">
+                            <div>
+                                <span class="statement-label">الرقم/الحساب</span>
+                                <span class="statement-value mono-num" dir="ltr"><%= tx.vodafoneNumber || tx.accountNumber || '---' %></span>
+                            </div>
+                            <div>
+                                <span class="statement-label">التاريخ</span>
+                                <span class="statement-value mono-num" dir="ltr"><%= new Date(tx.createdAt).toLocaleString('en-GB') %></span>
+                            </div>
+                        </div>
+                        <% if (tx.notes) { %>
+                            <div class="statement-row" style="grid-template-columns: 1fr;">
+                                <div>
+                                    <span class="statement-label">الملاحظة</span>
+                                    <span class="statement-value"><%= tx.notes %></span>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('active');
+        document.querySelector('.sidebar-overlay').classList.toggle('active');
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -181,6 +181,7 @@ app.use('/', require('./routes/dashboard'));
 app.use('/', require('./routes/adminTransactions'));
 app.use('/', require('./routes/executors'));
 app.use('/', require('./routes/clients'));
+app.use('/', require('./routes/reports'));
 app.use('/settings', require('./routes/settings'));
 app.use('/', require('./routes/employees'));
 app.use('/', require('./routes/broadcast'));

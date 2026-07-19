@@ -144,6 +144,30 @@
         .main-content { margin-right: 0 !important; padding: 80px 15px 25px 15px !important; }
     }
 
+    @media (max-width: 575px) {
+        html, body { max-width: 100%; overflow-x: hidden; }
+        .main-content { padding: 78px 10px 20px 10px !important; }
+        .container-fluid { padding-left: 6px !important; padding-right: 6px !important; }
+        .data-card, .stat-card, .card, .glass-card, .client-card-3d, .report-card {
+            border-radius: 16px !important;
+        }
+        .table-responsive {
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .modal-dialog {
+            margin: 8px;
+        }
+        .modal-body, .modal-header, .modal-footer {
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+        }
+        .btn, .form-control, .form-select, .input-group-text {
+            min-height: 42px;
+        }
+    }
+
     @media print {
         .sidebar, .mobile-nav-toggle, .sidebar-overlay { display: none !important; }
         .main-content { margin-right: 0 !important; padding: 0 !important; }
@@ -166,6 +190,9 @@
         </a>
         <a href="/transactions" class="<%= typeof activePage !== 'undefined' && activePage === 'transactions' ? 'active' : '' %>">
             <i class="fa-solid fa-list-check"></i> سجل العمليات المباشر
+        </a>
+        <a href="/reports" class="<%= typeof activePage !== 'undefined' && activePage === 'reports' ? 'active' : '' %>">
+            <i class="fa-solid fa-file-invoice-dollar"></i> سجل الكشوفات والتقفيل
         </a>
         <a href="/support" class="<%= typeof activePage !== 'undefined' && activePage === 'support' ? 'active' : '' %> d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-headset"></i> الدعم الفني</span>
