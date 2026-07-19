@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>سجل العمليات | الأهرام</title>
     
     <script>
@@ -119,13 +119,45 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 8px;
             }
+            .mobile-card-actions .dropdown,
+            .mobile-card-actions form {
+                width: 100%;
+                min-width: 0;
+            }
+            .mobile-card-actions .dropdown > .btn,
             .mobile-card-actions .btn,
             .mobile-card-actions button {
                 width: 100%;
                 min-height: 40px;
+                white-space: normal;
+            }
+            .mobile-card-actions .dropdown-menu {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid var(--border-glass) !important;
+                background: var(--card-bg) !important;
+            }
+            .mobile-card-actions .dropdown-item {
+                width: 100%;
+                border: 0;
+                border-radius: 10px;
+                background: transparent !important;
+                color: var(--text-main) !important;
+                text-align: right;
+                justify-content: flex-start;
+            }
+            .mobile-card-actions .dropdown-item:hover {
+                background: var(--input-bg) !important;
             }
         }
     </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#001a4d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="/css/mobile-app.css">
+    <script src="/js/mobile-app.js" defer></script>
 </head>
 <body>
 
@@ -443,9 +475,84 @@
                                 <button type="button" class="btn btn-sm btn-primary fw-bold" data-tx='<%- JSON.stringify(tx).replace(/'/g, "&#39;") %>' onclick="viewTransactionDetails(this)">
                                     <i class="fa-solid fa-eye me-1"></i> التفاصيل
                                 </button>
-                                <button type="button" class="btn btn-sm btn-light fw-bold" onclick="openEditTxModal('<%= tx._id %>', '<%= tx.amount %>', '<%= tx.createdAt.toISOString() %>')">
-                                    <i class="fa-solid fa-pen me-1"></i> تعديل
-                                </button>
+
+                                <% if (tx.status === 'deposit_pending') { %>
+                                    <button class="btn btn-sm btn-success fw-bold" onclick="showAcceptDepositModal('<%= tx._id %>')">
+                                        <i class="fa-solid fa-check me-1"></i> قبول
+                                    </button>
+                                    <form action="/transaction/<%= tx._id %>/reject-deposit-web" method="POST" class="m-0" onsubmit="return promptRejectDeposit(this)">
+                                        <input type="hidden" name="reason" class="reject-reason-input">
+                                        <button type="submit" class="btn btn-sm btn-danger fw-bold">
+                                            <i class="fa-solid fa-xmark me-1"></i> رفض
+                                        </button>
+                                    </form>
+                                <% } else { %>
+                                    <% if(tx.status === 'pending') { %>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-primary fw-bold dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fa-solid fa-route me-1"></i> توجيه
+                                            </button>
+                                            <ul class="dropdown-menu border-0 shadow-lg" style="border-radius: 12px; min-width: 220px;">
+                                                <li class="px-3 py-2 text-muted small fw-bold border-bottom mb-1">اختر المنفذ أو API:</li>
+                                                <% if(typeof executorBots !== 'undefined' && executorBots.length > 0) { %>
+                                                    <% executorBots.forEach(bot => { %>
+                                                        <li>
+                                                            <form action="/transaction/<%= tx._id %>/assign-executor" method="POST" class="m-0 p-0">
+                                                                <input type="hidden" name="executorBotId" value="<%= bot._id %>">
+                                                                <button type="submit" class="dropdown-item py-2 fw-bold text-dark d-flex align-items-center">
+                                                                    <i class="fa-solid <%= bot.isApiBot ? 'fa-network-wired text-success' : 'fa-robot text-primary' %> me-2"></i>
+                                                                    <span><%= bot.name %></span>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    <% }) %>
+                                                <% } %>
+                                            </ul>
+                                        </div>
+                                    <% } else if(tx.status === 'processing' || tx.status === 'accepted') { %>
+                                        <form action="/transaction/<%= tx._id %>/pull-task" method="POST" class="m-0" onsubmit="return confirm('تأكيد سحب المهمة؟')">
+                                            <button class="btn btn-sm btn-warning fw-bold text-dark" title="سحب للإدارة">
+                                                <i class="fa-solid fa-hand me-1"></i> سحب
+                                            </button>
+                                        </form>
+                                        <form action="/transaction/<%= tx._id %>/emergency-alert" method="POST" class="m-0" onsubmit="return confirmEmergencyAlert(this);">
+                                            <input type="hidden" name="alertMessage" class="alert-message-input">
+                                            <button type="submit" class="btn btn-sm btn-danger fw-bold" title="إطلاق إنذار أحمر">
+                                                <i class="fa-solid fa-triangle-exclamation me-1"></i> إنذار
+                                            </button>
+                                        </form>
+                                    <% } %>
+
+                                    <% if (tx.notes && tx.notes.includes('--- سجل الـ API')) { %>
+                                        <button class="btn btn-sm btn-success fw-bold" data-log="<%= encodeURIComponent(tx.notes) %>" onclick="showApiLog(this)" title="سجل Terminal للـ API">
+                                            <i class="fa-solid fa-terminal me-1"></i> سجل API
+                                        </button>
+                                    <% } %>
+
+                                    <% if (tx.status === 'completed' && (tx.proofImage || (tx.proofImages && tx.proofImages.length > 0))) { %>
+                                        <form action="/transaction/<%= tx._id %>/resend-proof" method="POST" class="m-0" onsubmit="return confirm('إعادة إرسال الإيصال للعميل؟')">
+                                            <button type="submit" class="btn btn-sm btn-info fw-bold text-dark">
+                                                <i class="fa-solid fa-paper-plane me-1"></i> إرسال
+                                            </button>
+                                        </form>
+                                    <% } %>
+
+                                    <button type="button" class="btn btn-sm btn-light fw-bold" onclick="openEditTxModal('<%= tx._id %>', '<%= tx.amount %>', '<%= tx.createdAt.toISOString() %>')">
+                                        <i class="fa-solid fa-pen me-1"></i> المبلغ
+                                    </button>
+
+                                    <% if(tx.status !== 'deposit' && tx.status !== 'deduction') { %>
+                                        <button type="button" class="btn btn-sm btn-light fw-bold" onclick="openEditRateModal('<%= tx._id %>', '<%= tx.exchangeRate ? Number(tx.exchangeRate).toFixed(2) : (tx.costLYD ? (tx.amount / tx.costLYD).toFixed(2) : 0) %>')">
+                                            <i class="fa-solid fa-percent me-1"></i> الصرف
+                                        </button>
+                                    <% } %>
+
+                                    <form action="/transaction/<%= tx._id %>/global-cancel" method="POST" class="m-0" onsubmit="return confirm('تأكيد التراجع عن العملية وإرجاع الأرصدة؟')">
+                                        <button class="btn btn-sm btn-outline-danger fw-bold" title="تراجع">
+                                            <i class="fa-solid fa-rotate-left me-1"></i> تراجع
+                                        </button>
+                                    </form>
+                                <% } %>
                             </div>
                         </div>
                     </div>

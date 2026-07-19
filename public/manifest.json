@@ -1,0 +1,23 @@
+{
+  "name": "Al-Ahram Pay",
+  "short_name": "Al-Ahram",
+  "description": "Al-Ahram Pay mobile web app",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#001a4d",
+  "icons": [
+    {
+      "src": "/images/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/images/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
