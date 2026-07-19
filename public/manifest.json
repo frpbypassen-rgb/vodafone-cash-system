@@ -1,0 +1,26 @@
+{
+  "name": "منظومة الأهرام المتكاملة",
+  "short_name": "الأهرام",
+  "description": "لوحة إدارة وبوابات تشغيل منظومة الأهرام",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#f4f7fa",
+  "theme_color": "#001a4d",
+  "icons": [
+    {
+      "src": "/images/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

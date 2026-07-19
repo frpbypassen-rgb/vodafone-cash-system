@@ -119,10 +119,29 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 8px;
             }
+            .mobile-card-actions > *,
+            .mobile-card-actions form,
+            .mobile-card-actions .dropdown {
+                min-width: 0;
+                width: 100%;
+                margin: 0;
+            }
             .mobile-card-actions .btn,
-            .mobile-card-actions button {
+            .mobile-card-actions button,
+            .mobile-card-actions .btn-action-sm {
                 width: 100%;
                 min-height: 40px;
+                height: 40px;
+                border-radius: 10px;
+                gap: 6px;
+            }
+            .mobile-card-actions .dropdown-menu {
+                width: min(280px, calc(100vw - 36px));
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+            .mobile-card-actions .dropdown-item {
+                white-space: normal;
             }
         }
     </style>
@@ -440,12 +459,88 @@
                         </div>
                         <div class="mobile-card-row" style="grid-template-columns: 1fr;">
                             <div class="mobile-card-actions">
+                                <% if (tx.status === 'deposit_pending') { %>
+                                    <button class="btn btn-sm btn-success fw-bold" onclick="showAcceptDepositModal('<%= tx._id %>')">
+                                        <i class="fa-solid fa-check me-1"></i> قبول الإيداع
+                                    </button>
+                                    <form action="/transaction/<%= tx._id %>/reject-deposit-web" method="POST" onsubmit="return promptRejectDeposit(this)">
+                                        <input type="hidden" name="reason" class="reject-reason-input">
+                                        <button type="submit" class="btn btn-sm btn-danger fw-bold">
+                                            <i class="fa-solid fa-xmark me-1"></i> رفض الإيداع
+                                        </button>
+                                    </form>
+                                <% } else { %>
+                                    <% if(tx.status === 'pending') { %>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-primary fw-bold dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fa-solid fa-route me-1"></i> توجيه
+                                            </button>
+                                            <ul class="dropdown-menu border-0 shadow-lg" style="border-radius: 12px;">
+                                                <li class="px-3 py-2 text-muted small fw-bold border-bottom mb-1">اختر المنفذ:</li>
+                                                <% if(typeof executorBots !== 'undefined' && executorBots.length > 0) { %>
+                                                    <% executorBots.forEach(bot => { %>
+                                                        <li>
+                                                            <form action="/transaction/<%= tx._id %>/assign-executor" method="POST">
+                                                                <input type="hidden" name="executorBotId" value="<%= bot._id %>">
+                                                                <button type="submit" class="dropdown-item py-2 fw-bold d-flex align-items-center">
+                                                                    <i class="fa-solid <%= bot.isApiBot ? 'fa-code' : 'fa-robot' %> text-primary me-2"></i>
+                                                                    <span><%= bot.name %></span>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    <li><span class="dropdown-item text-muted">لا توجد بوتات متاحة</span></li>
+                                                <% } %>
+                                            </ul>
+                                        </div>
+                                    <% } %>
+
+                                    <% if(tx.status === 'processing' || tx.status === 'accepted') { %>
+                                        <form action="/transaction/<%= tx._id %>/pull-task" method="POST" onsubmit="return confirm('تأكيد سحب المهمة؟')">
+                                            <button type="submit" class="btn btn-sm btn-warning fw-bold text-dark">
+                                                <i class="fa-solid fa-hand-back-fist me-1"></i> سحب
+                                            </button>
+                                        </form>
+                                        <form action="/transaction/<%= tx._id %>/emergency-alert" method="POST" onsubmit="return confirmEmergencyAlert(this);">
+                                            <input type="hidden" name="alertMessage" class="alert-message-input">
+                                            <button type="submit" class="btn btn-sm btn-danger fw-bold">
+                                                <i class="fa-solid fa-triangle-exclamation me-1"></i> إنذار
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                <% } %>
+
                                 <button type="button" class="btn btn-sm btn-primary fw-bold" data-tx='<%- JSON.stringify(tx).replace(/'/g, "&#39;") %>' onclick="viewTransactionDetails(this)">
                                     <i class="fa-solid fa-eye me-1"></i> التفاصيل
                                 </button>
+                                <% if (tx.notes && tx.notes.includes('--- سجل الـ API')) { %>
+                                    <button type="button" class="btn-action-sm api-log" data-log="<%= encodeURIComponent(tx.notes) %>" onclick="showApiLog(this)" title="سجل Terminal للـ API">
+                                        <i class="fa-solid fa-terminal"></i>
+                                    </button>
+                                <% } %>
+                                <% if (tx.status === 'completed' && (tx.proofImage || (tx.proofImages && tx.proofImages.length > 0))) { %>
+                                    <form action="/transaction/<%= tx._id %>/resend-proof" method="POST" onsubmit="return confirm('إعادة إرسال الإيصال للعميل؟')">
+                                        <button type="submit" class="btn-action-sm send" title="إعادة الإرسال">
+                                            <i class="fa-solid fa-paper-plane"></i>
+                                        </button>
+                                    </form>
+                                <% } %>
                                 <button type="button" class="btn btn-sm btn-light fw-bold" onclick="openEditTxModal('<%= tx._id %>', '<%= tx.amount %>', '<%= tx.createdAt.toISOString() %>')">
                                     <i class="fa-solid fa-pen me-1"></i> تعديل
                                 </button>
+                                <% if(tx.status !== 'deposit' && tx.status !== 'deduction') { %>
+                                    <button type="button" class="btn-action-sm edit" onclick="openEditRateModal('<%= tx._id %>', '<%= tx.exchangeRate ? Number(tx.exchangeRate).toFixed(2) : (tx.costLYD ? (tx.amount / tx.costLYD).toFixed(2) : 0) %>')" title="تعديل الصرف">
+                                        <i class="fa-solid fa-percent"></i>
+                                    </button>
+                                <% } %>
+                                <% if (tx.status !== 'deposit_pending') { %>
+                                    <form action="/transaction/<%= tx._id %>/global-cancel" method="POST" onsubmit="return confirm('تأكيد التراجع عن العملية وإرجاع الأرصدة؟')">
+                                        <button type="submit" class="btn-action-sm undo" title="تراجع">
+                                            <i class="fa-solid fa-rotate-left"></i>
+                                        </button>
+                                    </form>
+                                <% } %>
                             </div>
                         </div>
                     </div>
