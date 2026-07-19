@@ -31,15 +31,6 @@ cloudflared.exe
 config.yml
 *.bat
 *.sh
-mongodb-bin/
-mongodb_data/
-mongodb.zip
-mongodb-compass/
-compass.zip
-scratch/
-*.zip
-*.dll
-test_receipt.jpg
 
 # ======================================
 # 📝 Logs

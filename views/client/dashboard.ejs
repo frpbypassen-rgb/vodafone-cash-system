@@ -140,7 +140,6 @@
 
         .icon-2 { background: rgba(16, 185, 129, 0.1); color: #10b981; } .app-btn:hover .icon-2 { background: #10b981; }
         .icon-4 { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; } .app-btn:hover .icon-4 { background: #8b5cf6; }
-        .sc-balance { background: linear-gradient(135deg, #0f766e, #115e59); }
 
         /* Stats (3D Hover) */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; perspective: 1000px;}
@@ -206,353 +205,14 @@
         .swal2-popup { background: var(--card-bg) !important; color: var(--text-main) !important; border: 1px solid var(--border-glass); border-radius: 24px !important; }
         .swal2-title, .swal2-html-container { color: var(--text-main) !important; }
 
-        .mobile-header { display: none; }
-        .bottom-nav-mobile { display: none; }
-
         @media (max-width: 768px) {
-            body {
-                padding-bottom: 85px !important; /* Space for bottom navigation */
-            }
-            .navbar-custom {
-                display: none !important; /* Hide desktop navbar */
-            }
-            .main-container {
-                padding-left: 12px !important;
-                padding-right: 12px !important;
-                margin-top: 15px !important;
-            }
-            .table-responsive {
-                display: none !important; /* Hide desktop table */
-            }
-            
-            /* Compact stats for mobile */
-            .stats-grid {
-                display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 8px !important;
-                margin-bottom: 20px !important;
-            }
-            .stat-card {
-                padding: 12px 6px !important;
-                border-radius: 12px !important;
-            }
-            .stat-label {
-                font-size: 0.65rem !important;
-                margin-bottom: 4px !important;
-            }
-            .stat-val {
-                font-size: 1.15rem !important;
-            }
-
-            /* Compact apps for mobile */
-            .app-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 10px !important;
-                margin-bottom: 25px !important;
-            }
-            .app-btn {
-                padding: 15px 10px !important;
-                border-radius: 18px !important;
-            }
-            .app-icon {
-                width: 44px !important;
-                height: 44px !important;
-                border-radius: 12px !important;
-                font-size: 1.3rem !important;
-            }
-            .app-title {
-                font-size: 0.8rem !important;
-            }
-            
-            /* Mobile Header */
-            .mobile-header {
-                display: flex !important;
-                justify-content: space-between;
-                align-items: center;
-                background: var(--card-bg);
-                border-bottom: 1px solid var(--border-glass);
-                padding: 10px 16px;
-                position: sticky;
-                top: 0;
-                z-index: 999;
-                box-shadow: var(--shadow-soft);
-            }
-            .mobile-logo-wrapper {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .mobile-logo-wrapper img {
-                height: 32px;
-                border-radius: 6px;
-            }
-            .mobile-logo-wrapper h1 {
-                font-size: 1.15rem;
-                font-weight: 900;
-                margin: 0;
-                color: var(--brand-primary);
-            }
-            [data-theme="dark"] .mobile-logo-wrapper h1 {
-                color: var(--brand-gold);
-            }
-            
-            /* Bottom Navigation */
-            .bottom-nav-mobile {
-                display: flex !important;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 65px;
-                background: var(--card-bg);
-                border-top: 1px solid var(--border-glass);
-                justify-content: space-around;
-                align-items: center;
-                z-index: 1000;
-                box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-            .bottom-nav-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 4px;
-                color: var(--text-muted);
-                text-decoration: none;
-                flex: 1;
-                height: 100%;
-                font-size: 0.72rem;
-                font-weight: bold;
-                transition: 0.2s;
-            }
-            .bottom-nav-item i {
-                font-size: 1.25rem;
-                transition: transform 0.2s;
-            }
-            .bottom-nav-item:hover {
-                color: var(--text-main);
-            }
-            .bottom-nav-item.active {
-                color: var(--brand-primary);
-            }
-            [data-theme="dark"] .bottom-nav-item.active {
-                color: var(--brand-gold);
-            }
-            .bottom-nav-item.active i {
-                transform: translateY(-2px);
-            }
-
-            /* Mobile transaction cards */
-            .mobile-tx-card {
-                background: var(--card-bg);
-                border: 1px solid var(--border-glass);
-                border-radius: 18px;
-                padding: 16px;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                box-shadow: var(--shadow-soft);
-                transition: transform 0.15s ease, background-color 0.15s ease;
-            }
-            .mobile-tx-card:active {
-                transform: scale(0.98);
-                background-color: var(--input-bg);
-            }
-            .mobile-tx-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .tx-custom-id {
-                font-family: 'JetBrains Mono', monospace;
-                font-weight: 800;
-                font-size: 0.95rem;
-                color: var(--brand-gold);
-            }
-            .mobile-tx-body {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-end;
-            }
-            .tx-amount-section {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .tx-amount-wrapper {
-                display: flex;
-                align-items: baseline;
-                gap: 4px;
-            }
-            .tx-amount {
-                font-size: 1.35rem;
-                font-weight: 900;
-                color: var(--text-main);
-            }
-            .tx-currency {
-                font-size: 0.75rem;
-                font-weight: 700;
-                color: var(--text-muted);
-            }
-            .tx-cost-wrapper {
-                font-size: 0.9rem;
-                display: flex;
-                align-items: center;
-                gap: 4px;
-            }
-            .mobile-tx-divider {
-                height: 1px;
-                background: var(--border-glass);
-                margin: 4px 0;
-            }
-            .mobile-tx-date-row {
-                font-size: 0.75rem;
-                color: var(--text-muted);
-                font-weight: 700;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-            .mobile-tx-actions {
-                display: flex;
-                gap: 6px;
-            }
-            .mobile-tab-content {
-                display: none;
-            }
-            .mobile-tab-content.active {
-                display: block;
-            }
-
-            /* Services Grid inside transfers tab */
-            .services-mobile-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-                margin-top: 15px;
-            }
-            .service-card-item {
-                background: var(--card-bg);
-                border: 1px solid var(--border-glass);
-                border-radius: 20px;
-                padding: 20px 10px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 12px;
-                cursor: pointer;
-                box-shadow: var(--shadow-soft);
-                transition: transform 0.2s, box-shadow 0.2s;
-            }
-            .service-card-item:active {
-                transform: scale(0.95);
-                background-color: var(--input-bg);
-            }
-            .service-card-icon {
-                width: 50px;
-                height: 50px;
-                border-radius: 14px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                color: #fff;
-            }
-            .sc-cash { background: linear-gradient(135deg, #10b981, #059669); }
-            .sc-balance { background: linear-gradient(135deg, #0f766e, #115e59); }
-            .sc-post-card { background: linear-gradient(135deg, #f59e0b, #d97706); }
-            .sc-post-acc { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-            .sc-bank { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-            .sc-niger { background: linear-gradient(135deg, #14b8a6, #0d9488); }
-            .sc-sudan { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-
-            .service-card-title {
-                font-weight: 800;
-                font-size: 0.82rem;
-                text-align: center;
-                color: var(--text-main);
-            }
-
-            /* Professional Profile Card for Mobile */
-            .mobile-profile-card {
-                background: linear-gradient(135deg, var(--card-bg) 0%, rgba(14, 165, 233, 0.02) 100%) !important;
-                border: 1px solid var(--border-glass) !important;
-                border-radius: 24px !important;
-                padding: 24px 20px !important;
-                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.03) !important;
-                position: relative;
-                overflow: hidden;
-            }
-            [data-theme="dark"] .mobile-profile-card {
-                background: linear-gradient(135deg, var(--card-bg) 0%, rgba(212, 175, 55, 0.01) 100%) !important;
-            }
-            .mobile-profile-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 0;
-                width: 5px;
-                height: 100%;
-                background: linear-gradient(to bottom, var(--brand-primary), var(--brand-gold));
-            }
-            .mobile-profile-card-header {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 20px;
-                border-bottom: 1px dashed var(--border-glass);
-                padding-bottom: 12px;
-            }
-            .mobile-profile-card-icon {
-                width: 42px;
-                height: 42px;
-                border-radius: 12px;
-                background: rgba(212, 175, 55, 0.08);
-                border: 1px solid rgba(212, 175, 55, 0.15);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: var(--brand-gold);
-                font-size: 1.25rem;
-            }
-            .mobile-profile-card-title {
-                font-size: 1.05rem;
-                font-weight: 800;
-                color: var(--text-main);
-                margin: 0;
-            }
-            .mobile-profile-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px 0;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.02);
-            }
-            [data-theme="dark"] .mobile-profile-row {
-                border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-            }
-            .mobile-profile-row:last-child {
-                border-bottom: none;
-            }
-            .mobile-profile-label {
-                color: var(--text-muted);
-                font-size: 0.82rem;
-                font-weight: 700;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .mobile-profile-label i {
-                font-size: 0.95rem;
-                width: 16px;
-                text-align: center;
-            }
-            .mobile-profile-value {
-                color: var(--text-main);
-                font-size: 0.88rem;
-                font-weight: 800;
-            }
+            .navbar-custom { padding: 15px; } .navbar-brand { font-size: 1.2rem; }
+            .app-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .stats-grid { grid-template-columns: 1fr; gap: 15px; }
+            .wallet-card { padding: 30px 20px; } .wallet-balance { font-size: 2.2rem; }
+            .filter-box { flex-direction: column; width: 100%; align-items: stretch;}
+            .table-responsive { border: none; background: transparent; overflow-x: auto;}
+            .table-custom td { padding: 12px 10px; font-size: 0.85rem;}
         }
 
         /* 🖨️ تصميم التقفيل المجزأ للطباعة فقط */
@@ -583,323 +243,126 @@
             100% { background-color: var(--input-bg); transform: scale(1); }
         }
         .rate-updated { animation: flashUpdate 1s ease-out; }
-
-        .transfer-tab-btn {
-            font-size: 0.82rem;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.2s;
-            border-width: 2px;
-        }
-        .transfer-tab-btn:hover { transform: translateY(-1px); }
-        .transfer-tab-btn.active, .transfer-tab-btn.btn-primary {
-            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-        }
-
-        .sefa-tab-btn {
-            font-size: 0.9rem;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            transition: all 0.25s ease;
-            border-width: 2px;
-        }
-        .sefa-tab-btn:hover { transform: translateY(-1px); }
-        .sefa-tab-btn.active {
-            background: linear-gradient(135deg, #0ea5e9, #2563eb) !important;
-            color: white !important;
-            border-color: transparent !important;
-            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
-        }
-
-        /* Desktop Services Grid */
-        .services-desktop-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 15px;
-        }
-        .service-card-item-desktop {
-            background: var(--card-bg);
-            border: 1px solid var(--border-glass);
-            border-radius: 20px;
-            padding: 25px 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            box-shadow: var(--shadow-soft);
-            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease, border-color 0.25s ease;
-        }
-        .service-card-item-desktop:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-            border-color: var(--brand-gold);
-        }
-        .service-card-item-desktop:active {
-            transform: scale(0.98);
-        }
-        .service-card-item-desktop .service-card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: #fff;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        }
-        .service-card-item-desktop .service-card-title {
-            font-weight: 800;
-            font-size: 0.95rem;
-            text-align: center;
-            color: var(--text-main);
-        }
     </style>
-
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
-    <!-- End PWA Setup -->
 </head>
 <body>
 
     <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-    <!-- Mobile Header -->
-    <header class="mobile-header no-print">
-        <div class="mobile-logo-wrapper">
-            <img src="/images/logo.jpeg" alt="Logo" onerror="this.onerror=null; this.src='/images/logo.jpg';">
-            <h1>Al-Ahram Pay</h1>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <!-- Balance badge -->
-            <div class="pe-none" style="
-                background: <%= (user.canViewBalance ? user.balance : 0) >= 0 ? 'linear-gradient(45deg, #10b981, #059669)' : 'linear-gradient(45deg, #ef4444, #dc2626)' %>;
-                color: white;
-                padding: 6px 12px;
-                border-radius: 10px;
-                font-weight: 800;
-                box-shadow: 0 4px 10px <%= (user.canViewBalance ? user.balance : 0) >= 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' %>;
-                font-size: 0.82rem;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            ">
-                <span dir="ltr" style="font-family: 'JetBrains Mono', monospace;"><%= user.canViewBalance ? user.balance.toFixed(2) : '***' %> LYD</span>
-                <i class="fa-solid fa-wallet"></i>
-            </div>
-            
-            <button class="nav-btn btn-theme" onclick="toggleTheme()" style="padding: 6px; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-moon" id="mobileThemeIcon"></i></button>
-            <a href="/client/logout" class="nav-btn nav-logout" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); padding: 6px; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-power-off"></i></a>
-        </div>
-    </header>
-
     <nav class="navbar-custom no-print">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
                 <img src="/images/logo.jpeg" alt="Logo" class="logo-img" onerror="this.onerror=null; this.src='/images/logo.jpg';">
+                <h1 class="navbar-brand d-none d-sm-block">Al-Ahram</h1>
             </div>
     
             <div class="d-flex align-items-center gap-2">
-                <!-- الرصيد المتاح في الشريط العلوي بشكل جميل -->
-                <div class="d-flex align-items-center pe-none" style="
-                    background: <%= (user.canViewBalance ? user.balance : 0) >= 0 ? 'linear-gradient(45deg, #10b981, #059669)' : 'linear-gradient(45deg, #ef4444, #dc2626)' %>;
-                    color: white;
-                    padding: 8px 16px;
-                    border-radius: 12px;
-                    font-weight: 800;
-                    box-shadow: 0 4px 10px <%= (user.canViewBalance ? user.balance : 0) >= 0 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)' %>;
-                    border: 1px solid rgba(255,255,255,0.2);
-                    gap: 8px;
-                ">
-                    <span dir="ltr" style="font-family: 'JetBrains Mono', monospace;"><%= user.canViewBalance ? user.balance.toFixed(2) : '***' %> LYD</span>
-                    <i class="fa-solid fa-wallet"></i>
-                </div>
-                
+                <% if (!user.telegramId) { %>
+                    <button class="nav-btn border-primary text-primary" onclick="activateTelegram('client')" title="تفعيل التليجرام"><i class="fa-brands fa-telegram"></i> <span class="d-none d-md-inline ms-1">تفعيل بوت التليجرام</span></button>
+                <% } %>
+                <span class="nav-btn d-none d-md-flex border-0 pe-none"><i class="fa-solid fa-user-tie text-muted"></i> <%= user.name %></span>
                 <button class="nav-btn btn-theme" onclick="toggleTheme()" title="الوضع الليلي/النهاري"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
-                <a href="/client/logout" class="nav-btn nav-logout" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);"><i class="fa-solid fa-power-off"></i> <span class="d-none d-sm-inline ms-1">خروج</span></a>
+                <a href="/client/logout" class="nav-btn nav-logout"><i class="fa-solid fa-power-off"></i> <span class="d-none d-sm-inline ms-1">خروج</span></a>
             </div>
         </div>
     </nav>
 
     <div class="container main-container mb-5 no-print">
-        <div class="desktop-only-layout d-none d-md-block">
-            <div class="row">
-                <!-- اليمين: بطاقة العميل + الأزرار -->
-                <div class="col-md-7 col-lg-8 mb-4">
-                    <!-- بطاقة تعريف العميل -->
-                    <div class="card p-3 shadow-sm" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 15px; color: var(--text-main);">
-                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-address-card text-primary me-2"></i> بطاقة تعريف العميل</h5>
-                        <div class="row align-items-center">
-                        <div class="col-md-6 mb-3 mb-md-0">
-                            <div class="d-flex align-items-center mb-2">
-                                <div style="width: 35px; height: 35px; border-radius: 8px; background: rgba(14, 165, 233, 0.1); display: flex; justify-content: center; align-items: center; margin-left: 10px;">
-                                    <i class="fa-solid fa-user text-info"></i>
-                                </div>
-                                <div>
-                                    <div class="small text-muted">الاسم</div>
-                                    <div class="fw-bold"><%= user.name %></div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="wallet-wrapper">
+                    <div class="wallet-card">
+                        <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                            <div>
+                                <div class="wallet-label"><%= isSubAccount ? 'الرصيد الافتراضي المتاح' : 'الرصيد المتاح للعمليات' %></div>
+                                <div class="wallet-balance" dir="ltr" id="liveBalanceHolder">
+                                    <span class="currency-symbol">LYD</span><%= user.balance.toFixed(2) %>
                                 </div>
                             </div>
-                            <div class="d-flex align-items-center">
-                                <div style="width: 35px; height: 35px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); display: flex; justify-content: center; align-items: center; margin-left: 10px;">
-                                    <i class="fa-solid fa-phone text-success"></i>
-                                </div>
-                                <div>
-                                    <div class="small text-muted">رقم الهاتف</div>
-                                    <div class="fw-bold" dir="ltr"><%= user.phone %></div>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mt-2">
-                                <div style="width: 35px; height: 35px; border-radius: 8px; background: rgba(245, 158, 11, 0.1); display: flex; justify-content: center; align-items: center; margin-left: 10px;">
-                                    <i class="fa-solid fa-id-badge text-warning"></i>
-                                </div>
-                                <div>
-                                    <div class="small text-muted">ID الحساب</div>
-                                    <div class="fw-bold mono-num" dir="ltr"><%= user.accountCode || 'غير محدد' %></div>
-                                </div>
-                            </div>
+                            <div style="font-size: 2.5rem; color: rgba(255,255,255,0.8);"><i class="fa-brands fa-cc-mastercard"></i></div>
                         </div>
-                        <div class="col-md-6 border-start" style="border-color: var(--glass-border) !important;">
-                            <div class="text-center p-2">
-                                <div class="small text-muted mb-2">حالة السيستم</div>
-                                <% if (isSystemOpen) { %>
-                                    <div class="badge bg-success p-2 px-3 fs-6 rounded-pill"><i class="fa-solid fa-lock-open me-2"></i> مفتوح للتحويلات</div>
-                                <% } else { %>
-                                    <div class="badge bg-danger p-2 px-3 fs-6 rounded-pill"><i class="fa-solid fa-lock me-2"></i> مغلق (خارج مواعيد العمل)</div>
-                                <% } %>
+                        <div class="wallet-footer position-relative z-1">
+                            <div class="wallet-name">
+                                <i class="fa-solid fa-building me-2 opacity-50"></i><%= user.name %>
+                                <% if (isSubAccount) { %><span class="badge bg-light text-dark ms-2 opacity-75" style="font-size: 0.65rem;">نقطة بيع فرعية</span><% } %>
                             </div>
+                            <div class="wallet-logo">VIP CLIENT</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- أزرار الخدمات أسفل البطاقة مباشرة -->
-                <div class="row g-3 mt-2">
-                    <% if (user.role !== 'accountant') { %>
-                    <div class="col-6">
-                        <button class="btn shadow-sm w-100 d-flex flex-column align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#transferModal" style="background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white; border: none; border-radius: 12px; padding: 20px 10px; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(14,165,233,0.35)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 .125rem .25rem rgba(0,0,0,.075)';">
-                            <i class="fa-solid fa-money-bill-transfer fs-3"></i>
-                            <span class="fw-bold" style="font-size: 1rem;">تحويل مالي</span>
-                        </button>
-                    </div>
-                    <% } %>
-                    <div class="col-6">
-                        <a href="/client/support" class="btn shadow-sm w-100 d-flex flex-column align-items-center justify-content-center gap-2 text-decoration-none" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 12px; padding: 20px 10px; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(245,158,11,0.35)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 .125rem .25rem rgba(0,0,0,.075)';">
-                            <i class="fa-solid fa-headset fs-3"></i>
-                            <span class="fw-bold" style="font-size: 1rem;">الدعم الفني</span>
-                        </a>
-                    </div>
-                    <div class="col-12 mt-1">
-                        <a href="/client/reports" class="btn shadow-sm w-100 d-flex align-items-center justify-content-center gap-3 text-decoration-none" style="background: linear-gradient(135deg, #14b8a6, #0f766e); color: white; border: none; border-radius: 14px; padding: 18px 10px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(20, 184, 166, 0.4)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 .125rem .25rem rgba(0,0,0,.075)';">
-                            <i class="fa-solid fa-chart-pie fs-4"></i>
-                            <span class="fw-bold" style="font-size: 1.1rem; letter-spacing: 0.5px;">سجل التقارير الشامل</span>
-                        </a>
-                    </div>
-                    <% if (user.role === 'agent') { %>
-                    <div class="col-12">
-                        <a href="/client/sub-accounts" class="btn shadow-sm w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; border-radius: 12px; padding: 14px 10px; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(139,92,246,0.35)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 .125rem .25rem rgba(0,0,0,.075)';">
-                            <i class="fa-solid fa-users-viewfinder fs-5"></i>
-                            <span class="fw-bold" style="font-size: 1rem;">نقاط البيع</span>
-                        </a>
-                    </div>
-                    <% } %>
-                </div>
-            </div>
-
-            <!-- اليسار: أسعار الصرف -->
-            <div class="col-md-5 col-lg-4 mb-4">
-                <div class="card h-100 p-4 shadow-sm" id="ratesCardContainer" style="border-radius: 15px; background: var(--glass-bg); border: 1px solid var(--glass-border);">
-                    <h5 class="fw-bold mb-4" style="color: var(--text-main); border-bottom: 2px dashed var(--glass-border); padding-bottom: 10px;">
-                        <i class="fa-solid fa-money-bill-trend-up text-success me-2"></i> أسعار الصرف الحالية
-                    </h5>
-                    <div class="d-flex flex-column gap-3" style="color: var(--text-main);">
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(14, 165, 233, 0.05);">
-                            <span><i class="fa-solid fa-money-bill-wave text-info me-2 w-15px text-center"></i> تحويل كاش</span> 
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5 mono-num" id="liveRateCash"><%= currentRate.toFixed(2) %></span>
-                                <span class="badge bg-success-subtle text-success d-flex align-items-center gap-1 py-1 px-2 rounded-pill" style="font-size: 0.72rem; border: 1px solid rgba(16,185,129,0.2); font-weight: 800;"><i class="fa-solid fa-arrow-trend-up"></i> 0.25%+</span>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(245, 158, 11, 0.05);">
-                            <span><i class="fa-solid fa-id-card text-warning me-2 w-15px text-center"></i> تحويل بريد بطاقة</span> 
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5 mono-num" id="liveRatePostCard"><%= (currentRate - 0.15).toFixed(2) %></span>
-                                <span class="badge bg-danger-subtle text-danger d-flex align-items-center gap-1 py-1 px-2 rounded-pill" style="font-size: 0.72rem; border: 1px solid rgba(239,68,68,0.2); font-weight: 800;"><i class="fa-solid fa-arrow-trend-down"></i> 0.15%-</span>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(16, 185, 129, 0.05);">
-                            <span><i class="fa-solid fa-envelope-open-text text-success me-2 w-15px text-center"></i> تحويل بريد حساب</span> 
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5 mono-num" id="liveRatePostAcc"><%= (currentRate - 0.05).toFixed(2) %></span>
-                                <span class="badge bg-secondary-subtle text-secondary d-flex align-items-center gap-1 py-1 px-2 rounded-pill" style="font-size: 0.72rem; border: 1px solid rgba(107,114,128,0.2); font-weight: 800;"><i class="fa-solid fa-arrows-left-right"></i> مستقر</span>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(99, 102, 241, 0.05);">
-                            <span><i class="fa-solid fa-building-columns text-indigo me-2 w-15px text-center" style="color: #6366f1;"></i> تحويل حساب بنكي</span> 
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5 mono-num" id="liveRateBank"><%= currentRate.toFixed(2) %></span>
-                                <span class="badge bg-success-subtle text-success d-flex align-items-center gap-1 py-1 px-2 rounded-pill" style="font-size: 0.72rem; border: 1px solid rgba(16,185,129,0.2); font-weight: 800;"><i class="fa-solid fa-arrow-trend-up"></i> 0.30%+</span>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(107, 114, 128, 0.05);">
-                            <span><i class="fa-solid fa-earth-africa text-secondary me-2 w-15px text-center"></i> تحويل سيفا النيجر</span> 
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5 mono-num" id="liveRateNiger"><%= (currentRate + 0.1).toFixed(2) %></span>
-                                <span class="badge bg-secondary-subtle text-secondary d-flex align-items-center gap-1 py-1 px-2 rounded-pill" style="font-size: 0.72rem; border: 1px solid rgba(107,114,128,0.2); font-weight: 800;"><i class="fa-solid fa-arrows-left-right"></i> مستقر</span>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(239, 68, 68, 0.05);">
-                            <span><i class="fa-solid fa-landmark text-danger me-2 w-15px text-center"></i> تحويل بنكك السودان</span> 
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5 mono-num" id="liveRateSudan"><%= (currentRate + 0.2).toFixed(2) %></span>
-                                <span class="badge bg-danger-subtle text-danger d-flex align-items-center gap-1 py-1 px-2 rounded-pill" style="font-size: 0.72rem; border: 1px solid rgba(239,68,68,0.2); font-weight: 800;"><i class="fa-solid fa-arrow-trend-down"></i> 0.40%-</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="live-rates-bar rates-ticker" id="ratesContainer">
+                    <div class="rate-title"><i class="fa-solid fa-bolt text-warning"></i> أسعار الصرف لمستواك:</div>
+                    <div class="rate-item"><i class="fa-solid fa-mobile-screen-button text-info"></i> كاش <span class="rate-val" id="liveRateCash"><%= currentRate.toFixed(2) %></span></div>
+                    <div class="rate-item"><i class="fa-solid fa-envelope text-success"></i> بريد حساب <span class="rate-val" id="liveRatePostAcc"><%= (currentRate - 0.05).toFixed(2) %></span></div>
+                    <div class="rate-item"><i class="fa-solid fa-id-card text-warning"></i> بريد بطاقة <span class="rate-val" id="liveRatePostCard"><%= (currentRate - 0.15).toFixed(2) %></span></div>
                 </div>
             </div>
         </div>
 
+        <div class="app-grid mt-4">
+            <% if (user.role !== 'accountant') { %>
+            <a href="#" class="app-btn premium-transfer-btn" data-bs-toggle="modal" data-bs-target="#transferModal">
+                <span class="premium-badge"><i class="fa-solid fa-bolt"></i> سريع</span>
+                <div class="app-icon icon-1 premium-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                <h5 class="app-title">تحويل مالي</h5>
+            </a>
+            <% } %>
 
-        <!-- ملخص عمليات اليوم -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card p-3 shadow-sm h-100 text-center" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px;">
-                    <div class="small text-muted fw-bold mb-1"><i class="fa-solid fa-coins text-primary me-1"></i> إجمالي عمليات اليوم</div>
-                    <div class="fw-bold fs-4 mono-num" style="color: var(--brand-gold);" id="todayTotalLYD">0.00 <small class="text-muted" style="font-size: 0.6em;">LYD</small></div>
-                    <div class="fw-bold fs-6 mono-num" style="color: var(--accent-green);" id="todayTotalEGP">0.00 <small class="text-muted" style="font-size: 0.7em;">EGP</small></div>
-                </div>
+            <% if (!isSubAccount && user.role !== 'accountant') { %>
+            <a href="/client/sub-accounts" class="app-btn" style="border-color: rgba(139, 92, 246, 0.3);">
+                <div class="app-icon icon-4"><i class="fa-solid fa-users-viewfinder"></i></div>
+                <h5 class="app-title">إدارة نقاط البيع</h5>
+            </a>
+            <% } else if (user.role === 'accountant') { %>
+                <div></div><div></div>
+            <% } else { %>
+                <div></div>
+            <% } %>
+            
+            <a href="/client/support" class="app-btn">
+                <div class="app-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fa-solid fa-headset"></i></div>
+                <h5 class="app-title">الدعم الفني</h5>
+            </a>
+
+            <a href="#" class="app-btn" onclick="activateTelegram()" style="border-color: rgba(14, 165, 233, 0.3);">
+                <div class="app-icon" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;"><i class="fa-brands fa-telegram"></i></div>
+                <h5 class="app-title">تفعيل تليجرام</h5>
+            </a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card c-blue">
+                <span class="stat-label">إجمالي الإيداعات (EGP)</span>
+                <span class="stat-val"><%= totals.depositsEGP.toFixed(2) %></span>
             </div>
-            <div class="col-md-4">
-                <div class="card p-3 shadow-sm h-100 text-center" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px;">
-                    <div class="small text-muted fw-bold mb-1"><i class="fa-solid fa-arrow-down text-success me-1"></i> إجمالي الإيداعات</div>
-                    <div class="fw-bold fs-4 mono-num text-success" id="todayTotalDeposits">0.00 <small class="text-muted" style="font-size: 0.6em;">LYD</small></div>
-                </div>
+            <div class="stat-card c-green">
+                <span class="stat-label">التحويلات المنفذة (EGP)</span>
+                <span class="stat-val"><%= totals.transfersEGP.toFixed(2) %></span>
             </div>
-            <div class="col-md-4">
-                <div class="card p-3 shadow-sm h-100 text-center" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px;">
-                    <div class="small text-muted fw-bold mb-1"><i class="fa-solid fa-list-ol text-info me-1"></i> عدد العمليات اليوم</div>
-                    <div class="fw-bold fs-2 mono-num" style="color: #0ea5e9;" id="todayTxCount">0</div>
-                </div>
+            <div class="stat-card c-gold">
+                <span class="stat-label"><%= isMaster ? 'إجمالي التكلفة عليك (LYD)' : 'التكلفة المخصومة منك (LYD)' %></span>
+                <span class="stat-val" style="color: var(--brand-gold);" id="liveDeductionsHolder"><%= totals.transfersLYD.toFixed(2) %></span>
             </div>
+            <% if (isMaster && typeof masterTotalProfit !== 'undefined' && masterTotalProfit > 0) { %>
+            <div class="stat-card" style="grid-column: 1 / -1; border-color: var(--accent-green);">
+                <span class="stat-label text-success">إجمالي أرباحك من نقاط البيع (LYD)</span>
+                <span class="stat-val text-success">+<%= masterTotalProfit.toFixed(2) %></span>
+            </div>
+            <% } %>
         </div>
 
         <div class="ledger-section">
             <div class="ledger-header">
-                <h3 class="ledger-title"><i class="fa-solid fa-list-check me-2 text-primary"></i> سجل عمليات اليوم <span class="spinner-grow spinner-grow-sm text-success ms-2" style="vertical-align: middle;"></span></h3>
+                <h3 class="ledger-title"><i class="fa-solid fa-list-check me-2 text-primary"></i> سجل العمليات المباشر <span class="spinner-grow spinner-grow-sm text-success ms-2" style="vertical-align: middle;"></span></h3>
                 
                 <form method="GET" action="/client/dashboard" class="filter-box">
                     <input type="text" name="search" class="filter-input" placeholder="بحث برقم أو ملاحظة..." value="<%= typeof search !== 'undefined' ? search : '' %>">
                     <input type="date" name="date" class="filter-input" value="<%= typeof targetDate !== 'undefined' ? targetDate : '' %>">
                     <button type="submit" class="filter-btn"><i class="fa-solid fa-filter"></i> عرض</button>
+                    <a href="/client/dashboard?month=true" class="filter-btn" style="background: var(--brand-gold); color:#000; text-decoration:none;"><i class="fa-solid fa-calendar-days"></i> الشهر</a>
                     <button type="button" onclick="window.print()" class="filter-btn" style="background: var(--text-muted);"><i class="fa-solid fa-print"></i></button>
+                    <a href="/client/export-excel?type=<%= typeof showMonth !== 'undefined' && showMonth ? 'monthly' : 'daily' %>" class="filter-btn" style="background: #10b981; color:white; text-decoration:none;"><i class="fa-solid fa-file-excel"></i> إكسيل</a>
                 </form>
             </div>
             
@@ -907,165 +370,19 @@
                 <table class="table-custom" id="transactionsTable">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>رقم العملية</th>
+                            <th>الرقم</th>
+                            <% if (isMaster) { %><th>بواسطة (الجهة المنفذة)</th><% } %>
                             <th>المبلغ (EGP)</th>
-                            <th>التكلفة / السعر</th>
-                            <th>رقم الحساب</th>
+                            <th>سعر الصرف</th> 
+                            <th>التكلفة (LYD)</th>
+                            <th>الرقم / الحساب</th>
                             <th>الوقت</th>
                             <th>الحالة</th>
-                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         </tbody>
                 </table>
-            </div>
-            <!-- قائمة العمليات للموبايل (تظهر كبطاقات تطبيق) -->
-            <div class="mobile-ops-list d-flex flex-column gap-3 d-md-none mb-4" id="mobileTransactionsList"></div>
-        </div>
-        </div> <!-- End of desktop-only-layout -->
-
-        <!-- Mobile Tab-based Layout -->
-        <div class="mobile-only-layout d-md-none px-1" style="margin-top: 15px;">
-            <!-- Tab 1: Account -->
-            <div class="mobile-tab-content active" id="mobile-tab-account">
-                <!-- Wallet Card (Client Balance Card) -->
-                <div id="mobile-wallet-card-placeholder" class="mb-4"></div>
-
-                <!-- Client Info Card for Mobile -->
-                <div class="mobile-profile-card mb-4">
-                    <div class="mobile-profile-card-header">
-                        <div class="mobile-profile-card-icon">
-                            <i class="fa-solid fa-address-card"></i>
-                        </div>
-                        <h6 class="mobile-profile-card-title">بطاقة تعريف العميل</h6>
-                    </div>
-                    
-                    <div class="mobile-profile-row">
-                        <span class="mobile-profile-label"><i class="fa-solid fa-tags"></i>نوع الحساب:</span>
-                        <span class="badge bg-info-subtle text-info py-1.5 px-3 rounded-pill" style="font-size: 0.72rem; font-weight: 800;"><%= profile.accountTypeName %></span>
-                    </div>
-                    <% if (profile.accountTypeDetail) { %>
-                        <div class="mobile-profile-row">
-                            <span class="mobile-profile-label">
-                                <% if (profile.accountTypeName === 'شركة') { %>
-                                    <i class="fa-solid fa-building"></i>اسم الشركة:
-                                <% } else if (profile.accountTypeName === 'وكيل') { %>
-                                    <i class="fa-solid fa-user-tie"></i>اسم الوكيل:
-                                <% } else if (profile.accountTypeName === 'عميل جديد') { %>
-                                    <i class="fa-solid fa-user-group"></i>الوكيل التابع له:
-                                <% } else { %>
-                                    <i class="fa-solid fa-circle-info"></i>التفاصيل:
-                                <% } %>
-                            </span>
-                            <span class="mobile-profile-value text-primary"><%= profile.accountTypeDetail %></span>
-                        </div>
-                    <% } %>
-                    <div class="mobile-profile-row">
-                        <span class="mobile-profile-label"><i class="fa-solid fa-user"></i>اسم العميل:</span>
-                        <span class="mobile-profile-value"><%= profile.name %></span>
-                    </div>
-                    <div class="mobile-profile-row">
-                        <span class="mobile-profile-label"><i class="fa-solid fa-shield-halved"></i>رتبة الحساب:</span>
-                        <span class="badge bg-secondary-subtle text-secondary py-1.5 px-3 rounded-pill" style="font-size: 0.72rem; font-weight: 800;"><%= profile.userRoleLabel %></span>
-                    </div>
-                    <div class="mobile-profile-row">
-                        <span class="mobile-profile-label"><i class="fa-solid fa-phone"></i>رقم الهاتف:</span>
-                        <span class="mobile-profile-value" dir="ltr"><%= profile.phone %></span>
-                    </div>
-                    <div class="mobile-profile-row">
-                        <span class="mobile-profile-label"><i class="fa-solid fa-id-badge"></i>ID الحساب:</span>
-                        <span class="mobile-profile-value mono-num" dir="ltr"><%= profile.accountCode || 'غير محدد' %></span>
-                    </div>
-                    <div class="mobile-profile-row">
-                        <span class="mobile-profile-label"><i class="fa-solid fa-user-gear"></i>اسم المستخدم:</span>
-                        <span class="mobile-profile-value"><%= profile.username %></span>
-                    </div>
-                    <div class="mobile-profile-row">
-                        <span class="mobile-profile-label"><i class="fa-solid fa-clock-rotate-left"></i>حالة النظام:</span>
-                        <% if (profile.systemStatus === 'تعمل') { %>
-                            <span class="badge bg-success-subtle text-success py-1.5 px-3 rounded-pill" style="font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-lock-open me-1"></i><%= profile.systemStatus %></span>
-                        <% } else { %>
-                            <span class="badge bg-danger-subtle text-danger py-1.5 px-3 rounded-pill" style="font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-lock me-1"></i><%= profile.systemStatus %></span>
-                        <% } %>
-                    </div>
-                </div>
-
-                <% if (user.role !== 'accountant') { %>
-                    <div class="mb-4">
-                        <button type="button" class="btn w-100 d-flex align-items-center justify-content-center gap-3 fw-bold shadow-sm" onclick="openBalanceTransferModal()" style="background: linear-gradient(135deg, #0f766e, #115e59); color: #fff; border: none; border-radius: 16px; padding: 16px 14px;">
-                            <i class="fa-solid fa-wallet fs-4"></i>
-                            <span>تحويل رصيد لحساب آخر</span>
-                        </button>
-                    </div>
-                <% } %>
-
-                <h5 class="fw-bold mb-3" style="color: var(--text-main); font-size: 1.1rem;">
-                    <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> العمليات الأخيرة اليوم
-                </h5>
-                <div class="mobile-ops-list d-flex flex-column gap-3 mb-4" id="mobileTransactionsListBrief">
-                    <!-- Brief compact list will go here -->
-                </div>
-
-                <div class="text-center mt-3 mb-4">
-                    <a href="/client/reports" class="btn btn-outline-primary w-100 py-2 fw-bold" style="border-radius: 12px; font-size: 0.9rem;">
-                        <i class="fa-solid fa-list-check me-2"></i> عرض جميع تقارير العمليات
-                    </a>
-                </div>
-            </div>
-
-            <!-- Tab 2: Transfers -->
-            <div class="mobile-tab-content" id="mobile-tab-transfers">
-                <!-- Screen 1: Services Grid -->
-                <div id="mobile-transfer-services-grid" class="mb-4">
-                    <h5 class="fw-bold mb-3 text-center" style="color: var(--text-main); font-size: 1.15rem;">
-                        <i class="fa-solid fa-layer-group text-primary me-2"></i>اختر خدمة التحويل
-                    </h5>
-                    <div class="services-mobile-grid">
-                        <div class="service-card-item" onclick="selectTransferService('كاش')">
-                            <div class="service-card-icon sc-cash"><img src="/images/vodafone_cash_official.png" alt="محافظ كاش فودافون" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;"></div>
-                            <span class="service-card-title">تحويل محافظ كاش</span>
-                        </div>
-                        <div class="service-card-item" onclick="selectEgyptPostService()">
-                            <div class="service-card-icon sc-post-acc"><img src="/images/egypt_post_official.png" alt="البريد المصري" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;"></div>
-                            <span class="service-card-title">البريد المصري</span>
-                        </div>
-                        <div class="service-card-item" onclick="selectTransferService('حساب بنكي')">
-                            <div class="service-card-icon sc-bank"><img src="/images/instapay_official.png" alt="حساب بنكي انستا باي" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;"></div>
-                            <span class="service-card-title">حساب بنكي مصري</span>
-                        </div>
-                        <div class="service-card-item" onclick="selectTransferService('سيفا النيجر')">
-                            <div class="service-card-icon sc-niger"><img src="/images/nita_official.png" alt="سيفا النيجر NITA" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;"></div>
-                            <span class="service-card-title">سيفا النيجر</span>
-                        </div>
-                        <div class="service-card-item" onclick="selectTransferService('بنكك السودان')">
-                            <div class="service-card-icon sc-sudan"><img src="/images/bok_sudan_official.png" alt="بنكك السودان" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;"></div>
-                            <span class="service-card-title">بنكك السودان</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Screen 2: Form Details -->
-                <div id="mobile-transfer-form-view" class="card p-4 shadow-sm mb-4" style="display: none; background: var(--card-bg); border: 1px solid var(--border-glass); border-radius: 20px;">
-                    <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="goBackToServices()">
-                            <i class="fa-solid fa-arrow-right me-1"></i>رجوع للخدمات
-                        </button>
-                        <h6 class="fw-bold m-0 text-primary" id="selectedServiceTitle">تفاصيل التحويل</h6>
-                    </div>
-                    <div id="mobile-transfer-form-placeholder"></div>
-                </div>
-            </div>
-
-            <!-- Tab 3: Rates -->
-            <div class="mobile-tab-content" id="mobile-tab-rates">
-                <div class="card p-4 shadow-sm mb-4" style="background: var(--card-bg); border: 1px solid var(--border-glass); border-radius: 20px;">
-                    <h5 class="fw-bold mb-4" style="color: var(--text-main); font-size: 1.15rem;">
-                        <i class="fa-solid fa-money-bill-trend-up text-success me-2"></i> أسعار الصرف الحالية لمستواك
-                    </h5>
-                    <div id="mobile-rates-placeholder"></div>
-                </div>
             </div>
         </div>
     </div>
@@ -1079,7 +396,7 @@
         masterTxs.forEach(t => mLYD += (t.costLYD || 0));
         subTxs.forEach(t => sLYD += (t.costLYD || 0)); 
         depTxs.forEach(t => dLYD += (t.status === 'deposit' ? t.amount : -t.amount));
-        const prevBal = (user.canViewBalance ? user.balance : 0) + (mLYD + sLYD) - dLYD;
+        const prevBal = user.balance + (mLYD + sLYD) - dLYD;
     %>
     <div class="print-only-segmented">
         <div class="print-header">
@@ -1131,206 +448,73 @@
             <tr><th>الرصيد السابق (مرحل):</th><td><%= prevBal.toFixed(2) %> LYD</td></tr>
             <tr><th>إجمالي المسدد للإدارة (+):</th><td><%= dLYD.toFixed(2) %> LYD</td></tr>
             <tr><th>إجمالي المسحوب للتحويلات (-):</th><td><%= (mLYD + sLYD).toFixed(2) %> LYD</td></tr>
-            <tr><th style="background:#001a4d !important; color:white;">الرصيد الختامي المتبقي:</th><td style="color:<%= (user.canViewBalance ? user.balance : 0) < 0 ? '#dc3545' : '#198754' %>; font-size:18px;"><%= user.canViewBalance ? user.balance.toFixed(2) : '***' %> LYD</td></tr>
+            <tr><th style="background:#001a4d !important; color:white;">الرصيد الختامي المتبقي:</th><td style="color:<%= user.balance < 0 ? '#dc3545' : '#198754' %>; font-size:18px;"><%= user.balance.toFixed(2) %> LYD</td></tr>
         </table>
     </div>
 
     <div class="modal fade" id="transferModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0 pb-0 pt-4 px-4 position-relative">
                     <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" style="left: 20px; filter: invert(0.5);"></button>
                     <h5 class="modal-title fw-bold" style="color: var(--accent-blue);"><i class="fa-solid fa-paper-plane-top me-2"></i> طلب تحويل مالي</h5>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- Screen 1: Services Grid -->
-                    <div id="desktop-transfer-services-grid" class="mb-4">
-                        <h5 class="fw-bold mb-4 text-center" style="color: var(--text-main); font-size: 1.25rem;">
-                            <i class="fa-solid fa-layer-group text-primary me-2"></i>اختر خدمة التحويل
-                        </h5>
-                        <div class="services-desktop-grid">
-                            <div class="service-card-item-desktop" onclick="selectTransferServiceDesktop('كاش')">
-                                <div class="service-card-icon sc-cash"><img src="/images/vodafone_cash_official.png" alt="محافظ كاش فودافون" style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;"></div>
-                                <span class="service-card-title">تحويل محافظ كاش</span>
-                            </div>
-                            <div class="service-card-item-desktop" onclick="openBalanceTransferModal()">
-                                <div class="service-card-icon sc-balance"><i class="fa-solid fa-wallet"></i></div>
-                                <span class="service-card-title">تحويل رصيد</span>
-                            </div>
-                            <div class="service-card-item-desktop" onclick="selectEgyptPostServiceDesktop()">
-                                <div class="service-card-icon sc-post-acc"><img src="/images/egypt_post_official.png" alt="البريد المصري" style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;"></div>
-                                <span class="service-card-title">البريد المصري</span>
-                            </div>
-                            <div class="service-card-item-desktop" onclick="selectTransferServiceDesktop('حساب بنكي')">
-                                <div class="service-card-icon sc-bank"><img src="/images/instapay_official.png" alt="حساب بنكي انستا باي" style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;"></div>
-                                <span class="service-card-title">حساب بنكي مصري</span>
-                            </div>
-                            <div class="service-card-item-desktop" onclick="selectTransferServiceDesktop('سيفا النيجر')">
-                                <div class="service-card-icon sc-niger"><img src="/images/nita_official.png" alt="سيفا النيجر NITA" style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;"></div>
-                                <span class="service-card-title">سيفا النيجر</span>
-                            </div>
-                            <div class="service-card-item-desktop" onclick="selectTransferServiceDesktop('بنكك السودان')">
-                                <div class="service-card-icon sc-sudan"><img src="/images/bok_sudan_official.png" alt="بنكك السودان" style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;"></div>
-                                <span class="service-card-title">بنكك السودان</span>
-                            </div>
+                    <div class="mb-4 pb-3 border-bottom" style="border-color: var(--border-glass) !important;">
+                        <label class="form-label fw-bold small text-muted">نوع الخدمة المطلوب تنفيذها:</label>
+                        <div class="input-group input-group-lg shadow-sm">
+                            <span class="input-group-text"><i class="fa-solid fa-list-check" style="color: var(--brand-gold);"></i></span>
+                            <select class="form-select fw-bold" id="transferTypeSelect" onchange="handleTransferTypeChange(this.value)">
+                                <option value="" disabled selected>-- يرجى اختيار نوع التحويل --</option>
+                                <option value="كاش">📱 محافظ إلكترونية (فودافون/أورانج/اتصالات/وي)</option>
+                                <option value="بريد حساب">📮 بريد حساب</option>
+                                <option value="بريد بطاقة">💳 بريد بطاقة</option>
+                            </select>
                         </div>
                     </div>
-
-                    <!-- Screen 2: Form Details -->
-                    <div id="desktop-transfer-form-view" style="display: none;">
-                        <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-2" style="border-color: var(--border-glass) !important;">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="goBackToServicesDesktop()">
-                                <i class="fa-solid fa-arrow-right me-1"></i>رجوع للخدمات
-                            </button>
-                            <h6 class="fw-bold m-0 text-primary fs-5" id="selectedServiceTitleDesktop">تفاصيل التحويل</h6>
-                        </div>
-                        
-                        <div id="desktop-transfer-form-placeholder">
-                            <form id="transferForm">
-                                <div id="dynamicFormFields" style="display: none;">
-                                    <div class="mb-4 pb-3 border-bottom text-center" id="egypt_post_subtypes_div" style="display: none; border-color: var(--border-glass) !important;">
-                                        <label class="form-label small fw-bold text-muted mb-2 d-block">اختر نوع تحويل البريد المصري:</label>
-                                        <div class="d-flex justify-content-center gap-3 flex-wrap">
-                                            <button type="button" class="btn btn-outline-primary transfer-tab-btn post-tab-btn px-4 py-2 fw-bold flex-fill" data-type="بريد حساب" onclick="handleTransferTypeChange('بريد حساب')">
-                                                <i class="fa-solid fa-envelope-open-text me-1"></i> تحويل حساب
-                                            </button>
-                                            <button type="button" class="btn btn-outline-primary transfer-tab-btn post-tab-btn px-4 py-2 fw-bold flex-fill" data-type="بريد بطاقة" onclick="handleTransferTypeChange('بريد بطاقة')">
-                                                <i class="fa-solid fa-id-card me-1"></i> تحويل بطاقة
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- اختيار نوع خدمة سيفا النيجر -->
-                                    <div class="mb-4 pb-3 border-bottom text-center" id="sefa_niger_subtypes_div" style="display: none; border-color: var(--border-glass) !important;">
-                                        <label class="form-label small fw-bold text-muted mb-2 d-block">اختر خدمة سيفا النيجر:</label>
-                                        <div class="d-flex justify-content-center gap-3">
-                                            <button type="button" class="btn btn-outline-primary sefa-tab-btn px-4 py-2 fw-bold w-50" id="btn_sefa_nita" onclick="handleSefaSubtypeChange('nita')">
-                                                <i class="fa-solid fa-circle-nodes me-1"></i> NITA
-                                            </button>
-                                            <button type="button" class="btn btn-outline-primary sefa-tab-btn px-4 py-2 fw-bold w-50" id="btn_sefa_nita_account" onclick="handleSefaSubtypeChange('nita_account')">
-                                                <i class="fa-solid fa-file-invoice-dollar me-1"></i> NITA ACCOUNT
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- شارة شركة الاتصالات (تظهر فقط للكاش) -->
-                                    <div class="mb-3 text-center" id="network_badge_div" style="display: none;">
-                                        <div id="network_badge" class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill fw-bold" style="font-size: 1rem; display: none !important;"></div>
-                                    </div>
-
-                                    <div class="mb-3" id="beneficiary_name_div" style="display: none;">
-                                        <label class="form-label small fw-bold text-muted">اسم المستفيد (رباعي)</label>
-                                        <input type="text" class="form-control text-center fw-bold" id="tf_beneficiary" placeholder="اكتب الاسم رباعي">
-                                    </div>
-
-                                    <div class="mb-3" id="city_div" style="display: none;">
-                                        <label class="form-label small fw-bold text-muted">اسم المدينة</label>
-                                        <input type="text" class="form-control text-center fw-bold" id="tf_city" placeholder="أدخل اسم المدينة">
-                                    </div>
-
-                                    <div class="mb-3" id="national_id_div" style="display: none;">
-                                        <label class="form-label small fw-bold text-muted">الرقم القومي (14 رقم)</label>
-                                        <input type="text" class="form-control text-center mono-num" id="tf_national_id" placeholder="14 رقم" dir="ltr" maxlength="14">
-                                    </div>
-                                    <div class="mb-3" id="id_image_div" style="display: none;">
-                                        <label class="form-label small fw-bold text-muted">صورة البطاقة من الأمام</label>
-                                        <input type="file" class="form-control p-2" id="tf_id_image" accept="image/*">
-                                    </div>
-                                    <div class="mb-3" id="phone_div" style="display: none;">
-                                        <label class="form-label small fw-bold text-muted" id="lbl_tf_phone">رقم المستلم</label>
-                                        <input type="text" class="form-control text-center mono-num fs-5" id="tf_phone" placeholder="010XXXXXXXX" dir="ltr" oninput="checkNetworkLogo()">
-                                    </div>
-                                    <div class="mb-3" id="governorate_div" style="display: none;">
-                                        <label class="form-label small fw-bold text-muted">المحافظة</label>
-                                        <select class="form-select text-center fw-bold" id="tf_governorate">
-                                            <option value="" disabled selected>اختر المحافظة</option>
-                                            <option value="القاهرة">القاهرة</option><option value="الإسكندرية">الإسكندرية</option><option value="الجيزة">الجيزة</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- سعر الصرف -->
-                                    <div class="p-2 rounded-3 mb-3 text-center" id="rateDisplayBox" style="background: rgba(14, 165, 233, 0.08); border: 1px dashed rgba(14, 165, 233, 0.3);">
-                                        <span class="small text-muted fw-bold">سعر الصرف للخدمة:</span>
-                                        <span class="fw-bold fs-5 ms-2" style="color: #0ea5e9;" id="tf_service_rate">0.00</span>
-                                    </div>
-
-                                    <!-- المبلغ بالمصري -->
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">المبلغ بالمصري (EGP)</label>
-                                        <input type="number" step="0.01" class="form-control text-center fs-4 mono-num" style="color: var(--accent-green) !important; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.05);" id="tf_amount" placeholder="0.00" oninput="calcFromEGP()">
-                                    </div>
-
-                                    <!-- المبلغ بالدينار الليبي -->
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">المبلغ بالدينار الليبي (LYD)</label>
-                                        <input type="number" step="0.01" class="form-control text-center fs-4 mono-num" style="color: var(--brand-gold) !important; border-color: rgba(212, 175, 55, 0.4); background: rgba(212, 175, 55, 0.05);" id="tf_amount_lyd" placeholder="0.00" oninput="calcFromLYD()">
-                                    </div>
-
-                                    <!-- رقم هاتف العميل (اختياري) -->
-                                    <div class="mb-3" id="client_phone_div" style="display: none;">
-                                        <label class="form-label small fw-bold text-muted">رقم هاتف العميل (اختياري)</label>
-                                        <input type="text" class="form-control text-center mono-num" id="tf_client_phone" placeholder="رقم هاتف العميل" dir="ltr">
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="form-label fw-bold small text-muted">ملاحظات إضافية (اختياري)</label>
-                                        <input type="text" class="form-control" id="tf_notes" placeholder="اكتب أي ملاحظة هنا...">
-                                    </div>
-                                    <button type="submit" class="btn-submit-cyber" id="btnSubmitTransfer"><i class="fa-solid fa-rocket me-2"></i> تأكيد وإرسال الطلب</button>
-                                </div> 
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="balanceTransferModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0 pb-0 pt-4 px-4 position-relative">
-                    <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" style="left: 20px; filter: invert(0.5);"></button>
-                    <h5 class="modal-title fw-bold" style="color: var(--accent-green);"><i class="fa-solid fa-wallet me-2"></i> تحويل رصيد داخلي</h5>
-                </div>
-                <div class="modal-body p-4">
-                    <form id="balanceTransferForm">
-                        <div class="mb-3" id="bt_lookup_step">
-                            <label class="form-label small fw-bold text-muted">ID الحساب المستلم</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control text-center mono-num fs-5" id="bt_target_code" placeholder="أدخل ID المستلم" dir="ltr" inputmode="numeric" maxlength="6" required>
-                                <button type="button" class="btn btn-success fw-bold px-3" id="btnLookupBalanceTarget">
-                                    <i class="fa-solid fa-magnifying-glass me-1"></i> تحقق
-                                </button>
+                    
+                    <form id="transferForm">
+                        <div id="dynamicFormFields" style="display: none;">
+                            <div class="mb-3" id="beneficiary_name_div" style="display: none;">
+                                <label class="form-label small fw-bold text-muted">اسم المستفيد (رباعي)</label>
+                                <input type="text" class="form-control text-center fw-bold" id="tf_beneficiary" placeholder="اكتب الاسم رباعي">
                             </div>
-                        </div>
-
-                        <div class="mb-3" id="bt_target_result" style="display: none;">
-                            <label class="form-label small fw-bold text-muted">اضغط على الاسم للتأكيد</label>
-                            <button type="button" class="btn w-100 text-start d-flex align-items-center gap-3 p-3" id="bt_confirm_target" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 16px; color: var(--text-main);">
-                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 42px; height: 42px; background: #10b981; color: white;">
-                                    <i class="fa-solid fa-user-check"></i>
-                                </span>
-                                <span class="flex-grow-1">
-                                    <span class="d-block fw-bold" id="bt_target_name">-</span>
-                                    <small class="text-muted mono-num" id="bt_target_meta" dir="ltr"></small>
-                                </span>
-                                <i class="fa-solid fa-chevron-left text-success"></i>
-                            </button>
-                        </div>
-
-                        <div id="bt_transfer_details" style="display: none;">
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold text-muted">المبلغ بالدينار الليبي (LYD)</label>
-                                <input type="number" step="0.01" min="0.01" class="form-control text-center mono-num fs-4" id="bt_amount" placeholder="0.00">
+                            <div class="mb-3" id="national_id_div" style="display: none;">
+                                <label class="form-label small fw-bold text-muted">الرقم القومي (14 رقم)</label>
+                                <input type="text" class="form-control text-center mono-num" id="tf_national_id" placeholder="14 رقم" dir="ltr" maxlength="14">
+                            </div>
+                            <div class="mb-3" id="id_image_div" style="display: none;">
+                                <label class="form-label small fw-bold text-muted">صورة البطاقة من الأمام</label>
+                                <input type="file" class="form-control p-2" id="tf_id_image" accept="image/*">
+                            </div>
+                            <div class="mb-3" id="phone_div" style="display: none;">
+                                <label class="form-label small fw-bold text-muted" id="lbl_tf_phone">رقم المستلم</label>
+                                <div class="position-relative">
+                                    <input type="text" class="form-control text-center mono-num fs-5" id="tf_phone" placeholder="010XXXXXXXX" dir="ltr" oninput="checkNetworkLogo()">
+                                    <img id="network_logo" src="" alt="Logo" style="display: none; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); height: 35px; width: 35px; border-radius: 8px; background: white; padding: 2px;">
+                                </div>
+                            </div>
+                            <div class="mb-3" id="governorate_div" style="display: none;">
+                                <label class="form-label small fw-bold text-muted">المحافظة</label>
+                                <select class="form-select text-center fw-bold" id="tf_governorate">
+                                    <option value="" disabled selected>اختر المحافظة</option>
+                                    <option value="القاهرة">القاهرة</option><option value="الإسكندرية">الإسكندرية</option><option value="الجيزة">الجيزة</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 mt-4">
+                                <label class="form-label small fw-bold text-muted">المبلغ بالمصري (EGP)</label>
+                                <input type="number" class="form-control text-center fs-2 mono-num" style="color: var(--accent-green) !important; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.05);" id="tf_amount" placeholder="0.00">
+                            </div>
+                            <div class="p-3 rounded-4 mb-4 text-center border" style="background: rgba(212, 175, 55, 0.05); border-color: rgba(212, 175, 55, 0.2) !important;">
+                                <span class="small d-block text-muted fw-bold mb-1">الخصم المتوقع من الرصيد (LYD)</span>
+                                <h3 class="fw-bold m-0 mono-num" style="color: var(--brand-gold);" id="tf_cost">0.00</h3>
                             </div>
                             <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted">ملاحظة اختيارية</label>
-                                <input type="text" class="form-control" id="bt_notes" placeholder="مثال: تحويل رصيد للفرع">
+                                <label class="form-label fw-bold small text-muted">ملاحظات إضافية (اختياري)</label>
+                                <input type="text" class="form-control" id="tf_notes" placeholder="اكتب أي ملاحظة هنا...">
                             </div>
-                            <button type="submit" class="btn-submit-cyber" id="btnSubmitBalanceTransfer"><i class="fa-solid fa-paper-plane me-2"></i> تحويل</button>
-                        </div>
+                            <button type="submit" class="btn-submit-cyber" id="btnSubmitTransfer"><i class="fa-solid fa-rocket me-2"></i> تأكيد وإرسال الطلب</button>
+                        </div> 
                     </form>
                 </div>
             </div>
@@ -1354,43 +538,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 📡 Geolocation & Fetch Override for Security Audit
-        const csrfToken = <%- JSON.stringify(typeof csrfToken !== 'undefined' ? csrfToken : '') %>;
-
-        (function() {
-            let lat = null, lng = null;
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    lat = pos.coords.latitude;
-                    lng = pos.coords.longitude;
-                }, err => {
-                    console.warn("GPS Error:", err.message);
-                }, { enableHighAccuracy: true, timeout: 8000 });
-            }
-            const originalFetch = window.fetch;
-            window.fetch = function(url, options) {
-                options = options || {};
-                options.headers = options.headers || {};
-                const method = String(options.method || 'GET').toUpperCase();
-                if (csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
-                    if (options.headers instanceof Headers) {
-                        options.headers.set('x-csrf-token', csrfToken);
-                    } else {
-                        options.headers['x-csrf-token'] = csrfToken;
-                    }
-                }
-                if (lat !== null && lng !== null) {
-                    if (options.headers instanceof Headers) {
-                        options.headers.set('X-Client-Latitude', lat);
-                        options.headers.set('X-Client-Longitude', lng);
-                    } else {
-                        options.headers['X-Client-Latitude'] = lat;
-                        options.headers['X-Client-Longitude'] = lng;
-                    }
-                }
-                return originalFetch.call(this, url, options);
-            };
-        })();
         // 🪄 سحر الـ 3D لبطاقة الرصيد
         const walletCard = document.querySelector('.wallet-card');
         if (walletCard) {
@@ -1427,288 +574,63 @@
 
         function checkNetworkLogo() {
             const val = document.getElementById('tf_phone').value;
-            const badgeDiv = document.getElementById('network_badge_div');
-            const badge = document.getElementById('network_badge');
-            if (currentTransferType !== 'كاش' || val.length < 3) {
-                badgeDiv.style.display = 'none';
-                badge.style.display = 'none !important';
-                return;
+            const logoEl = document.getElementById('network_logo'); const phoneInput = document.getElementById('tf_phone');
+            if (currentTransferType !== 'كاش' || val.length < 3) { logoEl.style.opacity = '0';
+                phoneInput.style.paddingLeft = "15px"; setTimeout(() => { if(val.length < 3) logoEl.style.display = 'none'; }, 300); return;
             }
-            let name = '', color = '', bg = '', icon = '';
-            if (val.startsWith('010')) { name = 'فودافون'; color = '#fff'; bg = '#e60000'; icon = 'fa-solid fa-sim-card'; }
-            else if (val.startsWith('011')) { name = 'اتصالات'; color = '#fff'; bg = '#2e7d32'; icon = 'fa-solid fa-signal'; }
-            else if (val.startsWith('012')) { name = 'أورانج'; color = '#fff'; bg = '#ff6600'; icon = 'fa-solid fa-tower-cell'; }
-            else if (val.startsWith('015')) { name = 'وي'; color = '#fff'; bg = '#6a1b9a'; icon = 'fa-solid fa-wifi'; }
-            else { badgeDiv.style.display = 'none'; return; }
-
-            badge.innerHTML = `<i class="${icon}"></i> ${name}`;
-            badge.style.cssText = `background: ${bg}; color: ${color}; font-size: 1rem; display: inline-flex !important; padding: 8px 20px; border-radius: 50px; box-shadow: 0 4px 12px ${bg}55;`;
-            badgeDiv.style.display = 'block';
+            logoEl.style.display = 'block'; logoEl.style.opacity = 1;
+            phoneInput.style.paddingLeft = "55px";
+            if (val.startsWith('010')) logoEl.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23e60000'/%3E%3Ccircle cx='50' cy='50' r='35' fill='%23ffffff'/%3E%3Cpath d='M49 32c-11.7 0-16 9.8-16 18.4 0 7.4 4.9 13.1 11.6 13.1 7 0 11.8-5.3 11.8-12 0-6.9-3.8-10.4-9-10.4-2.6 0-5 1.1-6.6 3 0.8-7.2 4.4-9.8 8.1-9.8zm0 30c-3.2 0-5.3-2.6-5.3-6 0-3.6 2.3-6 5.3-6s5.3 2.4 5.3 6c0 3.5-2.1 6-5.3 6z' fill='%23e60000'/%3E%3C/svg%3E";
+            else if (val.startsWith('011')) logoEl.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23699e10'/%3E%3Ctext x='50' y='63' font-family='Arial' font-weight='900' font-size='24' fill='%23ffffff' text-anchor='middle'%3Eetisalat%3C/text%3E%3C/svg%3E";
+            else if (val.startsWith('012')) logoEl.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23ff6600'/%3E%3Crect x='25' y='25' width='50' height='50' fill='%23ffffff'/%3E%3Crect x='25' y='60' width='50' height='15' fill='%23000000'/%3E%3Crect x='25' y='25' width='50' height='35' fill='%23ff6600'/%3E%3C/svg%3E";
+            else if (val.startsWith('015')) logoEl.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234a186e'/%3E%3Ctext x='50' y='68' font-family='Arial' font-weight='900' font-size='42' fill='%23ffffff' text-anchor='middle'%3Ewe%3C/text%3E%3C/svg%3E";
+            else { logoEl.style.opacity = '0'; phoneInput.style.paddingLeft = "15px"; setTimeout(() => { if(val.length < 3) logoEl.style.display = 'none'; }, 300); }
         }
 
-        function getServiceRate() {
+        function updateCost() {
+            if(!currentTransferType) return;
             let rate = currentRate;
             if (currentTransferType === 'بريد حساب') rate = currentRate - 0.05;
             else if (currentTransferType === 'بريد بطاقة') rate = currentRate - 0.15;
-            else if (currentTransferType === 'سيفا النيجر') rate = currentRate + 0.1;
-            else if (currentTransferType === 'بنكك السودان') rate = currentRate + 0.2;
-            return rate;
-        }
-
-        function updateServiceRateDisplay() {
-            const rateEl = document.getElementById('tf_service_rate');
-            if (rateEl) rateEl.innerText = getServiceRate().toFixed(2);
-        }
-
-        function calcFromEGP() {
-            if (!currentTransferType) return;
-            const rate = getServiceRate();
-            const egp = parseFloat(document.getElementById('tf_amount').value) || 0;
-            document.getElementById('tf_amount_lyd').value = egp > 0 ? (egp / rate).toFixed(2) : '';
-        }
-
-        function calcFromLYD() {
-            if (!currentTransferType) return;
-            const rate = getServiceRate();
-            const lyd = parseFloat(document.getElementById('tf_amount_lyd').value) || 0;
-            if (currentTransferType === 'سيفا النيجر') {
-                const egpCalculated = Math.round(lyd * rate);
-                document.getElementById('tf_amount').value = lyd > 0 ? egpCalculated.toFixed(3) : '';
-            } else {
-                document.getElementById('tf_amount').value = lyd > 0 ? (lyd * rate).toFixed(2) : '';
-            }
-        }
-
-        // Keep old updateCost for compatibility
-        function updateCost() { calcFromEGP(); updateServiceRateDisplay(); }
-
-        let currentSefaSubtype = 'nita';
-        function handleSefaSubtypeChange(subtype) {
-            currentSefaSubtype = subtype;
-            
-            // Highlight active button
-            document.querySelectorAll('.sefa-tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeBtn = document.getElementById(`btn_sefa_${subtype}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
-            
-            // Show beneficiary name and phone (which is account number)
-            document.getElementById('beneficiary_name_div').style.display = 'block';
-            document.getElementById('phone_div').style.display = 'block';
-            document.getElementById('tf_phone').required = true;
-            document.getElementById('tf_phone').setAttribute('maxlength', '8');
-            document.getElementById('tf_phone').setAttribute('minlength', '8');
-
-            // Sefa Niger does not require quadruple name
-            const benLabel = document.querySelector('#beneficiary_name_div label');
-            if (benLabel) benLabel.innerText = 'الاسم';
-            const benInput = document.getElementById('tf_beneficiary');
-            if (benInput) benInput.placeholder = 'أدخل الاسم';
-
-            if (subtype === 'nita') {
-                document.getElementById('lbl_tf_phone').innerText = 'رقم حساب NITA (8 أرقام)';
-                document.getElementById('tf_phone').placeholder = 'أدخل 8 أرقام';
-                
-                // Show city input for NITA
-                document.getElementById('city_div').style.display = 'block';
-                document.getElementById('tf_city').required = true;
-            } else if (subtype === 'nita_account') {
-                document.getElementById('lbl_tf_phone').innerText = 'رقم حساب NITA ACCOUNT (8 أرقام)';
-                document.getElementById('tf_phone').placeholder = 'أدخل 8 أرقام';
-                
-                // Hide city input for NITA ACCOUNT
-                document.getElementById('city_div').style.display = 'none';
-                document.getElementById('tf_city').required = false;
-                document.getElementById('tf_city').value = '';
-            }
-            
-            // Clear subtype-specific input fields to avoid bleed-through
-            document.getElementById('tf_phone').value = '';
-            document.getElementById('tf_city').value = '';
-            
-            // Focus on account number
-            document.getElementById('tf_phone').focus();
+            const amountInput = document.getElementById('tf_amount');
+            if (amountInput) { const amount = parseFloat(amountInput.value) || 0; document.getElementById('tf_cost').innerText = (amount / rate).toFixed(2); }
         }
 
         function handleTransferTypeChange(type) {
             currentTransferType = type;
-            // Highlight active tab
-            document.querySelectorAll('.transfer-tab-btn').forEach(btn => {
-                btn.classList.remove('active', 'btn-primary');
-                btn.classList.add('btn-outline-primary');
-            });
-            const activeBtn = document.querySelector(`.transfer-tab-btn[data-type="${type}"]`);
-            if (activeBtn) { activeBtn.classList.remove('btn-outline-primary'); activeBtn.classList.add('btn-primary', 'active'); }
-
             document.getElementById('dynamicFormFields').style.display = 'block';
             document.getElementById('tf_phone').value = ''; document.getElementById('tf_beneficiary').value = ''; document.getElementById('tf_national_id').value = ''; document.getElementById('tf_id_image').value = '';
-            document.getElementById('tf_governorate').value = ''; document.getElementById('tf_amount').value = ''; document.getElementById('tf_amount_lyd').value = ''; checkNetworkLogo();
+            document.getElementById('tf_governorate').value = ''; document.getElementById('tf_amount').value = ''; document.getElementById('tf_cost').innerText = '0.00'; checkNetworkLogo();
 
-            // Hide all optional fields first
-            document.getElementById('beneficiary_name_div').style.display = 'none';
-            document.getElementById('national_id_div').style.display = 'none';
-            document.getElementById('id_image_div').style.display = 'none';
-            document.getElementById('phone_div').style.display = 'none';
-            document.getElementById('governorate_div').style.display = 'none';
-            document.getElementById('client_phone_div').style.display = 'block'; // Always show for all types
-            document.getElementById('network_badge_div').style.display = 'none';
-            document.getElementById('tf_phone').required = false;
-            document.getElementById('tf_governorate').required = false;
-            if (document.getElementById('tf_client_phone')) document.getElementById('tf_client_phone').value = '';
-
-            // Reset beneficiary name label and placeholder by default
-            const benLabel = document.querySelector('#beneficiary_name_div label');
-            if (benLabel) benLabel.innerText = 'اسم المستفيد (رباعي)';
-            const benInput = document.getElementById('tf_beneficiary');
-            if (benInput) benInput.placeholder = 'اكتب الاسم رباعي';
-
-            // Hide city and sefa subtypes divs by default
-            const cityDiv = document.getElementById('city_div');
-            if (cityDiv) cityDiv.style.display = 'none';
-            const cityInput = document.getElementById('tf_city');
-            if (cityInput) cityInput.required = false;
-
-            const sefaSubtypesDiv = document.getElementById('sefa_niger_subtypes_div');
-            if (sefaSubtypesDiv) sefaSubtypesDiv.style.display = 'none';
-            const postSubtypesDiv = document.getElementById('egypt_post_subtypes_div');
-            if (postSubtypesDiv) postSubtypesDiv.style.display = 'none';
-
-            updateServiceRateDisplay();
-
-            if (type === 'كاش') {
-                document.getElementById('phone_div').style.display = 'block';
-                document.getElementById('lbl_tf_phone').innerText = 'رقم المحفظة (11 رقم)';
-                document.getElementById('tf_phone').placeholder = 'مثال: 010XXXXXXXX';
-                document.getElementById('tf_phone').required = true;
-                document.getElementById('tf_phone').setAttribute('maxlength', '11');
-                document.getElementById('tf_phone').setAttribute('minlength', '11');
-                document.getElementById('tf_phone').focus();
+            if (type === 'كاش') { document.getElementById('beneficiary_name_div').style.display = 'none';
+                document.getElementById('national_id_div').style.display = 'none'; document.getElementById('id_image_div').style.display = 'none'; document.getElementById('phone_div').style.display = 'block'; document.getElementById('lbl_tf_phone').innerText = 'رقم المحفظة (فودافون/أورانج/اتصالات/وي)'; document.getElementById('tf_phone').placeholder = 'مثال: 010XXXXXXXX';
+                document.getElementById('tf_phone').required = true; document.getElementById('tf_phone').setAttribute('maxlength', '11'); document.getElementById('tf_phone').setAttribute('minlength', '11'); document.getElementById('governorate_div').style.display = 'none'; document.getElementById('tf_governorate').required = false; document.getElementById('tf_phone').focus();
             } 
-            else if (type === 'بريد حساب') {
-                if (postSubtypesDiv) postSubtypesDiv.style.display = 'block';
-                document.getElementById('beneficiary_name_div').style.display = 'block';
-                document.getElementById('phone_div').style.display = 'block';
-                document.getElementById('lbl_tf_phone').innerText = 'رقم الحساب البريدي';
-                document.getElementById('tf_phone').placeholder = 'أدخل 16 رقم';
-                document.getElementById('tf_phone').required = true;
-                document.getElementById('tf_phone').setAttribute('maxlength', '16');
-                document.getElementById('tf_phone').setAttribute('minlength', '16');
-                document.getElementById('tf_phone').focus();
+            else if (type === 'بريد حساب') { document.getElementById('beneficiary_name_div').style.display = 'block';
+                document.getElementById('national_id_div').style.display = 'none'; document.getElementById('id_image_div').style.display = 'none'; document.getElementById('phone_div').style.display = 'block'; document.getElementById('lbl_tf_phone').innerText = 'رقم الحساب البريدي'; document.getElementById('tf_phone').placeholder = 'أدخل 16 رقم';
+                document.getElementById('tf_phone').required = true; document.getElementById('tf_phone').setAttribute('maxlength', '16'); document.getElementById('tf_phone').setAttribute('minlength', '16'); document.getElementById('governorate_div').style.display = 'none'; document.getElementById('tf_governorate').required = false; document.getElementById('tf_phone').focus();
             } 
-            else if (type === 'بريد بطاقة') {
-                if (postSubtypesDiv) postSubtypesDiv.style.display = 'block';
-                document.getElementById('beneficiary_name_div').style.display = 'block';
-                document.getElementById('national_id_div').style.display = 'block';
-                document.getElementById('id_image_div').style.display = 'block';
-                document.getElementById('governorate_div').style.display = 'block';
-                document.getElementById('tf_governorate').required = true;
-            }
-            else if (type === 'حساب بنكي') {
-                document.getElementById('beneficiary_name_div').style.display = 'block';
-                document.getElementById('phone_div').style.display = 'block';
-                document.getElementById('lbl_tf_phone').innerText = 'رقم الحساب البنكي (IBAN)';
-                document.getElementById('tf_phone').placeholder = 'أدخل رقم IBAN';
-                document.getElementById('tf_phone').required = true;
-                document.getElementById('tf_phone').removeAttribute('maxlength');
-                document.getElementById('tf_phone').removeAttribute('minlength');
-                document.getElementById('tf_phone').focus();
-            }
-            else if (type === 'سيفا النيجر') {
-                const subtypesDiv = document.getElementById('sefa_niger_subtypes_div');
-                if (subtypesDiv) {
-                    subtypesDiv.style.display = 'block';
-                }
-                handleSefaSubtypeChange(currentSefaSubtype || 'nita');
-            }
-            else if (type === 'بنكك السودان') {
-                document.getElementById('beneficiary_name_div').style.display = 'block';
-                document.getElementById('phone_div').style.display = 'block';
-                document.getElementById('lbl_tf_phone').innerText = 'رقم حساب بنكك';
-                document.getElementById('tf_phone').placeholder = 'أدخل رقم الحساب';
-                document.getElementById('tf_phone').required = true;
-                document.getElementById('tf_phone').removeAttribute('maxlength');
-                document.getElementById('tf_phone').removeAttribute('minlength');
-                document.getElementById('tf_phone').focus();
+            else if (type === 'بريد بطاقة') { document.getElementById('beneficiary_name_div').style.display = 'block';
+                document.getElementById('national_id_div').style.display = 'block'; document.getElementById('id_image_div').style.display = 'block'; document.getElementById('phone_div').style.display = 'none'; document.getElementById('tf_phone').required = false; document.getElementById('governorate_div').style.display = 'block'; document.getElementById('tf_governorate').required = true;
             }
             document.getElementById('tf_amount').required = true; updateCost();
         }
 
-        const amountInput = document.getElementById('tf_amount');
-        if (amountInput) {
-            amountInput.addEventListener('input', updateCost);
-            
-            // Format EGP amount with .000 and prevent fractions for Sefa Niger
-            amountInput.addEventListener('blur', function() {
-                if (currentTransferType === 'سيفا النيجر') {
-                    const val = parseFloat(this.value);
-                    if (!isNaN(val)) {
-                        if (val % 1 !== 0) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'كسور غير مسموح بها',
-                                text: 'يمنع كتابة أي كسور في القيمة لخدمة سيفا النيجر. الأصفار ثابتة لا تتغير (مثال: 1.000).',
-                                customClass: { popup: 'swal2-popup' }
-                            });
-                            this.value = '';
-                            const lydInput = document.getElementById('tf_amount_lyd');
-                            if (lydInput) lydInput.value = '';
-                        } else {
-                            this.value = val.toFixed(3);
-                        }
-                    }
-                }
-            });
-        }
+        const amountInput = document.getElementById('tf_amount'); if (amountInput) amountInput.addEventListener('input', updateCost);
         
         const transferForm = document.getElementById('transferForm');
         if (transferForm) {
             transferForm.addEventListener('submit', async function(e) {
                 e.preventDefault(); if(!currentTransferType) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'يرجى اختيار نوع التحويل.', customClass: { popup: 'swal2-popup' } });
                 let phoneVal = '';
-                if (currentTransferType === 'بريد بطاقة') { 
-                    phoneVal = document.getElementById('tf_governorate').value; 
-                    if (!phoneVal) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'يرجى اختيار المحافظة.', customClass: { popup: 'swal2-popup' } }); 
-                } else { 
-                    phoneVal = document.getElementById('tf_phone').value.trim(); 
-                    if (currentTransferType === 'بريد حساب' && !/^\d{16}$/.test(phoneVal)) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'حساب البريد يجب أن يكون 16 رقم.', customClass: { popup: 'swal2-popup' } }); 
-                    if (currentTransferType === 'كاش' && !/^(010|011|012|015)\d{8}$/.test(phoneVal)) return Swal.fire({ icon: 'error', title: 'رقم خاطئ', text: 'رقم المحفظة غير صحيح.', customClass: { popup: 'swal2-popup' } }); 
-                    if (currentTransferType === 'سيفا النيجر' && !/^\d{8}$/.test(phoneVal)) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'رقم الحساب يجب أن يكون مكوناً من 8 أرقام.', customClass: { popup: 'swal2-popup' } });
-                }
+                if (currentTransferType === 'بريد بطاقة') { phoneVal = document.getElementById('tf_governorate').value; if (!phoneVal) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'يرجى اختيار المحافظة.', customClass: { popup: 'swal2-popup' } }); } else { phoneVal = document.getElementById('tf_phone').value.trim(); if (currentTransferType === 'بريد حساب' && !/^\d{16}$/.test(phoneVal)) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'حساب البريد يجب أن يكون 16 رقم.', customClass: { popup: 'swal2-popup' } }); if (currentTransferType === 'كاش' && !/^(010|011|012|015)\d{8}$/.test(phoneVal)) return Swal.fire({ icon: 'error', title: 'رقم خاطئ', text: 'رقم المحفظة غير صحيح.', customClass: { popup: 'swal2-popup' } }); }
                 
                 let finalNotes = document.getElementById('tf_notes').value.trim();
                 let prefix = `[${currentTransferType}]`; let base64Image = null;
-                if (currentTransferType === 'بريد حساب' || currentTransferType === 'بريد بطاقة') { 
-                    const benName = document.getElementById('tf_beneficiary').value.trim();
+                if (currentTransferType === 'بريد حساب' || currentTransferType === 'بريد بطاقة') { const benName = document.getElementById('tf_beneficiary').value.trim();
                     if (benName.split(/\s+/).filter(n => n.length > 0).length < 4) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'الاسم رباعي إجباري.', customClass: { popup: 'swal2-popup' } });
-                    prefix += ` - ${benName}`; 
-                }
-                if (currentTransferType === 'سيفا النيجر') {
-                    const benName = document.getElementById('tf_beneficiary').value.trim();
-                    if (!benName) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'الاسم إجباري.', customClass: { popup: 'swal2-popup' } });
-                    
-                    const amountVal = parseFloat(document.getElementById('tf_amount').value);
-                    if (isNaN(amountVal) || amountVal <= 0 || amountVal % 1 !== 0) {
-                        return Swal.fire({
-                            icon: 'error',
-                            title: 'خطأ في القيمة',
-                            text: 'يمنع كتابة أي كسور في القيمة لخدمة سيفا النيجر. الأصفار ثابتة لا تتغير (مثال: 1.000).',
-                            customClass: { popup: 'swal2-popup' }
-                        });
-                    }
-
-                    if (currentSefaSubtype === 'nita') {
-                        const cityName = document.getElementById('tf_city').value.trim();
-                        if (!cityName) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'اسم المدينة إجباري.', customClass: { popup: 'swal2-popup' } });
-                        prefix = `[سيفا النيجر - NITA] - الاسم: ${benName} - المدينة: ${cityName}`;
-                    } else {
-                        prefix = `[سيفا النيجر - NITA ACCOUNT] - الاسم: ${benName}`;
-                    }
-                }
-                if (currentTransferType === 'بريد بطاقة') { 
-                    const natId = document.getElementById('tf_national_id').value.trim();
+                    prefix += ` - ${benName}`; }
+                if (currentTransferType === 'بريد بطاقة') { const natId = document.getElementById('tf_national_id').value.trim();
                     if (!/^\d{14}$/.test(natId)) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'الرقم القومي يجب أن يكون 14 رقم.', customClass: { popup: 'swal2-popup' } });
                     prefix += ` - ${natId}`; const fileInput = document.getElementById('tf_id_image'); if (!fileInput.files || fileInput.files.length === 0) return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'أرفق صورة البطاقة.', customClass: { popup: 'swal2-popup' } });
                     const file = fileInput.files[0]; base64Image = await new Promise((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.readAsDataURL(file); });
@@ -1716,28 +638,10 @@
                 
                 const btn = document.getElementById('btnSubmitTransfer');
                 const originalText = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> إرسال...'; btn.disabled = true;
-                
-                let clientPhoneStr = '';
-                const cPhoneInput = document.getElementById('tf_client_phone');
-                if (cPhoneInput && cPhoneInput.value.trim() !== '') {
-                    clientPhoneStr = ` | رقم العميل: ${cPhoneInput.value.trim()}`;
-                }
-                finalNotes = `${prefix} ` + (finalNotes ? `| ${finalNotes}` : '') + clientPhoneStr;
+                finalNotes = `${prefix} ` + (finalNotes ? `| ${finalNotes}` : '');
                 
                 try {
-                    const response = await fetch('/client/transfer', { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, 
-                        body: JSON.stringify({ 
-                            phone: phoneVal, 
-                            amount: document.getElementById('tf_amount').value, 
-                            notes: finalNotes, 
-                            type: currentTransferType, 
-                            imageBase64: base64Image,
-                            name: currentTransferType === 'سيفا النيجر' ? document.getElementById('tf_beneficiary').value.trim() : '',
-                            number: currentTransferType === 'سيفا النيجر' ? phoneVal : ''
-                        }) 
-                    });
+                    const response = await fetch('/client/transfer', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ phone: phoneVal, amount: document.getElementById('tf_amount').value, notes: finalNotes, type: currentTransferType, imageBase64: base64Image }) });
                     const result = await response.json();
                     
                     if (response.ok) {
@@ -1825,185 +729,6 @@
             });
         }
 
-        let balanceTransferTarget = null;
-
-        function resetBalanceTransferFlow() {
-            balanceTransferTarget = null;
-            const form = document.getElementById('balanceTransferForm');
-            const resultBox = document.getElementById('bt_target_result');
-            const detailsBox = document.getElementById('bt_transfer_details');
-            const targetName = document.getElementById('bt_target_name');
-            const targetMeta = document.getElementById('bt_target_meta');
-            const lookupBtn = document.getElementById('btnLookupBalanceTarget');
-            const submitBtn = document.getElementById('btnSubmitBalanceTransfer');
-
-            if (form) form.reset();
-            if (resultBox) resultBox.style.display = 'none';
-            if (detailsBox) detailsBox.style.display = 'none';
-            if (targetName) targetName.textContent = '-';
-            if (targetMeta) targetMeta.textContent = '';
-            if (lookupBtn) {
-                lookupBtn.disabled = false;
-                lookupBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass me-1"></i> تحقق';
-            }
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> تحويل';
-            }
-        }
-
-        function openBalanceTransferModal() {
-            const transferModalEl = document.getElementById('transferModal');
-            const transferModal = transferModalEl ? bootstrap.Modal.getInstance(transferModalEl) : null;
-            if (transferModal) transferModal.hide();
-
-            setTimeout(() => {
-                const modalEl = document.getElementById('balanceTransferModal');
-                if (!modalEl) return;
-                resetBalanceTransferFlow();
-                bootstrap.Modal.getOrCreateInstance(modalEl).show();
-                setTimeout(() => document.getElementById('bt_target_code')?.focus(), 250);
-            }, transferModal ? 250 : 0);
-        }
-
-        async function lookupBalanceTransferTarget() {
-            const targetInput = document.getElementById('bt_target_code');
-            const lookupBtn = document.getElementById('btnLookupBalanceTarget');
-            const resultBox = document.getElementById('bt_target_result');
-            const detailsBox = document.getElementById('bt_transfer_details');
-            const targetAccountCode = targetInput.value.trim();
-
-            if (!/^\d{4,6}$/.test(targetAccountCode)) {
-                return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'ID المستلم يجب أن يكون من 4 إلى 6 أرقام.', customClass: { popup: 'swal2-popup' } });
-            }
-
-            balanceTransferTarget = null;
-            if (resultBox) resultBox.style.display = 'none';
-            if (detailsBox) detailsBox.style.display = 'none';
-            lookupBtn.disabled = true;
-            lookupBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> بحث...';
-
-            try {
-                const response = await fetch('/client/balance-transfer/lookup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ targetAccountCode })
-                });
-                const result = await response.json();
-
-                if (!response.ok || !result.success) {
-                    throw new Error(result.error || 'لم يتم العثور على الحساب.');
-                }
-
-                balanceTransferTarget = result.target;
-                document.getElementById('bt_target_name').textContent = result.target.name;
-                document.getElementById('bt_target_meta').textContent = `${result.target.type} - ID ${result.target.accountCode}`;
-                if (resultBox) resultBox.style.display = 'block';
-            } catch (error) {
-                Swal.fire({ icon: 'error', title: 'عذراً', text: error.message || 'تعذر التحقق من الحساب.', customClass: { popup: 'swal2-popup' } });
-            } finally {
-                lookupBtn.disabled = false;
-                lookupBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass me-1"></i> تحقق';
-            }
-        }
-
-        const balanceTargetInput = document.getElementById('bt_target_code');
-        if (balanceTargetInput) {
-            balanceTargetInput.addEventListener('input', () => {
-                balanceTransferTarget = null;
-                const resultBox = document.getElementById('bt_target_result');
-                const detailsBox = document.getElementById('bt_transfer_details');
-                if (resultBox) resultBox.style.display = 'none';
-                if (detailsBox) detailsBox.style.display = 'none';
-            });
-            balanceTargetInput.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    lookupBalanceTransferTarget();
-                }
-            });
-        }
-
-        const lookupBalanceBtn = document.getElementById('btnLookupBalanceTarget');
-        if (lookupBalanceBtn) {
-            lookupBalanceBtn.addEventListener('click', lookupBalanceTransferTarget);
-        }
-
-        const confirmBalanceTargetBtn = document.getElementById('bt_confirm_target');
-        if (confirmBalanceTargetBtn) {
-            confirmBalanceTargetBtn.addEventListener('click', () => {
-                if (!balanceTransferTarget) return;
-                const detailsBox = document.getElementById('bt_transfer_details');
-                if (detailsBox) detailsBox.style.display = 'block';
-                setTimeout(() => document.getElementById('bt_amount')?.focus(), 100);
-            });
-        }
-
-        const balanceTransferForm = document.getElementById('balanceTransferForm');
-        if (balanceTransferForm) {
-            balanceTransferForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const targetAccountCode = document.getElementById('bt_target_code').value.trim();
-                const amount = document.getElementById('bt_amount').value;
-                const notes = document.getElementById('bt_notes').value.trim();
-                const numericAmount = Number(amount);
-
-                if (!/^\d{4,6}$/.test(targetAccountCode)) {
-                    return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'ID المستلم يجب أن يكون من 4 إلى 6 أرقام.', customClass: { popup: 'swal2-popup' } });
-                }
-
-                if (!balanceTransferTarget || balanceTransferTarget.accountCode !== targetAccountCode) {
-                    return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'يرجى إدخال ID ثم الضغط على اسم الحساب للتأكيد.', customClass: { popup: 'swal2-popup' } });
-                }
-
-                if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-                    return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'يرجى إدخال مبلغ صحيح.', customClass: { popup: 'swal2-popup' } });
-                }
-
-                const confirmation = await Swal.fire({
-                    icon: 'warning',
-                    title: 'تأكيد تحويل الرصيد',
-                    text: `سيتم خصم ${numericAmount.toFixed(2)} LYD من رصيدك وإرسالها إلى ${balanceTransferTarget.name}.`,
-                    showCancelButton: true,
-                    confirmButtonText: 'موافق، نفذ التحويل',
-                    cancelButtonText: 'إلغاء',
-                    customClass: { popup: 'swal2-popup' }
-                });
-
-                if (!confirmation.isConfirmed) return;
-
-                const btn = document.getElementById('btnSubmitBalanceTransfer');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> جاري التنفيذ...';
-                btn.disabled = true;
-
-                try {
-                    const response = await fetch('/client/balance-transfer', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify({ targetAccountCode, amount, notes })
-                    });
-                    const result = await response.json();
-
-                    if (!response.ok || !result.success) {
-                        throw new Error(result.error || 'تعذر تنفيذ تحويل الرصيد.');
-                    }
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'تم تحويل الرصيد',
-                        text: `${result.message} رقم العملية: ${result.transferId}`,
-                        confirmButtonText: 'حسناً',
-                        customClass: { popup: 'swal2-popup' }
-                    }).then(() => window.location.reload());
-                } catch (error) {
-                    Swal.fire({ icon: 'error', title: 'عذراً', text: error.message || 'تعذر تنفيذ تحويل الرصيد.', customClass: { popup: 'swal2-popup' } });
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }
-            });
-        }
-
         // 🧾 Proof Viewer Logic
         function viewProof(txId) {
             const container = document.getElementById('proofContainer');
@@ -2040,16 +765,10 @@
                             const rateCash = document.getElementById('liveRateCash');
                             const ratePostAcc = document.getElementById('liveRatePostAcc');
                             const ratePostCard = document.getElementById('liveRatePostCard');
-                            const rateBank = document.getElementById('liveRateBank');
-                            const rateNiger = document.getElementById('liveRateNiger');
-                            const rateSudan = document.getElementById('liveRateSudan');
                             
                             if(rateCash) { rateCash.innerText = currentRate.toFixed(2); rateCash.classList.add('rate-updated'); setTimeout(()=>rateCash.classList.remove('rate-updated'), 1000); }
                             if(ratePostAcc) { ratePostAcc.innerText = (currentRate - 0.05).toFixed(2); ratePostAcc.classList.add('rate-updated'); setTimeout(()=>ratePostAcc.classList.remove('rate-updated'), 1000); }
                             if(ratePostCard) { ratePostCard.innerText = (currentRate - 0.15).toFixed(2); ratePostCard.classList.add('rate-updated'); setTimeout(()=>ratePostCard.classList.remove('rate-updated'), 1000); }
-                            if(rateBank) { rateBank.innerText = currentRate.toFixed(2); rateBank.classList.add('rate-updated'); setTimeout(()=>rateBank.classList.remove('rate-updated'), 1000); }
-                            if(rateNiger) { rateNiger.innerText = (currentRate + 0.1).toFixed(2); rateNiger.classList.add('rate-updated'); setTimeout(()=>rateNiger.classList.remove('rate-updated'), 1000); }
-                            if(rateSudan) { rateSudan.innerText = (currentRate + 0.2).toFixed(2); rateSudan.classList.add('rate-updated'); setTimeout(()=>rateSudan.classList.remove('rate-updated'), 1000); }
                             
                             updateCost();
                             document.getElementById('alertSound').play().catch(()=>{});
@@ -2064,13 +783,8 @@
                         }
                     }
 
-                    if(data.availableBalance !== undefined) {
-                        const balHolder = document.getElementById('liveBalanceHolder');
-                        if (balHolder) balHolder.innerHTML = `<span class="currency-symbol">LYD</span>${data.availableBalance.toFixed(2)}`;
-                    }
-                    if(data.totalDeductions !== undefined && document.getElementById('liveDeductionsHolder')) {
-                        document.getElementById('liveDeductionsHolder').innerText = data.totalDeductions.toFixed(2);
-                    }
+                    if(data.availableBalance !== undefined) document.getElementById('liveBalanceHolder').innerHTML = `<span class="currency-symbol">LYD</span>${data.availableBalance.toFixed(2)}`;
+                    if(data.totalDeductions !== undefined && document.getElementById('liveDeductionsHolder')) document.getElementById('liveDeductionsHolder').innerText = data.totalDeductions.toFixed(2);
 
                     const currentHash = JSON.stringify(data.transactions);
                     if (currentHash !== lastRenderedDataHash) {
@@ -2082,297 +796,65 @@
         }
 
         function renderClientTransactionsTable(transactions) {
-            window.allTransactions = transactions;
             const tbody = document.getElementById('tableBody');
-            const mobileList = document.getElementById('mobileTransactionsList');
-            const mobileListBrief = document.getElementById('mobileTransactionsListBrief');
-            
-            if (mobileList) mobileList.innerHTML = '';
-            if (mobileListBrief) mobileListBrief.innerHTML = '';
             
             if (!transactions || transactions.length === 0) {
-                 tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted); font-weight: bold; border:none; background: transparent;"><i class="fa-solid fa-folder-open fs-1 opacity-25 d-block mb-3"></i> لا توجد عمليات لعرضها.</td></tr>`;
-                 if (mobileList) {
-                     mobileList.innerHTML = `<div class="text-center text-muted py-5 fw-bold"><i class="fa-solid fa-folder-open d-block fs-1 opacity-25 mb-2"></i> لا توجد عمليات لعرضها.</div>`;
-                 }
-                 if (mobileListBrief) {
-                     mobileListBrief.innerHTML = `<div class="text-center text-muted py-4 fw-bold"><i class="fa-solid fa-folder-open d-block fs-2 opacity-25 mb-2"></i> لا توجد عمليات اليوم.</div>`;
-                 }
-                 updateTodaySummary([]);
+                 tbody.innerHTML = `<tr><td colspan="${isMaster ? 8 : 7}" style="text-align: center; padding: 40px; color: var(--text-muted); font-weight: bold; border:none; background: transparent;"><i class="fa-solid fa-folder-open fs-1 opacity-25 d-block mb-3"></i> لا توجد عمليات لعرضها.</td></tr>`;
                  return;
             }
             
-            // Filter only transfer operations for summary (exclude deposits/deductions)
-            const transferTxs = transactions.filter(t => t.status !== 'deposit' && t.status !== 'deduction');
-            updateTodaySummary(transactions);
-            
             let html = '';
-            let seqNum = transferTxs.length;
-            let briefCount = 0;
-            
-            transactions.forEach((tx, idx) => {
-                // Skip deposit/deduction from sequential numbering
-                const isFinancial = tx.status !== 'deposit' && tx.status !== 'deduction';
-                const seq = isFinancial ? seqNum-- : '-';
-                
-                // Status pipeline
+            transactions.forEach(tx => {
                 let statusMarkup = '';
                 if (tx.status === 'completed') {
-                    // Check if rate was modified by executor
-                    const rateModified = tx.adminNotes && tx.adminNotes.includes('تعديل');
-                    if (rateModified) {
-                        statusMarkup = `<span class="badge-st" style="background: rgba(245,158,11,0.1); color: #d97706; border: 1px solid rgba(245,158,11,0.3); cursor:pointer;" onclick="viewProof('${tx._id}')"><i class="fa-solid fa-check-double"></i> مكتمل (معدّل)</span>`;
-                    } else {
-                        statusMarkup = `<span class="badge-st st-done" onclick="viewProof('${tx._id}')" style="cursor:pointer;"><i class="fa-solid fa-check-circle"></i> مكتمل</span>`;
-                    }
-                } else if (tx.status === 'pending') {
-                    statusMarkup = `<span class="badge-st st-wait"><i class="fa-solid fa-clock fa-spin"></i> قيد المعالجة</span>`;
-                } else if (tx.status === 'processing') {
-                    statusMarkup = `<span class="badge-st" style="background: rgba(139,92,246,0.1); color: #7c3aed; border: 1px solid rgba(139,92,246,0.3);"><i class="fa-solid fa-layer-group"></i> في طابور الانتظار</span>`;
-                } else if (tx.status === 'accepted') {
-                    statusMarkup = `<span class="badge-st st-accepted"><i class="fa-solid fa-gear fa-spin"></i> قيد العمل</span>`;
-                } else if (tx.status === 'deposit') {
-                    statusMarkup = `<span class="badge-st st-dep"><i class="fa-solid fa-arrow-down"></i> إيداع</span>`;
-                } else if (tx.status === 'deduction') {
-                    statusMarkup = `<span class="badge-st" style="background: rgba(100,116,139,0.1); color: #64748b; border: 1px solid rgba(100,116,139,0.2);"><i class="fa-solid fa-arrow-up"></i> خصم</span>`;
-                } else if (tx.status === 'rejected' || tx.status === 'cancelled_by_admin') {
-                    statusMarkup = `<span class="badge-st st-fail"><i class="fa-solid fa-ban"></i> ملغي</span>`;
-                } else {
-                    statusMarkup = `<span class="badge-st st-wait"><i class="fa-solid fa-spinner fa-spin"></i> ${tx.status}</span>`;
-                }
- 
-                // Transaction ID
-                let idContent = (tx.status === 'completed') 
-                    ? `<a class="tx-id no-print" onclick="viewProof('${tx._id}')">#${tx.customId || tx._id.toString().slice(-6)}</a>` 
-                    : `<span class="tx-id text-muted" style="border:none; cursor:default;">#${tx.customId || tx._id.toString().slice(-6)}</span>`;
-                
-                // Time in 12h format
+                    statusMarkup = tx.transferType !== 'card_sale' 
+                        ? `<span class="badge-st st-done" onclick="viewProof('${tx._id}')" style="cursor:pointer;"><i class="fa-solid fa-check-circle"></i> مكتمل</span>`
+                        : `<span class="badge-st st-done" style="text-decoration:none;"><i class="fa-solid fa-box-open"></i> مستلم</span>`;
+                } else if (tx.status === 'deposit') { statusMarkup = `<span class="badge-st st-dep"><i class="fa-solid fa-arrow-down"></i> شحن رصيد</span>`; }
+                else if (tx.status === 'accepted') { statusMarkup = `<span class="badge-st st-accepted"><i class="fa-solid fa-gear fa-spin"></i> قيد العمل</span>`; }
+                else if (tx.status === 'pending' || tx.status === 'processing') { statusMarkup = `<span class="badge-st st-wait"><i class="fa-solid fa-spinner fa-spin"></i> معالجة</span>`; } 
+                else if (tx.status === 'deduction') { statusMarkup = `<span class="badge-st st-fail" style="background: rgba(100,116,139,0.1); color: #64748b; border-color: rgba(100,116,139,0.2);"><i class="fa-solid fa-arrow-up"></i> سحب رصيد</span>`; }
+                else { statusMarkup = `<span class="badge-st st-fail"><i class="fa-solid fa-ban"></i> ملغي</span>`; }
+
+                let idContent = (tx.status === 'completed' && tx.transferType !== 'card_sale') ? `<a class="tx-id no-print" onclick="viewProof('${tx._id}')">#${tx.customId || tx._id.toString().slice(-6)}</a><span class="mono-num print-only" style="display:none; font-size:1rem;">#${tx.customId}</span>` : `<span class="tx-id text-muted" style="border:none; cursor:default;">#${tx.customId || tx._id.toString().slice(-6)}</span>`;
                 let dateObj = new Date(tx.createdAt);
-                let timeStr = dateObj.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
                 
-                // Cost and rate
-                let costDisplay = isSubAccount ? (tx.subAccountCostLYD || tx.costLYD || 0).toFixed(2) : (tx.costLYD ? tx.costLYD.toFixed(2) : '0.00');
-                let exRateDisplay = isSubAccount ? (tx.subClientRate || tx.exchangeRate || 0).toFixed(2) : (tx.exchangeRate ? tx.exchangeRate.toFixed(2) : '-');
+                let costDisplay = isSubAccount ? (tx.subAccountCostLYD || tx.costLYD).toFixed(2) : (tx.costLYD ? tx.costLYD.toFixed(2) : '0.00');
+                let exRateDisplay = isSubAccount ? (tx.subClientRate || tx.exchangeRate).toFixed(2) : (tx.exchangeRate ? tx.exchangeRate.toFixed(2) : '-');
+                if (tx.transferType === 'card_sale') exRateDisplay = 'مبيعات';
                 
-                // Account number
-                let numStr = tx.vodafoneNumber || tx.accountNumber || '---';
-                
-                // Actions
-                let actionsHtml = '';
-                if (isFinancial) {
-                    let whatsappBtn = '';
-                    // If proof images exist and completed, show WhatsApp button
-                    if (tx.status === 'completed' && tx.proofImages && tx.proofImages.length > 0) {
-                        whatsappBtn = `<button class="btn btn-sm btn-success d-flex align-items-center gap-1" onclick="sendToWhatsApp('${tx._id}')" title="إرسال للعميل عبر واتساب"><i class="fa-brands fa-whatsapp"></i></button>`;
-                    }
-                    let complaintBtn = `<button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" onclick="submitComplaint('${tx._id}', '${tx.customId}')" title="تقديم شكوى"><i class="fa-solid fa-flag"></i></button>`;
-                    actionsHtml = `<div class="d-flex gap-1 justify-content-center">${whatsappBtn} ${complaintBtn}</div>`;
+                let commissionBadge = (!isSubAccount && tx.masterProfit > 0) ? `<br><small class="text-success no-print">+ ${tx.masterProfit.toFixed(2)} ربح</small>` : '';
+
+                let numStrP = tx.vodafoneNumber || tx.accountNumber || '';
+                let netHtml = '';
+                if(tx.transferType !== 'post_account' && tx.transferType !== 'post_card' && tx.status !== 'deposit' && tx.status !== 'deduction' && numStrP) {
+                    if(numStrP.startsWith('010')) { netHtml = '<div class="fw-bold small mt-1 no-print"><span style="color: #dc3545;">فودافون</span></div>'; }
+                    else if(numStrP.startsWith('011')) { netHtml = '<div class="fw-bold small mt-1 no-print"><span style="color: #198754;">اتصالات</span></div>'; }
+                    else if(numStrP.startsWith('012')) { netHtml = '<div class="fw-bold small mt-1 no-print"><span style="color: #fd7e14;">اورانج</span></div>'; }
+                    else if(numStrP.startsWith('015')) { netHtml = '<div class="fw-bold small mt-1 no-print"><span style="color: #0dcaf0;">وي</span></div>'; }
                 }
- 
+
+                let executorCell = '';
+                if (isMaster) {
+                    if (tx.isSubAccountTx) {
+                        executorCell = `<td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary"><i class="fa-solid fa-store me-1"></i> نقطة بيع: ${tx.subAccountName}</span></td>`;
+                    } else {
+                        executorCell = `<td><span class="small text-muted"><i class="fa-solid fa-user opacity-50 me-1"></i> حسابك الشخصي</span></td>`;
+                    }
+                }
+
                 html += `<tr>
-                    <td class="fw-bold text-center" style="font-size: 0.85rem;">${seq}</td>
                     <td>${idContent}</td>
+                    ${executorCell}
                     <td class="tx-amount">${tx.amount ? tx.amount.toFixed(2) : '0.00'}</td>
-                    <td>
-                        <span class="fw-bold mono-num" style="color: var(--brand-gold);">${costDisplay}</span>
-                        <br><small class="text-muted">سعر: ${exRateDisplay}</small>
-                    </td>
-                    <td dir="ltr" class="tx-phone">${numStr}</td>
-                    <td style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace; font-weight: 700;">${timeStr}</td>
+                    <td style="font-family: monospace; font-weight: 800; color: var(--brand-gold);">${exRateDisplay}</td>
+                    <td class="tx-cost">${costDisplay} ${commissionBadge}</td>
+                    <td dir="ltr" class="tx-phone">${numStrP || '---'}${netHtml}</td>
+                    <td style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace; font-weight: 700;">${dateObj.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })} <br><span class="opacity-50">${dateObj.toLocaleDateString('en-GB')}</span></td>
                     <td>${statusMarkup}</td>
-                    <td>${actionsHtml}</td>
                 </tr>`;
-
-                // Mobile Render (Full ledger on mobile container if present)
-                if (mobileList) {
-                    let mobileActionsHtml = '';
-                    if (isFinancial) {
-                        let whatsappBtn = '';
-                        if (tx.status === 'completed' && tx.proofImages && tx.proofImages.length > 0) {
-                            whatsappBtn = `<button class="btn btn-sm btn-success d-flex align-items-center gap-1 py-1 px-2 fw-bold" onclick="sendToWhatsApp('${tx._id}')"><i class="fa-brands fa-whatsapp"></i></button>`;
-                        }
-                        let complaintBtn = `<button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 py-1 px-2 fw-bold" onclick="submitComplaint('${tx._id}', '${tx.customId}')"><i class="fa-solid fa-flag"></i></button>`;
-                        mobileActionsHtml = `<div class="mobile-tx-actions">${whatsappBtn} ${complaintBtn}</div>`;
-                    }
-
-                    let mobileIdContent = (tx.status === 'completed') 
-                        ? `<a class="tx-custom-id text-decoration-none" onclick="viewProof('${tx._id}')" style="cursor:pointer;">#${tx.customId || tx._id.toString().slice(-6)}</a>` 
-                        : `<span class="tx-custom-id text-muted">#${tx.customId || tx._id.toString().slice(-6)}</span>`;
-
-                    mobileList.innerHTML += `
-                    <div class="mobile-tx-card">
-                        <div class="mobile-tx-header">
-                            ${mobileIdContent}
-                            ${statusMarkup}
-                        </div>
-                        <div class="mobile-tx-body">
-                            <div class="tx-amount-section">
-                                <div class="tx-amount-wrapper">
-                                    <span class="tx-amount">${tx.amount ? tx.amount.toFixed(2) : '0.00'}</span>
-                                    <span class="tx-currency">EGP</span>
-                                </div>
-                                <div class="tx-cost-wrapper ${tx.status === 'deposit' ? 'text-success' : 'text-danger'}">
-                                    <span class="fw-bold">${costDisplay}</span>
-                                    <span class="tx-currency">LYD</span>
-                                    <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.65rem; padding: 2px 6px;">سعر: ${exRateDisplay}</span>
-                                </div>
-                            </div>
-                            <div class="text-start">
-                                <span class="tx-phone">${numStr}</span>
-                            </div>
-                        </div>
-                        <div class="mobile-tx-divider"></div>
-                        <div class="mobile-tx-date-row">
-                            <span><i class="fa-solid fa-clock opacity-50 me-1"></i> ${timeStr}</span>
-                            ${mobileActionsHtml}
-                        </div>
-                    </div>`;
-                }
-
-                // Mobile Brief Render (Account Tab - max 5 operations)
-                if (mobileListBrief && briefCount < 5) {
-                    briefCount++;
-                    let mobileIdContent = (tx.status === 'completed') 
-                        ? `<a class="tx-custom-id text-decoration-none" onclick="viewProof('${tx._id}')" style="cursor:pointer;">#${tx.customId || tx._id.toString().slice(-6)}</a>` 
-                        : `<span class="tx-custom-id text-muted">#${tx.customId || tx._id.toString().slice(-6)}</span>`;
-
-                    mobileListBrief.innerHTML += `
-                    <div class="mobile-tx-card" style="padding: 12px 14px; border-radius: 14px; gap: 8px;">
-                        <div class="mobile-tx-header">
-                            ${mobileIdContent}
-                            ${statusMarkup}
-                        </div>
-                        <div class="mobile-tx-body">
-                            <div class="tx-amount-section">
-                                <div class="tx-amount-wrapper">
-                                    <span class="tx-amount" style="font-size: 1.15rem;">${tx.amount ? tx.amount.toFixed(2) : '0.00'}</span>
-                                    <span class="tx-currency">EGP</span>
-                                </div>
-                                <div class="tx-cost-wrapper ${tx.status === 'deposit' ? 'text-success' : 'text-danger'}" style="font-size: 0.82rem;">
-                                    <span class="fw-bold">${costDisplay}</span>
-                                    <span class="tx-currency">LYD</span>
-                                </div>
-                            </div>
-                            <div class="text-start" style="font-size: 0.85rem;">
-                                <span class="tx-phone">${numStr}</span>
-                            </div>
-                        </div>
-                    </div>`;
-                }
             });
             tbody.innerHTML = html;
-        }
-
-        function updateTodaySummary(transactions) {
-            let totalLYD = 0, totalEGP = 0, totalDeposits = 0, txCount = 0;
-            transactions.forEach(tx => {
-                if (tx.status === 'deposit') {
-                    totalDeposits += (tx.amount || 0);
-                } else if (tx.status !== 'deduction' && tx.status !== 'rejected' && tx.status !== 'cancelled_by_admin') {
-                    totalLYD += (tx.costLYD || 0);
-                    totalEGP += (tx.amount || 0);
-                    txCount++;
-                }
-            });
-            document.getElementById('todayTotalLYD').innerHTML = totalLYD.toFixed(2) + ' <small class="text-muted" style="font-size: 0.6em;">LYD</small>';
-            document.getElementById('todayTotalEGP').innerHTML = totalEGP.toFixed(2) + ' <small class="text-muted" style="font-size: 0.7em;">EGP</small>';
-            document.getElementById('todayTotalDeposits').innerHTML = totalDeposits.toFixed(2) + ' <small class="text-muted" style="font-size: 0.6em;">LYD</small>';
-            document.getElementById('todayTxCount').innerText = txCount;
-        }
-
-        async function sendToWhatsApp(txId) {
-            const tx = window.allTransactions.find(t => t._id === txId);
-            if (!tx) return;
-            const notes = tx.notes || '';
-            let clientPhone = '';
-            const phoneMatch = notes.match(/رقم العميل:\s*(\+?\d+)/);
-            if (phoneMatch) clientPhone = phoneMatch[1];
-            
-            if (!clientPhone) {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'لا يوجد رقم عميل',
-                    text: 'لم يتم إضافة رقم هاتف العميل في هذه العملية.',
-                    confirmButtonText: 'حسناً'
-                });
-                return;
-            }
-            const proofUrl = window.location.origin + `/client/proxy/image/${txId}/0`;
-            
-            try {
-                const response = await fetch(proofUrl);
-                if (!response.ok) throw new Error('Image fetch failed');
-                const blob = await response.blob();
-                const file = new File([blob], `receipt_${tx.customId}.jpg`, { type: blob.type });
-
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: 'إيصال تحويل',
-                            text: 'تم التحويل بنجاح ✅'
-                        });
-                        return; // Successfully shared
-                    } catch (shareError) {
-                        console.log('Share failed', shareError);
-                    }
-                }
-                
-                try {
-                    const item = new ClipboardItem({ [blob.type]: blob });
-                    await navigator.clipboard.write([item]);
-                    
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'تم نسخ الصورة',
-                        text: 'تم نسخ صورة الإثبات بنجاح. سيتم تحويلك للواتساب الآن، فقط قم بـ "لصق" (Paste) للصورة في المحادثة لترسلها للعميل.',
-                        timer: 4000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        const message = `تم التحويل بنجاح ✅`;
-                        const waUrl = `https://wa.me/${clientPhone}?text=${encodeURIComponent(message)}`;
-                        window.open(waUrl, '_blank');
-                    });
-                } catch(clipboardErr) {
-                    throw new Error('Clipboard write failed');
-                }
-            } catch(e) {
-                const message = `تم التحويل بنجاح ✅\nإليك رابط إثبات التحويل:\n${proofUrl}`;
-                const waUrl = `https://wa.me/${clientPhone}?text=${encodeURIComponent(message)}`;
-                window.open(waUrl, '_blank');
-            }
-        }
-
-        async function submitComplaint(txId, customId) {
-            const { value: complaintNote } = await Swal.fire({
-                title: `شكوى للعملية #${customId}`,
-                input: 'textarea',
-                inputLabel: 'اكتب ملاحظة الشكوى:',
-                inputPlaceholder: 'اشرح المشكلة بالتفصيل...',
-                inputAttributes: { 'aria-label': 'ملاحظة الشكوى' },
-                showCancelButton: true,
-                confirmButtonText: '<i class="fa-solid fa-paper-plane me-1"></i> إرسال الشكوى',
-                cancelButtonText: 'إلغاء',
-                inputValidator: (value) => { if (!value) return 'يرجى كتابة ملاحظة الشكوى!'; },
-                customClass: { popup: 'swal2-popup' }
-            });
-            if (complaintNote) {
-                try {
-                    const res = await fetch('/client/complaint', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ transactionId: txId, complaintText: complaintNote })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        Swal.fire({ icon: 'success', title: 'تم إرسال الشكوى', text: 'سيتم فحص العملية من قبل الإدارة.', confirmButtonText: 'حسناً' });
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'خطأ', text: data.error || 'حدث خطأ.', confirmButtonText: 'حسناً' });
-                    }
-                } catch(e) {
-                    Swal.fire({ icon: 'error', title: 'خطأ', text: 'تعذر الاتصال بالخادم.' });
-                }
-            }
         }
 
         const txDataElement = document.getElementById('transactionsData');
@@ -2386,7 +868,31 @@
         fetchLiveClientPortalData();
         setInterval(fetchLiveClientPortalData, 3000);
 
-        
+        async function activateTelegram(type) {
+            try {
+                if (!type) type = 'client';
+                Swal.fire({ title: 'جاري توليد الرابط...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const res = await fetch(`/${type}/generate-telegram-token`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.close();
+                    const prefix = type === 'client' ? 'LINK-CLIENT-' : 'LINK-EXEC-';
+                    const link = `https://t.me/${data.botUsername}?start=${prefix}${data.token}`;
+                    window.open(link, '_blank');
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم التوجيه للتليجرام',
+                        text: 'الرجاء الضغط على Start / بدء في البوت لتفعيل حسابك.',
+                        confirmButtonText: 'حسناً'
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('خطأ', data.message || 'حدث خطأ أثناء توليد الرابط', 'error');
+                }
+            } catch (e) {
+                Swal.fire('خطأ', 'تعذر الاتصال بالخادم', 'error');
+            }
+        }
 
         // Theme Toggle
         function toggleTheme() {
@@ -2397,204 +903,13 @@
             localStorage.setItem('ahram_theme', next);
             const icon = document.getElementById('themeIcon');
             if (icon) icon.className = next === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            const mIcon = document.getElementById('mobileThemeIcon');
-            if (mIcon) mIcon.className = next === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
         }
         // Set initial icon
         (function() {
             const theme = document.documentElement.getAttribute('data-theme');
             const icon = document.getElementById('themeIcon');
             if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            const mIcon = document.getElementById('mobileThemeIcon');
-            if (mIcon) mIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
         })();
-
-        // 📱 Mobile View - DOM elements relocation & Tab Switcher
-        let isMobileLayoutDone = false;
-        function setupMobileLayout() {
-            if (window.innerWidth <= 768 && !isMobileLayoutDone) {
-                isMobileLayoutDone = true;
-                
-                // Move wallet card
-                const walletCard = document.querySelector('.desktop-only-layout .wallet-card');
-                const walletPlaceholder = document.getElementById('mobile-wallet-card-placeholder');
-                if (walletCard && walletPlaceholder) {
-                    walletPlaceholder.appendChild(walletCard);
-                }
-
-                // Move transfer form
-                const transferForm = document.getElementById('transferForm');
-                const transferPlaceholder = document.getElementById('mobile-transfer-form-placeholder');
-                if (transferPlaceholder) {
-                    if (transferForm) {
-                        transferPlaceholder.appendChild(transferForm);
-                    }
-                }
-
-                // Move rates card
-                const ratesCard = document.getElementById('ratesCardContainer');
-                const ratesPlaceholder = document.getElementById('mobile-rates-placeholder');
-                if (ratesCard && ratesPlaceholder) {
-                    ratesPlaceholder.appendChild(ratesCard);
-                }
-                
-                // Ensure default transfer type is activated if not selected
-                if (!currentTransferType) {
-                    handleTransferTypeChange('كاش');
-                }
-            }
-        }
-
-        function switchMobileTab(tabName) {
-            // Reset transfers wizard if switching to transfers tab
-            if (tabName === 'transfers') {
-                goBackToServices();
-            }
-
-            // Update active state on tab contents
-            const contents = document.querySelectorAll('.mobile-tab-content');
-            contents.forEach(el => {
-                if (el.id === `mobile-tab-${tabName}`) {
-                    el.classList.add('active');
-                } else {
-                    el.classList.remove('active');
-                }
-            });
-
-            // Update active state on nav items
-            const navItems = document.querySelectorAll('.bottom-nav-mobile .bottom-nav-item');
-            navItems.forEach(el => {
-                if (el.getAttribute('data-tab') === tabName) {
-                    el.classList.add('active');
-                } else {
-                    el.classList.remove('active');
-                }
-            });
-
-            // Update URL parameter without reload
-            const url = new URL(window.location);
-            url.searchParams.set('tab', tabName);
-            window.history.pushState({}, '', url);
-        }
-
-        function selectTransferService(type) {
-            // Set the service type in both desktop elements
-            handleTransferTypeChange(type);
-
-            // Update the title on the detail screen
-            const serviceTitles = {
-                'كاش': 'تحويل محافظ كاش',
-                'بريد بطاقة': 'البريد المصري (بطاقة)',
-                'بريد حساب': 'البريد المصري (حساب)',
-                'حساب بنكي': 'حساب بنكي مصري',
-                'سيفا النيجر': 'سيفا النيجر',
-                'بنكك السودان': 'بنكك السودان'
-            };
-            const titleEl = document.getElementById('selectedServiceTitle');
-            if (titleEl) {
-                titleEl.innerText = serviceTitles[type] || 'تفاصيل التحويل';
-            }
-
-            // Hide grid and show form details screen
-            document.getElementById('mobile-transfer-services-grid').style.display = 'none';
-            document.getElementById('mobile-transfer-form-view').style.display = 'block';
-        }
-
-        function selectEgyptPostService() {
-            selectTransferService('بريد حساب');
-            const titleEl = document.getElementById('selectedServiceTitle');
-            if (titleEl) titleEl.innerText = 'البريد المصري';
-        }
-
-        function goBackToServices() {
-            // Show grid and hide form details screen
-            const gridEl = document.getElementById('mobile-transfer-services-grid');
-            const formViewEl = document.getElementById('mobile-transfer-form-view');
-            if (gridEl) gridEl.style.display = 'block';
-            if (formViewEl) formViewEl.style.display = 'none';
-        }
-
-        function selectTransferServiceDesktop(type) {
-            // Set the service type
-            handleTransferTypeChange(type);
-
-            // Update the title on the detail screen
-            const serviceTitles = {
-                'كاش': 'تحويل محافظ كاش',
-                'بريد بطاقة': 'البريد المصري (بطاقة)',
-                'بريد حساب': 'البريد المصري (حساب)',
-                'حساب بنكي': 'حساب بنكي مصري',
-                'سيفا النيجر': 'سيفا النيجر',
-                'بنكك السودان': 'بنكك السودان'
-            };
-            const titleEl = document.getElementById('selectedServiceTitleDesktop');
-            if (titleEl) {
-                titleEl.innerText = serviceTitles[type] || 'تفاصيل التحويل';
-            }
-
-            // Hide grid and show form details screen
-            document.getElementById('desktop-transfer-services-grid').style.display = 'none';
-            document.getElementById('desktop-transfer-form-view').style.display = 'block';
-        }
-
-        function selectEgyptPostServiceDesktop() {
-            selectTransferServiceDesktop('بريد حساب');
-            const titleEl = document.getElementById('selectedServiceTitleDesktop');
-            if (titleEl) titleEl.innerText = 'البريد المصري';
-        }
-
-        function goBackToServicesDesktop() {
-            // Show grid and hide form details screen
-            const gridEl = document.getElementById('desktop-transfer-services-grid');
-            const formViewEl = document.getElementById('desktop-transfer-form-view');
-            if (gridEl) gridEl.style.display = 'block';
-            if (formViewEl) formViewEl.style.display = 'none';
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            setupMobileLayout();
-            
-            // Check URL search params for tab
-            const urlParams = new URLSearchParams(window.location.search);
-            const initialTab = urlParams.get('tab') || 'account';
-            if (['account', 'transfers', 'rates'].includes(initialTab)) {
-                switchMobileTab(initialTab);
-            }
-
-            // Reset desktop transfer modal when closed
-            const modalEl = document.getElementById('transferModal');
-            if (modalEl) {
-                modalEl.addEventListener('hidden.bs.modal', () => {
-                    goBackToServicesDesktop();
-                });
-            }
-        });
-
-        window.addEventListener('resize', setupMobileLayout);
     </script>
-
-    <!-- Mobile Bottom Navigation -->
-    <div class="bottom-nav-mobile no-print">
-        <a href="javascript:void(0)" class="bottom-nav-item active" data-tab="account" onclick="switchMobileTab('account')">
-            <i class="fa-solid fa-user-circle"></i>
-            <span>الحساب</span>
-        </a>
-        <a href="javascript:void(0)" class="bottom-nav-item" data-tab="transfers" onclick="switchMobileTab('transfers')">
-            <i class="fa-solid fa-paper-plane"></i>
-            <span>التحويلات</span>
-        </a>
-        <a href="javascript:void(0)" class="bottom-nav-item" data-tab="rates" onclick="switchMobileTab('rates')">
-            <i class="fa-solid fa-chart-line"></i>
-            <span>اسعار الصرف</span>
-        </a>
-        <a href="/client/reports" class="bottom-nav-item" data-tab="reports">
-            <i class="fa-solid fa-chart-pie"></i>
-            <span>التقارير</span>
-        </a>
-        <a href="/client/support" class="bottom-nav-item" data-tab="support">
-            <i class="fa-solid fa-headset"></i>
-            <span>الدعم الفني</span>
-        </a>
-    </div>
 </body>
 </html>

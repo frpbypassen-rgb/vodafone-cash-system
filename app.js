@@ -1,19 +1,4 @@
 require('dotenv').config();
-require('ts-node').register({
-    transpileOnly: true,
-    compilerOptions: { module: 'CommonJS' }
-});
-const Sentry = require('@sentry/node');
-
-if (process.env.SENTRY_DSN) {
-    Sentry.init({
-        dsn: process.env.SENTRY_DSN,
-        environment: process.env.NODE_ENV || 'production',
-        tracesSampleRate: 0.1
-    });
-    console.log('✅ Sentry error tracking initialized successfully');
-}
-
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
@@ -27,18 +12,9 @@ const helmet = require('helmet'); // 🟢 حماية الهيدرز
 const cors = require('cors');
 const multer = require('multer');
 
-// 🟢 إعداد رفع الملفات في مجلد التخزين مع فحص نوع الملف
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
-    }
-});
-
+// 🟢 إعداد رفع الملفات في الذاكرة مع فحص نوع الملف
 const upload = multer({ 
-    storage: storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -51,18 +27,15 @@ const upload = multer({
 });
 
 const connectDB = require('./config/database');
-const { initRedis } = require('./config/redis');
 const { requireAuth, requireMaster } = require('./middlewares/auth');
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler');
 const requestLogger = require('./middlewares/requestLogger');
 const { metricsMiddleware, metricsEndpoint } = require('./middlewares/metrics');
-const csrfProtection = require('./middlewares/csrfProtection');
 const logger = require('./utils/logger');
 
 // 🟢 استدعاء طابور المهام الجديد (Queue System)
 
 const app = express();
-const isProduction = process.env.NODE_ENV === 'production';
 
 // ==========================================
 // 🛡️ درع حماية السيرفر من الانهيار
@@ -72,7 +45,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 process.on('uncaughtException', (err) => {
-    console.error('🚨 [تخطي خطأ حرج - Uncaught Exception]:', err.stack || err.message);
+    console.error('🚨 [تخطي خطأ حرج - Uncaught Exception]:', err.message);
 });
 
 app.set('trust proxy', 1); 
@@ -98,23 +71,22 @@ const io = new Server(server, {
     }
 });
 
-// إتاحة السوكت في كامل التطبيق لتجنب تكرار الأحداث
-app.set('io', io);
+// ==========================================
+// 🛡️ التحديث المعماري للزمن الفعلي (Mongoose Global Plugin)
+// تم إزالة تعديل Prototype الخطير لضمان سلامة الذاكرة (No Memory Leaks)
+// ==========================================
+mongoose.plugin((schema) => {
+    const triggerUpdate = () => { io.emit('update_data'); };
+    schema.post('save', triggerUpdate);
+    schema.post('findOneAndUpdate', triggerUpdate);
+    schema.post('updateOne', triggerUpdate);
+    schema.post('updateMany', triggerUpdate);
+    schema.post('findOneAndDelete', triggerUpdate);
+    schema.post('deleteOne', triggerUpdate);
+    schema.post('deleteMany', triggerUpdate);
+});
 
 // ==========================================
-// 🛡️ التحديث الذكي للزمن الفعلي (Targeted Socket Updates)
-// بدلاً من إرسال إشعار عند تحديث أي جدول (مثل Logs أو Sessions)، سنقوم 
-// بربط الإشعارات فقط بجدول العمليات (Transaction) لتقليل الضغط بنسبة 90%
-// ==========================================
-const Transaction = require('./models/Transaction');
-const triggerUpdate = () => { if (app.get('io')) app.get('io').emit('update_data'); };
-Transaction.schema.post('save', triggerUpdate);
-Transaction.schema.post('findOneAndUpdate', triggerUpdate);
-Transaction.schema.post('updateOne', triggerUpdate);
-Transaction.schema.post('updateMany', triggerUpdate);
-Transaction.schema.post('findOneAndDelete', triggerUpdate);
-Transaction.schema.post('deleteOne', triggerUpdate);
-Transaction.schema.post('deleteMany', triggerUpdate);
 // 🛡️ جدار الحماية والأمان (Security Middlewares)
 // ==========================================
 app.use(helmet({
@@ -125,7 +97,7 @@ app.use(helmet({
             scriptSrcAttr: ["'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com", "fonts.googleapis.com"],
             fontSrc: ["'self'", "fonts.gstatic.com", "cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "blob:", "assets.mixkit.co"],
+            imgSrc: ["'self'", "data:", "blob:", "*.telegram.org", "assets.mixkit.co"],
             connectSrc: ["'self'", "wss:", "ws:"],
             mediaSrc: ["'self'", "assets.mixkit.co"],
             frameSrc: ["'none'"],
@@ -143,8 +115,8 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 const limiter = rateLimit({
     windowMs: 5 * 60 * 1000, 
-    max: Number(process.env.GLOBAL_RATE_LIMIT_MAX || (isProduction ? 1000 : 5000)),
-    message: { success: false, error: 'معدل الطلبات مرتفع جداً، يرجى المحاولة بعد قليل.' },
+    max: 2000, 
+    message: 'معدل الطلبات مرتفع جداً، يرجى المحاولة بعد قليل.',
     standardHeaders: true, 
     legacyHeaders: false,
 });
@@ -154,104 +126,42 @@ app.use(limiter);
 app.use(requestLogger);
 app.use(metricsMiddleware);
 
-const requireIp = require('./middlewares/ipCheck');
-app.use(requireIp);
-
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use(express.static(path.join(__dirname, 'public')));
-
-// 🚫 منع تخزين الصفحات في الكاش المؤقت لضمان تحديث البيانات فوراً (حل مشكلة عدم تحديث البيانات بعد الإرسال)
-app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    res.set('Surrogate-Control', 'no-store');
-    next();
-});
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.set('view engine', 'ejs');
 
-// Lightweight operational endpoints should not wait on sessions or tenant lookup.
-app.get('/metrics', metricsEndpoint);
-
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString(), version: '2.0.0' });
-});
-
-app.get('/health/ready', async (req, res) => {
-    try {
-        const dbState = require('mongoose').connection.readyState;
-        const dbStatus = dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected';
-        res.json({ status: dbState === 1 ? 'ok' : 'degraded', db: dbStatus, uptime: process.uptime() });
-    } catch (e) {
-        res.status(503).json({ status: 'error', db: 'unreachable' });
-    }
-});
-
+const startAdminBot = require('./bots/admin/index');
+const { startAllClientBots } = require('./bots/client/manager');
+const { startAllExecutorBots } = require('./bots/executor/manager');
 let sessionStore;
 try {
-    if ((process.env.SESSION_STORE || '').toLowerCase() === 'memory') {
-        sessionStore = new session.MemoryStore();
-        console.warn('⚠️ Session Store: MemoryStore (SESSION_STORE=memory)');
-    } else {
-        const { MongoStore } = require('connect-mongo');
-        sessionStore = MongoStore.create({
-            mongoUrl: process.env.MONGO_URI,
-            ttl: 24 * 60 * 60,
-            autoRemove: 'native',
-            mongoOptions: {
-                serverSelectionTimeoutMS: 120000,
-                connectTimeoutMS: 120000,
-                socketTimeoutMS: 120000
-            }
-        });
-        sessionStore.on('error', (error) => {
-            logger.error('Session store error', { error: error.message });
-        });
-        console.log('✅ Session Store: MongoDB (connect-mongo)');
-    }
+    const { default: MongoStore } = require('connect-mongo');
+    sessionStore = MongoStore.create({ 
+        mongoUrl: process.env.MONGO_URI, 
+        ttl: 24 * 60 * 60,
+        autoRemove: 'native'
+    });
+    console.log('✅ Session Store: MongoDB (connect-mongo)');
 } catch (error) {
-    console.warn("⚠️ تحذير: تعذر تحميل connect-mongo — استخدام MemoryStore.", error);
+    console.warn("⚠️ تحذير: تعذر تحميل connect-mongo — استخدام MemoryStore.");
     sessionStore = new session.MemoryStore();
 }
 
-if (isProduction && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
-    console.error('🚨 [FATAL] SESSION_SECRET غير موجود أو قصير جداً في بيئة الإنتاج.');
-    process.exit(1);
-}
-
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'dev-session-secret-change-me-only-local',
+    secret: process.env.SESSION_SECRET || 'ahram-super-secret-key-2026',
     resave: false, 
     saveUninitialized: false, 
     store: sessionStore, 
-    cookie: {
-        secure: process.env.SECURE_COOKIE === 'true',
-        httpOnly: true,
-        sameSite: process.env.COOKIE_SAMESITE || 'lax',
-        maxAge: 24 * 60 * 60 * 1000
-    }
+    cookie: { secure: process.env.SECURE_COOKIE === 'true', httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }
 }));
-
-app.use('/uploads/proofs', (req, res, next) => {
-    if (req.session && (req.session.isLoggedIn || req.session.isClientLoggedIn || req.session.isExecutorLoggedIn)) {
-        return next();
-    }
-    return res.status(403).send('Forbidden');
-});
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-app.use(csrfProtection);
-
-const { tenantResolver } = require('./middlewares/tenantResolver');
-app.use(tenantResolver);
 
 app.use((req, res, next) => {
     res.locals.adminName = req.session.adminName || 'مدير';
     // ✅ إصلاح: استخدام adminRole (وليس role) بما يتوافق مع auth middleware
     res.locals.role = req.session.adminRole || null;
-    res.locals.tenant = req.tenant || null;
     next();
 });
 
@@ -261,11 +171,10 @@ const { syncBotBalance } = require('./services/balanceService');
 // 🔗 ربط المسارات المنفصلة
 // ==========================================
 app.use('/client', require('./routes/clientPortal'));
-app.use('/client', require('./routes/clientReports')); // Reports for clients
 app.use('/executor-portal', require('./routes/executorPortal'));
-app.use('/executor-portal', require('./routes/executorReports')); // Reports for executors
 app.use('/api/mobile', require('./routes/mobileApi'));
-app.use('/api/v1/mobile', require('./routes/mobileApi'));
+app.use('/api/bot', require('./routes/botApi')); // 🟢 مسار البوتات الجديد
+
 
 app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/dashboard'));
@@ -276,9 +185,7 @@ app.use('/settings', require('./routes/settings'));
 app.use('/', require('./routes/employees'));
 app.use('/', require('./routes/broadcast'));
 app.use('/', require('./routes/support'));
-app.use('/', require('./routes/registrationRequests'));
 app.use('/audit-log', requireAuth, require('./routes/auditLog'));
-app.use('/', require('./routes/reports'));
 
 
 
@@ -293,37 +200,39 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     customSiteTitle: 'Al-Ahram Pay API Docs'
 }));
 
+// 📊 Prometheus Metrics Endpoint
+app.get('/metrics', metricsEndpoint);
+
+// 🏥 Health Check Endpoints
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString(), version: '2.0.0' });
+});
+app.get('/health/ready', async (req, res) => {
+    try {
+        const dbState = require('mongoose').connection.readyState;
+        const dbStatus = dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected';
+        res.json({ status: dbState === 1 ? 'ok' : 'degraded', db: dbStatus, uptime: process.uptime() });
+    } catch (e) {
+        res.status(503).json({ status: 'error', db: 'unreachable' });
+    }
+});
+
 app.use(notFoundHandler);
-
-if (process.env.SENTRY_DSN) {
-    Sentry.setupExpressErrorHandler(app);
-}
-
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
-Promise.all([connectDB(), initRedis()]).then(async () => {
-    // 🟢 التأكد من وجود الإعدادات الافتراضية في قاعدة البيانات لتفادي أخطاء null pointer
-    try {
-        const Settings = require('./models/Settings');
-        const settingsCount = await Settings.countDocuments({});
-        if (settingsCount === 0) {
-            await Settings.create({});
-            console.log('✅ [Settings] Created default system settings');
-        }
-    } catch (err) {
-        console.error('⚠️ [Settings Error] Failed to ensure default settings:', err.message);
-    }
-
+connectDB().then(() => {
     server.listen(PORT, () => {
         logger.info(`🟢 Al-Ahram Pay v2.0 running on port ${PORT}`, { port: PORT, env: process.env.NODE_ENV || 'development' });
         console.log(`🟢 السيرفر يعمل بقوة الزمن الفعلي والحماية الشاملة على البورت ${PORT}`);
+        try {
+            startAdminBot();
+            startAllClientBots();
+            startAllExecutorBots();
+        } catch (e) { console.error('⚠️ خطأ أثناء تشغيل البوتات:', e.message); }
 
         // تسجيل بدء تشغيل النظام في Audit Log
         const { logAction } = require('./services/auditService');
         logAction({ action: 'SYSTEM_STARTUP', metadata: { port: PORT, nodeVersion: process.version } }).catch(() => {});
     });
-}).catch((error) => {
-    logger.error('Application startup failed', { error: error.message });
-    process.exit(1);
 });

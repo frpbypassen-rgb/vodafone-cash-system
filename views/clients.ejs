@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إدارة العملاء | الأهرام</title>
-
+    
     <script>
         const savedTheme = localStorage.getItem('ahram_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -13,11 +13,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
-
+    
     <style>
-        html, body { max-width: 100%; overflow-x: hidden; }
-        .main-content { overflow-x: hidden; }
-
         /* =========================================
            ✨ 3D Modern Cards - التصميم ثلاثي الأبعاد
            ========================================= */
@@ -79,8 +76,6 @@
 
         .user-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
         .company-icon { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
-        .agent-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .subaccount-icon { background: linear-gradient(135deg, #10b981, #059669); }
 
         .balance-box {
             background: var(--input-bg); border-radius: 20px; padding: 20px;
@@ -103,27 +98,6 @@
 
         .btn-3d.user-btn:hover { background: #3b82f6; color: white; border-color: #3b82f6; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); }
         .btn-3d.company-btn:hover { background: #8b5cf6; color: white; border-color: #8b5cf6; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
-        .btn-3d.agent-btn:hover { background: #f59e0b; color: white; border-color: #f59e0b; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
-        .btn-3d.subaccount-btn:hover { background: #10b981; color: white; border-color: #10b981; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); }
-        .client-actions {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-        }
-        .delete-account-form { margin: 0; min-width: 0; }
-        .btn-delete-account {
-            width: 100%;
-            background: rgba(239, 68, 68, 0.08);
-            border-color: rgba(239, 68, 68, 0.22);
-            color: #dc2626;
-        }
-        .btn-delete-account:hover {
-            background: #dc2626;
-            border-color: #dc2626;
-            color: #fff;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.32);
-        }
 
         /* Tabs Styling */
         .nav-pills .nav-link {
@@ -134,311 +108,48 @@
         }
         .nav-pills .nav-link.active { background-color: var(--brand-primary); color: white !important; border-color: var(--brand-primary); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 77, 0.2); }
         [data-theme="dark"] .nav-pills .nav-link.active { background-color: var(--brand-gold); color: black !important; border-color: var(--brand-gold); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3); }
-
+        
         /* 📱 تحسين المظهر على الجوال */
         @media (max-width: 768px) {
             .nav-pills { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px; border: none !important; background: transparent !important; }
             .nav-pills .nav-link { white-space: nowrap; padding: 10px 20px; font-size: 0.9rem; }
         }
-
-        /* Modern 3D Search Bar */
-        .search-container {
-            position: relative;
-            margin-bottom: 25px;
-            perspective: 1000px;
-        }
-        .search-input-3d {
-            background: var(--card-bg);
-            border: 1px solid var(--border-glass);
-            color: var(--text-main);
-            border-radius: 20px;
-            padding: 15px 50px 15px 25px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            width: 100%;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-        }
-        [data-theme="dark"] .search-input-3d {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-        .search-input-3d:focus {
-            transform: translateY(-2px);
-            border-color: #3b82f6;
-            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.2);
-            outline: none;
-        }
-        [data-theme="dark"] .search-input-3d:focus {
-            border-color: var(--brand-gold);
-            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.2);
-        }
-        .search-icon-3d {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            pointer-events: none;
-            transition: 0.3s;
-        }
-        .search-input-3d:focus ~ .search-icon-3d {
-            color: #3b82f6;
-        }
-        [data-theme="dark"] .search-input-3d:focus ~ .search-icon-3d {
-            color: var(--brand-gold);
-        }
-
-        .clients-header {
-            display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
-        }
-        .clients-title {
-            display: flex; align-items: center; gap: 10px; min-width: 0;
-        }
-        .clients-title-icon {
-            width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
-            color: #fff; background: linear-gradient(135deg, #2563eb, #0f172a);
-            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
-        }
-        .clients-title h3 { font-size: 1.45rem; line-height: 1.2; }
-        .clients-total-pill {
-            display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px;
-            border-radius: 999px; background: var(--card-bg); border: 1px solid var(--border-glass);
-            color: var(--text-main); font-weight: 900; box-shadow: 0 8px 18px rgba(0,0,0,0.04);
-        }
-        .clients-metrics {
-            display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;
-        }
-        .clients-metric {
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-            padding: 12px 14px; border-radius: 16px; background: var(--card-bg);
-            border: 1px solid var(--border-glass); color: var(--text-main);
-        }
-        .clients-metric span { color: var(--text-muted); font-size: 0.83rem; font-weight: 800; }
-        .clients-metric strong { font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; }
-        .metric-users { border-right: 4px solid #3b82f6; }
-        .metric-companies { border-right: 4px solid #8b5cf6; }
-        .metric-agents { border-right: 4px solid #f59e0b; }
-        .metric-subs { border-right: 4px solid #10b981; }
-
-        @media (max-width: 991px) {
-            html, body {
-                width: 100%;
-                max-width: 100vw;
-                overflow-x: hidden;
-            }
-            body .main-content {
-                width: 100%;
-                max-width: 100vw;
-                min-width: 0;
-                margin-right: 0 !important;
-                padding: 85px 14px 100px 14px !important;
-                box-sizing: border-box;
-                overflow-x: hidden;
-            }
-            body .top-nav-admin-mobile {
-                inset-inline: 0 !important;
-                width: auto;
-                max-width: 100vw;
-                box-sizing: border-box;
-                overflow: hidden;
-            }
-            body .top-nav-admin-mobile > .d-flex:first-child {
-                min-width: 0;
-                max-width: calc(100vw - 138px);
-                flex: 1 1 auto;
-                overflow: hidden;
-            }
-            .clients-page,
-            .clients-page * {
-                box-sizing: border-box;
-            }
-            .clients-page {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                padding-inline: 0 !important;
-                overflow-x: hidden;
-            }
-            .clients-header,
-            .clients-metrics,
-            .search-container,
-            .nav-pills,
-            .tab-content,
-            .client-card-3d {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-            }
-            .client-card-3d .d-flex.align-items-center.gap-3 > div:last-child {
-                width: auto !important;
-                min-width: 0;
-                flex: 1 1 auto;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .clients-page { padding-inline: 0; }
-            .top-nav-admin-mobile { width: 100vw; max-width: 100vw; overflow: hidden; box-sizing: border-box; }
-            .top-nav-admin-mobile > .d-flex:first-child { min-width: 0; flex: 1 1 auto; overflow: hidden; }
-            .top-nav-admin-mobile > .d-flex:last-child { flex: 0 0 auto; }
-            .top-nav-admin-mobile span { max-width: 145px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-            .admin-nav { gap: 12px !important; margin-bottom: 16px !important; }
-            .clients-header { align-items: stretch; }
-            .clients-title { width: 100%; min-width: 0; overflow: hidden; padding-inline-end: 2px; }
-            .clients-title-icon { width: 42px; height: 42px; border-radius: 14px; flex: 0 0 42px; }
-            .clients-title h3 { font-size: 1.08rem; margin: 0; white-space: normal; overflow-wrap: anywhere; }
-            .clients-total-pill { width: 100%; justify-content: center; padding: 9px 12px; font-size: 0.92rem; }
-            .clients-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-            .clients-metric { padding: 10px 11px; border-radius: 14px; }
-            .clients-metric span { font-size: 0.78rem; }
-            .clients-metric strong { font-size: 1rem; }
-            .search-container { margin-bottom: 8px; }
-            .search-input-3d {
-                height: 48px; border-radius: 16px; padding: 11px 44px 11px 14px;
-                font-size: 0.92rem; box-shadow: 0 6px 14px rgba(0,0,0,0.05);
-            }
-            .search-input-3d:focus { transform: none; }
-            .search-icon-3d { right: 16px; font-size: 1rem; }
-            .nav-pills {
-                width: 100%; display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 8px; overflow: visible; padding: 0 !important; border: none !important;
-                background: transparent !important;
-            }
-            .nav-pills .nav-item { width: 100%; }
-            .nav-pills .nav-link {
-                width: 100%; min-height: 42px; margin: 0; padding: 9px 8px;
-                border-radius: 14px; font-size: 0.82rem; display: flex; align-items: center;
-                justify-content: center; gap: 5px; white-space: normal; line-height: 1.25;
-            }
-            .nav-pills .nav-link.active { transform: none; }
-            .tab-content { margin-top: 14px !important; }
-            .tab-pane > .row { --bs-gutter-x: 0; --bs-gutter-y: 12px; padding-bottom: 84px !important; }
-            .client-card-item { width: 100%; }
-            .client-card-3d {
-                padding: 15px; border-radius: 18px; min-height: auto; transform: none !important;
-                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-            }
-            [data-theme="dark"] .client-card-3d { box-shadow: 0 10px 24px rgba(0,0,0,0.32); }
-            .client-card-3d:hover { transform: none; }
-            .profile-icon { width: 48px; height: 48px; border-radius: 14px; font-size: 1.2rem; flex: 0 0 48px; }
-            .profile-icon::after { display: none; }
-            .client-card-3d .mb-4 { margin-bottom: 12px !important; }
-            .client-card-3d h5 { font-size: 1rem; max-width: 100%; }
-            .client-card-3d .badge { font-size: 0.68rem !important; }
-            .client-card-3d .text-muted.small {
-                font-size: 0.78rem; min-width: 0;
-            }
-            .client-card-3d .d-flex.justify-content-between.align-items-center.text-muted.small {
-                align-items: flex-start !important; gap: 8px; flex-wrap: wrap;
-            }
-            .client-card-3d code { word-break: break-all; }
-            .balance-box {
-                margin: 12px 0; padding: 12px 13px; border-radius: 16px;
-                display: flex; align-items: center; justify-content: space-between; gap: 12px;
-                text-align: right;
-            }
-            .balance-box .small { margin-bottom: 0 !important; font-size: 0.75rem; }
-            .mono-num { font-size: 1.18rem; white-space: nowrap; }
-            .btn-3d { min-height: 44px; border-radius: 14px; padding: 10px; font-size: 0.88rem; }
-            .client-actions { grid-template-columns: 1fr; }
-            .system-empty-placeholder, .no-results-placeholder { padding: 38px 14px !important; }
-            .system-empty-placeholder h5, .no-results-placeholder h5 { font-size: 0.95rem; }
-        }
     </style>
-
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
-    <!-- End PWA Setup -->
 </head>
 <body>
+
+<button class="mobile-nav-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <%- include('partials/sidebar', { activePage: 'clients' }) %>
 
 <div class="main-content">
-    <div class="container-fluid clients-page">
-        <div class="admin-nav mb-4 d-flex flex-column gap-3">
-            <div class="clients-header">
-                <div class="clients-title">
-                    <div class="clients-title-icon"><i class="fa-solid fa-users"></i></div>
-                    <h3 class="fw-bold text-dark">إدارة العملاء والوكلاء</h3>
-                </div>
-                <div class="clients-total-pill">
-                    <i class="fa-solid fa-database text-primary"></i>
-                    <span>الإجمالي</span>
-                    <strong class="mono-num" style="font-size: 1rem;"><%= users.length + companies.length + agents.length + subAccounts.length %></strong>
-                </div>
-            </div>
-            <% if (query && query.codeSaved) { %>
-                <div class="alert alert-success fw-bold rounded-4 shadow-sm m-0"><i class="fa-solid fa-check-circle me-1"></i> تم حفظ ID الحساب بنجاح.</div>
-            <% } else if (query && query.codeError) { %>
-                <div class="alert alert-danger fw-bold rounded-4 shadow-sm m-0"><i class="fa-solid fa-triangle-exclamation me-1"></i> لم يتم حفظ ID الحساب. تأكد من عدد الأرقام وعدم تكرار الرقم.</div>
-            <% } else if (query && query.deleted) { %>
-                <div class="alert alert-success fw-bold rounded-4 shadow-sm m-0"><i class="fa-solid fa-trash-can me-1"></i> تم حذف الحساب وإيقاف دخوله بنجاح.</div>
-            <% } else if (query && query.deleteError) { %>
-                <div class="alert alert-danger fw-bold rounded-4 shadow-sm m-0"><i class="fa-solid fa-triangle-exclamation me-1"></i> لم يتم حذف الحساب. حاول مرة أخرى.</div>
-            <% } %>
-
-            <div class="clients-metrics">
-                <div class="clients-metric metric-users"><span>مباشر</span><strong><%= users.length %></strong></div>
-                <div class="clients-metric metric-companies"><span>شركات</span><strong><%= companies.length %></strong></div>
-                <div class="clients-metric metric-agents"><span>وكلاء</span><strong><%= agents.length %></strong></div>
-                <div class="clients-metric metric-subs"><span>تابعين</span><strong><%= subAccounts.length %></strong></div>
-            </div>
-
-            <!-- Unified Search Input -->
-            <div class="search-container">
-                <input type="text" id="clientSearch" class="search-input-3d" placeholder="ابحث بالاسم، رقم الهاتف، ID، اسم المستخدم، أو اسم الوكيل الرئيسي..." oninput="searchClients()">
-                <i class="fa-solid fa-magnifying-glass search-icon-3d"></i>
-            </div>
-
-            <!-- Tab List -->
+    <div class="container-fluid">
+        <div class="admin-nav mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h3 class="fw-bold m-0 text-dark"><i class="fa-solid fa-users text-primary me-2"></i> إدارة العملاء والوكلاء</h3>
+            
             <ul class="nav nav-pills d-inline-flex m-0 p-1 rounded-4 border data-card" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#users-tab" type="button">
-                        <i class="fa-solid fa-user me-1"></i> عملاء مباشر
-                    </button>
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#users-tab" type="button"><i class="fa-solid fa-user me-1"></i> العملاء الأفراد</button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#companies-tab" type="button">
-                        <i class="fa-solid fa-building me-1"></i> شركات
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#agents-tab" type="button">
-                        <i class="fa-solid fa-user-tie me-1"></i> وكلاء
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#subaccounts-tab" type="button">
-                        <i class="fa-solid fa-users me-1"></i> عملاء الوكلاء
-                    </button>
+                <li class="nav-item m-0" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#companies-tab" type="button"><i class="fa-solid fa-building me-1"></i> الشركات والوكلاء</button>
                 </li>
             </ul>
         </div>
 
         <div class="tab-content mt-4">
-            <!-- Direct Clients Tab -->
             <div class="tab-pane fade show active" id="users-tab">
                 <div class="row g-4 pb-5">
                     <% if(users.length === 0) { %>
-                        <div class="col-12 text-center py-5 system-empty-placeholder">
+                        <div class="col-12 text-center py-5">
                             <i class="fa-solid fa-user-slash fa-4x text-muted opacity-25 mb-3"></i>
-                            <h5 class="text-muted fw-bold">لا يوجد عملاء مباشرين مسجلين في المنظومة.</h5>
+                            <h5 class="text-muted fw-bold">لا يوجد عملاء أفراد مسجلين في المنظومة.</h5>
                         </div>
                     <% } %>
 
-                    <div class="col-12 text-center py-5 no-results-placeholder d-none">
-                        <i class="fa-solid fa-magnifying-glass-minus fa-4x text-muted opacity-25 mb-3"></i>
-                        <h5 class="text-muted fw-bold">لا توجد نتائج تطابق بحثك.</h5>
-                    </div>
-
                     <% users.forEach(u => { %>
-                        <div class="col-xl-3 col-lg-4 col-md-6 client-card-item" data-name="<%= u.name %>" data-phone="<%= u.phone || '' %>" data-username="<%= u.webUsername || '' %>" data-code="<%= u.accountCode || '' %>" data-master="">
+                        <div class="col-xl-3 col-lg-4 col-md-6">
                             <div class="card-3d-wrapper">
                                 <div class="client-card-3d" style="border-top: 5px solid #3b82f6;">
                                     <div>
@@ -460,10 +171,9 @@
                                             <span dir="ltr"><i class="fa-solid fa-phone me-1 opacity-50 text-primary"></i> <%= u.phone %></span>
                                             <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary rounded-pill px-2">مستوى <%= u.tier || 1 %></span>
                                         </div>
-
-                                        <div class="text-muted small fw-bold mb-2 px-1 text-truncate">
-                                            <i class="fa-solid fa-id-badge me-1 opacity-50 text-primary"></i> ID:
-                                            <code class="text-dark mono-num"><%= u.accountCode || 'غير محدد' %></code>
+                                        
+                                        <div class="text-muted small fw-bold mb-3 px-1 text-truncate">
+                                            <i class="fa-brands fa-telegram me-1 opacity-50 text-info"></i> <code class="text-muted"><%= u.telegramId || 'لم يربط التيليجرام' %></code>
                                         </div>
 
                                         <div class="balance-box">
@@ -473,17 +183,10 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="client-actions">
-                                        <a href="/user/<%= u._id %>" class="btn-3d user-btn">
-                                            <i class="fa-solid fa-folder-open me-2"></i> إدارة ملف العميل
-                                        </a>
-                                        <form action="/user/<%= u._id %>/delete" method="POST" class="delete-account-form" onsubmit="return confirm('هل أنت متأكد من حذف هذا الحساب؟ سيتم إيقاف الدخول وإخفاؤه من القائمة مع حفظ العمليات السابقة.');">
-                                            <button type="submit" class="btn-3d btn-delete-account">
-                                                <i class="fa-solid fa-trash-can me-2"></i> حذف الحساب
-                                            </button>
-                                        </form>
-                                    </div>
+                                    
+                                    <a href="/user/<%= u._id %>" class="btn-3d user-btn">
+                                        <i class="fa-solid fa-folder-open me-2"></i> إدارة ملف العميل
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -491,23 +194,17 @@
                 </div>
             </div>
 
-            <!-- Companies Tab -->
             <div class="tab-pane fade" id="companies-tab">
                 <div class="row g-4 pb-5">
                     <% if(companies.length === 0) { %>
-                        <div class="col-12 text-center py-5 system-empty-placeholder">
+                        <div class="col-12 text-center py-5">
                             <i class="fa-solid fa-building-circle-xmark fa-4x text-muted opacity-25 mb-3"></i>
-                            <h5 class="text-muted fw-bold">لا يوجد شركات مسجلة في المنظومة.</h5>
+                            <h5 class="text-muted fw-bold">لا يوجد شركات أو وكلاء مسجلين في المنظومة.</h5>
                         </div>
                     <% } %>
 
-                    <div class="col-12 text-center py-5 no-results-placeholder d-none">
-                        <i class="fa-solid fa-magnifying-glass-minus fa-4x text-muted opacity-25 mb-3"></i>
-                        <h5 class="text-muted fw-bold">لا توجد نتائج تطابق بحثك.</h5>
-                    </div>
-
                     <% companies.forEach(c => { %>
-                        <div class="col-xl-3 col-lg-4 col-md-6 client-card-item" data-name="<%= c.name %>" data-phone="<%= c.phone || '' %>" data-username="<%= c.webUsername || '' %>" data-code="<%= c.accountCode || '' %>" data-master="">
+                        <div class="col-xl-3 col-lg-4 col-md-6">
                             <div class="card-3d-wrapper">
                                 <div class="client-card-3d" style="border-top: 5px solid #8b5cf6;">
                                     <div>
@@ -534,11 +231,6 @@
                                             <i class="fa-solid fa-key me-1 opacity-50" style="color: #8b5cf6;"></i> <code class="text-muted" style="filter: blur(2px); transition: 0.3s; cursor: pointer;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='blur(2px)'"><%= c.token %></code>
                                         </div>
 
-                                        <div class="text-muted small fw-bold mb-2 px-1 text-truncate">
-                                            <i class="fa-solid fa-id-badge me-1 opacity-50" style="color: #8b5cf6;"></i> ID:
-                                            <code class="text-dark mono-num"><%= c.accountCode || 'غير محدد' %></code>
-                                        </div>
-
                                         <div class="balance-box">
                                             <div class="text-muted small fw-bold mb-2"><i class="fa-solid fa-wallet me-1 opacity-50"></i> ميزانية الشركة (LYD)</div>
                                             <div class="mono-num <%= c.balance < 0 ? 'text-danger' : 'text-success' %>" dir="ltr">
@@ -546,202 +238,10 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="client-actions">
-                                        <a href="/company/<%= c._id %>" class="btn-3d company-btn">
-                                            <i class="fa-solid fa-folder-open me-2"></i> إدارة ملف الشركة
-                                        </a>
-                                        <form action="/company/<%= c._id %>/delete" method="POST" class="delete-account-form" onsubmit="return confirm('هل أنت متأكد من حذف هذه الشركة؟ سيتم إيقاف دخول موظفيها وإخفاؤها من القائمة مع حفظ العمليات السابقة.');">
-                                            <button type="submit" class="btn-3d btn-delete-account">
-                                                <i class="fa-solid fa-trash-can me-2"></i> حذف الحساب
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <% }) %>
-                </div>
-            </div>
-
-            <!-- Agents Tab -->
-            <div class="tab-pane fade" id="agents-tab">
-                <div class="row g-4 pb-5">
-                    <% if(agents.length === 0) { %>
-                        <div class="col-12 text-center py-5 system-empty-placeholder">
-                            <i class="fa-solid fa-user-tie fa-4x text-muted opacity-25 mb-3"></i>
-                            <h5 class="text-muted fw-bold">لا يوجد وكلاء مسجلين في المنظومة.</h5>
-                        </div>
-                    <% } %>
-
-                    <div class="col-12 text-center py-5 no-results-placeholder d-none">
-                        <i class="fa-solid fa-magnifying-glass-minus fa-4x text-muted opacity-25 mb-3"></i>
-                        <h5 class="text-muted fw-bold">لا توجد نتائج تطابق بحثك.</h5>
-                    </div>
-
-                    <% agents.forEach(agent => { %>
-                        <div class="col-xl-3 col-lg-4 col-md-6 client-card-item" data-name="<%= agent.name %>" data-phone="<%= agent.phone || '' %>" data-username="<%= agent.webUsername || '' %>" data-code="<%= agent.accountCode || '' %>" data-master="">
-                            <div class="card-3d-wrapper">
-                                <div class="client-card-3d" style="border-top: 5px solid #f59e0b;">
-                                    <div>
-                                        <div class="d-flex justify-content-between align-items-start mb-4">
-                                            <div class="d-flex align-items-center gap-3 w-100">
-                                                <div class="profile-icon agent-icon">
-                                                    <% if (agent.type === 'company') { %>
-                                                        <i class="fa-solid fa-building"></i>
-                                                    <% } else { %>
-                                                        <i class="fa-solid fa-user-tie"></i>
-                                                    <% } %>
-                                                </div>
-                                                <div style="width: calc(100% - 80px);">
-                                                    <h5 class="fw-bold m-0 text-dark mb-1 text-truncate" title="<%= agent.name %>"><%= agent.name %></h5>
-                                                    <span class="badge <%= agent.status === 'active' ? 'bg-success' : 'bg-danger' %> bg-opacity-10 text-<%= agent.status === 'active' ? 'success' : 'danger' %> border rounded-pill px-2 py-1 mt-1" style="font-size:0.75rem;">
-                                                        <i class="fa-solid <%= agent.status === 'active' ? 'fa-check-circle' : 'fa-ban' %> me-1"></i><%= agent.status === 'active' ? 'نشط ومفعل' : 'محظور/مغلق' %>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex justify-content-between align-items-center text-muted small fw-bold mb-2 px-1">
-                                            <span dir="ltr"><i class="fa-solid fa-phone me-1 opacity-50" style="color: #f59e0b;"></i> <%= agent.phone %></span>
-                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary rounded-pill px-2">مستوى <%= agent.tier || 1 %></span>
-                                        </div>
-
-                                        <% if (agent.type === 'company') { %>
-                                            <div class="text-muted small fw-bold mb-3 px-1 text-truncate" title="<%= agent.token %>">
-                                                <i class="fa-solid fa-key me-1 opacity-50" style="color: #f59e0b;"></i> <code class="text-muted" style="filter: blur(2px); transition: 0.3s; cursor: pointer;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='blur(2px)'"><%= agent.token %></code>
-                                            </div>
-                                        <% } else { %>
-                                            <div class="text-muted small fw-bold mb-3 px-1 text-truncate">
-                                                <i class="fa-solid fa-user-tag me-1 opacity-50" style="color: #f59e0b;"></i> نوع الحساب: <span class="badge bg-warning text-dark">فردي / وكيل</span>
-                                            </div>
-                                        <% } %>
-
-                                        <div class="text-muted small fw-bold mb-2 px-1 text-truncate">
-                                            <i class="fa-solid fa-id-badge me-1 opacity-50" style="color: #f59e0b;"></i> ID:
-                                            <code class="text-dark mono-num"><%= agent.accountCode || 'غير محدد' %></code>
-                                        </div>
-
-                                        <div class="balance-box">
-                                            <div class="text-muted small fw-bold mb-2"><i class="fa-solid fa-wallet me-1 opacity-50"></i> الرصيد الحالي (LYD)</div>
-                                            <div class="mono-num <%= agent.balance < 0 ? 'text-danger' : 'text-success' %>" dir="ltr">
-                                                <%= agent.balance.toFixed(2) %>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="client-actions">
-                                        <% if (agent.type === 'company') { %>
-                                            <a href="/company/<%= agent._id %>" class="btn-3d agent-btn">
-                                                <i class="fa-solid fa-folder-open me-2"></i> إدارة ملف الشركة
-                                            </a>
-                                            <form action="/company/<%= agent._id %>/delete" method="POST" class="delete-account-form" onsubmit="return confirm('هل أنت متأكد من حذف هذا الوكيل؟ سيتم إيقاف الحساب والعملاء التابعين له مع حفظ العمليات السابقة.');">
-                                                <button type="submit" class="btn-3d btn-delete-account">
-                                                    <i class="fa-solid fa-trash-can me-2"></i> حذف الحساب
-                                                </button>
-                                            </form>
-                                        <% } else { %>
-                                            <a href="/user/<%= agent._id %>" class="btn-3d agent-btn">
-                                                <i class="fa-solid fa-folder-open me-2"></i> إدارة ملف العميل
-                                            </a>
-                                            <form action="/user/<%= agent._id %>/delete" method="POST" class="delete-account-form" onsubmit="return confirm('هل أنت متأكد من حذف هذا الوكيل؟ سيتم إيقاف الحساب والعملاء التابعين له مع حفظ العمليات السابقة.');">
-                                                <button type="submit" class="btn-3d btn-delete-account">
-                                                    <i class="fa-solid fa-trash-can me-2"></i> حذف الحساب
-                                                </button>
-                                            </form>
-                                        <% } %>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <% }) %>
-                </div>
-            </div>
-
-            <!-- Sub accounts (Reseller-assigned clients) Tab -->
-            <div class="tab-pane fade" id="subaccounts-tab">
-                <div class="row g-4 pb-5">
-                    <% if(subAccounts.length === 0) { %>
-                        <div class="col-12 text-center py-5 system-empty-placeholder">
-                            <i class="fa-solid fa-network-wired fa-4x text-muted opacity-25 mb-3"></i>
-                            <h5 class="text-muted fw-bold">لا يوجد عملاء وكلاء (حسابات فرعية) مسجلين في المنظومة.</h5>
-                        </div>
-                    <% } %>
-
-                    <div class="col-12 text-center py-5 no-results-placeholder d-none">
-                        <i class="fa-solid fa-magnifying-glass-minus fa-4x text-muted opacity-25 mb-3"></i>
-                        <h5 class="text-muted fw-bold">لا توجد نتائج تطابق بحثك.</h5>
-                    </div>
-
-                    <% subAccounts.forEach(sub => { %>
-                        <div class="col-xl-3 col-lg-4 col-md-6 client-card-item" data-name="<%= sub.name %>" data-phone="<%= sub.phone || '' %>" data-username="<%= sub.webUsername %>" data-code="<%= sub.accountCode || '' %>" data-master="<%= sub.masterName || '' %>">
-                            <div class="card-3d-wrapper">
-                                <div class="client-card-3d" style="border-top: 5px solid #10b981;">
-                                    <div>
-                                        <div class="d-flex justify-content-between align-items-start mb-4">
-                                            <div class="d-flex align-items-center gap-3 w-100">
-                                                <div class="profile-icon subaccount-icon">
-                                                    <i class="fa-solid fa-shop"></i>
-                                                </div>
-                                                <div style="width: calc(100% - 80px);">
-                                                    <h5 class="fw-bold m-0 text-dark mb-1 text-truncate" title="<%= sub.name %>"><%= sub.name %></h5>
-                                                    <span class="badge <%= sub.status === 'active' ? 'bg-success' : 'bg-danger' %> bg-opacity-10 text-<%= sub.status === 'active' ? 'success' : 'danger' %> border rounded-pill px-2 py-1 mt-1" style="font-size:0.75rem;">
-                                                        <i class="fa-solid <%= sub.status === 'active' ? 'fa-check-circle' : 'fa-ban' %> me-1"></i><%= sub.status === 'active' ? 'نشط' : 'محظور' %>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex justify-content-between align-items-center text-muted small fw-bold mb-2 px-1">
-                                            <span dir="ltr"><i class="fa-solid fa-phone me-1 opacity-50" style="color: #10b981;"></i> <%= sub.phone || 'بدون هاتف' %></span>
-                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary rounded-pill px-2">حد: <%= sub.creditLimit || 0 %></span>
-                                        </div>
-
-                                        <div class="text-muted small fw-bold mb-2 px-1 text-truncate">
-                                            <i class="fa-solid fa-user-lock me-1 opacity-50" style="color: #10b981;"></i> اسم الدخول: <code class="text-dark"><%= sub.webUsername %></code>
-                                        </div>
-
-                                        <form action="/sub-account/<%= sub._id %>/update-account-code" method="POST" class="mb-3 px-1">
-                                            <label class="text-muted small fw-bold mb-1"><i class="fa-solid fa-id-badge me-1 opacity-50" style="color: #10b981;"></i> ID عميل الوكيل (6 أرقام)</label>
-                                            <div class="input-group input-group-sm">
-                                                <input type="text" name="accountCode" class="form-control mono-num fw-bold text-center" value="<%= sub.accountCode || '' %>" placeholder="000000" pattern="\d{6}" maxlength="6" inputmode="numeric">
-                                                <button class="btn btn-success fw-bold" type="submit">حفظ</button>
-                                            </div>
-                                        </form>
-
-                                        <div class="text-muted small fw-bold mb-3 px-1 text-truncate">
-                                            <i class="fa-solid fa-network-wired me-1 opacity-50" style="color: #10b981;"></i> الوكيل:
-                                            <% if (sub.masterType === 'user') { %>
-                                                <a href="/user/<%= sub.masterId %>" class="text-decoration-none fw-bold" style="color: #f59e0b;"><%= sub.masterName %></a>
-                                            <% } else { %>
-                                                <a href="/company/<%= sub.masterId %>" class="text-decoration-none fw-bold" style="color: #f59e0b;"><%= sub.masterName %></a>
-                                            <% } %>
-                                        </div>
-
-                                        <div class="balance-box">
-                                            <div class="text-muted small fw-bold mb-2"><i class="fa-solid fa-wallet me-1 opacity-50"></i> الرصيد الحالي (LYD)</div>
-                                            <div class="mono-num <%= sub.balance < 0 ? 'text-danger' : 'text-success' %>" dir="ltr">
-                                                <%= sub.balance.toFixed(2) %>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="client-actions">
-                                        <% if (sub.masterType === 'user') { %>
-                                            <a href="/user/<%= sub.masterId %>" class="btn-3d subaccount-btn">
-                                                <i class="fa-solid fa-user-tie me-2"></i> ملف الوكيل الرئيسي
-                                            </a>
-                                        <% } else { %>
-                                            <a href="/company/<%= sub.masterId %>" class="btn-3d subaccount-btn">
-                                                <i class="fa-solid fa-building me-2"></i> ملف الوكيل الرئيسي
-                                            </a>
-                                        <% } %>
-                                        <form action="/sub-account/<%= sub._id %>/delete" method="POST" class="delete-account-form" onsubmit="return confirm('هل أنت متأكد من حذف حساب عميل الوكيل؟ سيتم إيقاف دخوله وإخفاؤه من القائمة مع حفظ العمليات السابقة.');">
-                                            <button type="submit" class="btn-3d btn-delete-account">
-                                                <i class="fa-solid fa-trash-can me-2"></i> حذف الحساب
-                                            </button>
-                                        </form>
-                                    </div>
+                                    
+                                    <a href="/company/<%= c._id %>" class="btn-3d company-btn">
+                                        <i class="fa-solid fa-folder-open me-2"></i> إدارة ملف الشركة
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -753,49 +253,9 @@
 </div>
 
 <script>
-    function toggleSidebar() {
+    function toggleSidebar() { 
         document.querySelector('.sidebar').classList.toggle('active');
-        document.querySelector('.sidebar-overlay').classList.toggle('active');
-    }
-
-    function searchClients() {
-        const query = document.getElementById('clientSearch').value.toLowerCase().trim();
-        const tabPanes = document.querySelectorAll('.tab-pane');
-
-        tabPanes.forEach(pane => {
-            const items = pane.querySelectorAll('.client-card-item');
-            let visibleCount = 0;
-
-            items.forEach(item => {
-                const name = (item.getAttribute('data-name') || '').toLowerCase();
-                const phone = (item.getAttribute('data-phone') || '').toLowerCase();
-                const username = (item.getAttribute('data-username') || '').toLowerCase();
-                const code = (item.getAttribute('data-code') || '').toLowerCase();
-                const master = (item.getAttribute('data-master') || '').toLowerCase();
-
-                if (name.includes(query) || phone.includes(query) || username.includes(query) || code.includes(query) || master.includes(query)) {
-                    item.classList.remove('d-none');
-                    visibleCount++;
-                } else {
-                    item.classList.add('d-none');
-                }
-            });
-
-            const noResultsPlaceholder = pane.querySelector('.no-results-placeholder');
-            const systemEmptyPlaceholder = pane.querySelector('.system-empty-placeholder');
-
-            if (visibleCount === 0) {
-                if (systemEmptyPlaceholder) {
-                    systemEmptyPlaceholder.classList.remove('d-none');
-                    if (noResultsPlaceholder) noResultsPlaceholder.classList.add('d-none');
-                } else {
-                    if (noResultsPlaceholder) noResultsPlaceholder.classList.remove('d-none');
-                }
-            } else {
-                if (systemEmptyPlaceholder) systemEmptyPlaceholder.classList.add('d-none');
-                if (noResultsPlaceholder) noResultsPlaceholder.classList.add('d-none');
-            }
-        });
+        document.querySelector('.sidebar-overlay').classList.toggle('active'); 
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

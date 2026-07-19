@@ -32,7 +32,7 @@ const tenantSchema = new mongoose.Schema({
     // الميزات المتاحة
     features: {
         enableMobileAPI: { type: Boolean, default: true },
-        enableTelegramBots: { type: Boolean, default: false },
+        enableTelegramBots: { type: Boolean, default: true },
         enableExternalAPI: { type: Boolean, default: false },
         enableSubAccounts: { type: Boolean, default: false },
         enableWebPortal: { type: Boolean, default: true }

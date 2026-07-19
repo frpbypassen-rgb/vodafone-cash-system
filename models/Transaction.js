@@ -5,12 +5,10 @@ const transactionSchema = new mongoose.Schema({
     // 🔑 المعرفات الأساسية لمنع التكرار
     customId: { type: String, unique: true, required: true },
     idempotencyKey: { type: String, unique: true, sparse: true }, 
-    idempotencyFingerprint: { type: String },
-    idempotencyResponse: { type: Object },
 
     // 👤 بيانات الجهة الطالبة 
-    userId: { type: String }, // معرف العميل الفردي أو الموظف
-    companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'ClientCompany' }, 
+    userId: { type: String }, // تليجرام ID للعميل الفردي أو الموظف
+    clientBotId: { type: mongoose.Schema.Types.ObjectId, ref: 'ClientBot' }, 
     subAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'SubAccount' }, 
     companyName: { type: String },
     employeeName: { type: String },
@@ -50,9 +48,9 @@ const transactionSchema = new mongoose.Schema({
     },
 
     // 👨‍💻 بيانات الموظف المنفذ
-    executorGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExecutorGroup' },
-    managerGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExecutorGroup' },
-    executorGroupName: { type: String },
+    executorBotId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExecutorBot' },
+    managerBotId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExecutorBot' },
+    executorBotName: { type: String },
     operatorId: { type: String }, 
     executorName: { type: String, default: '---' },
     executorSenderPhone: { type: String },
@@ -60,7 +58,7 @@ const transactionSchema = new mongoose.Schema({
     // 🤖 متغيرات نظام الربط الآلي (API)
     isApiReview: { type: Boolean }, 
     apiResultData: { type: Object }, 
-    originalApiGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExecutorGroup' }, 
+    originalApiBotId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExecutorBot' }, 
 
     // 📝 الملاحظات والتنبيهات
     notes: { type: String },
@@ -73,11 +71,14 @@ const transactionSchema = new mongoose.Schema({
     proofImage: { type: String }, 
     proofImages: [{ type: String }], 
     idCardImage: { type: String }, 
-    oldReceiptImage: { type: String },
     resolutionImage: { type: String },
 
-    // Multi-tenant
-    tenantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant' }
+    // 📡 تخزين رسائل التليجرام
+    clientMessageId: { type: Number }, 
+    broadcastMessages: [{ telegramId: String, messageId: Number }],
+    adminMessages: [{ telegramId: String, messageId: Number }],
+    phoneReqAdminMessages: [{ telegramId: String, messageId: Number }] 
+
 }, { 
     timestamps: true 
 });
@@ -87,11 +88,10 @@ const transactionSchema = new mongoose.Schema({
 // ====================================================
 transactionSchema.index({ status: 1, createdAt: -1 });          // فلتر الحالة + الترتيب
 transactionSchema.index({ userId: 1, createdAt: -1 });           // معاملات المستخدم الفردي
-transactionSchema.index({ companyId: 1, createdAt: -1 });      // معاملات الشركة
-transactionSchema.index({ executorGroupId: 1, status: 1 });        // مهام المنفذ
+transactionSchema.index({ clientBotId: 1, createdAt: -1 });      // معاملات الشركة
+transactionSchema.index({ executorBotId: 1, status: 1 });        // مهام المنفذ
 transactionSchema.index({ status: 1, updatedAt: -1 });           // التقارير والإحصاءات
-transactionSchema.index({ executorGroupId: 1, createdAt: -1 });    // رصيد المنفذ
-transactionSchema.index({ managerGroupId: 1, status: 1 });         // مهام المدير
-transactionSchema.index({ tenantId: 1, createdAt: -1 });
+transactionSchema.index({ executorBotId: 1, createdAt: -1 });    // رصيد المنفذ
+transactionSchema.index({ managerBotId: 1, status: 1 });         // مهام المدير
 
 module.exports = mongoose.model('Transaction', transactionSchema);

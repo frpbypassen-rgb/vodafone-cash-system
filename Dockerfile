@@ -1,5 +1,5 @@
 # استخدام نسخة خفيفة ومستقرة ومخصصة للشركات
-FROM node:22-alpine
+FROM node:18-alpine
 
 # تثبيت متطلبات مكتبة Puppeteer (Chromium) لمنع انهيار إيصالات الصور
 RUN apk add --no-cache \
@@ -18,7 +18,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # تثبيت الحزم الإنتاجية فقط (تنظيف المشروع من حزم المطورين)
-RUN npm ci --omit=dev
+RUN npm ci --only=production
 
 # نسخ باقي ملفات المشروع السليمة
 COPY . .

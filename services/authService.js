@@ -17,17 +17,13 @@ const {
     extractDeviceInfo
 } = require('./securityService');
 const ClientBot = require('../models/ClientBot');
-const { buildContext } = require('../mappers/mobileAuthMapper');
-
-const ACCESS_TOKEN_EXPIRY_SECONDS = 3600;      // 1 hour
-const REFRESH_TOKEN_EXPIRY_SECONDS = 2592000;   // 30 days
 
 /**
  * تسجيل الدخول
  * @param {string} username
  * @param {string} password
  * @param {Object} req - Express request (لتتبع IP/UserAgent)
- * @returns {Promise<Object>} نتيجة تسجيل الدخول بصيغة العقد الرسمي
+ * @returns {Promise<Object>} نتيجة تسجيل الدخول
  */
 const login = async (username, password, req) => {
     // 1. التحقق من قفل الحساب
@@ -50,7 +46,7 @@ const login = async (username, password, req) => {
     }
 
     // 2. البحث عن الحساب والمصادقة
-    const result = await userRepo.findByCredentials(username, password, req.tenant ? req.tenant._id : null);
+    const result = await userRepo.findByCredentials(username, password);
 
     if (!result) {
         const failResult = await recordFailedLogin(username, req);
@@ -88,18 +84,18 @@ const login = async (username, password, req) => {
     }
 
     // 3. نجاح المصادقة → توليد التوكنات
-    const { account, accountType, telegramId, executorGroupId, balance } = result;
+    const { account, accountType, telegramId, executorBotId, balance } = result;
     resetFailedAttempts(username);
 
     const accessToken = jwt.sign(
-        { userId: account._id, accountType, telegramId, executorGroupId },
+        { userId: account._id, accountType, telegramId, executorBotId },
         JWT_SECRET,
-        { expiresIn: `${ACCESS_TOKEN_EXPIRY_SECONDS}s` }
+        { expiresIn: '1h' }
     );
     const refreshToken = jwt.sign(
         { userId: account._id, accountType },
         JWT_REFRESH_SECRET,
-        { expiresIn: `${REFRESH_TOKEN_EXPIRY_SECONDS}s` }
+        { expiresIn: '30d' }
     );
 
     // حفظ refresh token
@@ -108,22 +104,13 @@ const login = async (username, password, req) => {
     // 4. حساب سعر الصرف
     const settings = await settingsRepo.getSettings();
     let tier = 1;
-    let companyName = null;
-    let companyId = null;
-    let executorBotName = null;
-
     if (accountType === 'client_company') {
-        const company = await ClientBot.findById(account.companyId);
+        const company = await ClientBot.findById(account.clientBotId);
         tier = (company && company.tier) ? company.tier : 1;
-        companyId = account.companyId;
-        companyName = company ? company.name : null;
     } else if (accountType === 'client_user') {
         tier = account.tier || 1;
-    } else if (accountType === 'executor') {
-        executorBotName = account.groupId ? account.groupId.name : (account.botId ? account.botId.name : null);
     }
     const currentRate = getRateForTier(tier, settings);
-    const isOpen = !(settings && settings.isManualClosed);
 
     // 5. تسجيل في Audit Log
     await logAction({
@@ -135,26 +122,17 @@ const login = async (username, password, req) => {
         metadata: { accountType, ...extractDeviceInfo(req) }
     });
 
-    // 6. إرجاع العقد الرسمي (بدون DTO mapping هنا — controller سيستخدم mapper)
     return {
         success: true,
         statusCode: 200,
-        token: accessToken,
+        accessToken,
         refreshToken,
-        expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS,
-        refreshExpiresIn: REFRESH_TOKEN_EXPIRY_SECONDS,
-        id: String(account._id),
-        accountType,
-        name: account.name,
-        balance: Number(balance) || 0,
-        exchangeRate: Number(currentRate) || 0,
-        isOpen,
-        context: buildContext(accountType, {
-            executorGroupId,
-            executorGroupName: executorBotName,
-            clientCompanyId: companyId,
-            clientCompanyName: companyName
-        })
+        user: {
+            name: account.name,
+            balance,
+            tier
+        },
+        rate: currentRate
     };
 };
 
@@ -177,7 +155,7 @@ const refreshAccessToken = async (refreshToken, req) => {
 
             try {
                 const { userId, accountType } = decoded;
-                const account = await userRepo.findById(userId, accountType, req.tenant ? req.tenant._id : null);
+                const account = await userRepo.findById(userId, accountType);
 
                 if (!account || account.refreshToken !== refreshToken || account.status !== 'active') {
                     await logAction({
@@ -197,20 +175,14 @@ const refreshAccessToken = async (refreshToken, req) => {
                 }
 
                 const telegramId = account.telegramId;
-                const executorGroupId = accountType === 'executor' ? (account.groupId ? account.groupId._id : (account.botId ? account.botId._id : null)) : null;
+                const executorBotId = accountType === 'executor' && account.botId ? account.botId._id : null;
                 const newAccessToken = jwt.sign(
-                    { userId: account._id, accountType, telegramId, executorGroupId },
+                    { userId: account._id, accountType, telegramId, executorBotId },
                     JWT_SECRET,
-                    { expiresIn: `${ACCESS_TOKEN_EXPIRY_SECONDS}s` }
+                    { expiresIn: '1h' }
                 );
 
-                resolve({
-                    success: true,
-                    statusCode: 200,
-                    token: newAccessToken,
-                    expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS,
-                    serverTime: new Date().toISOString()
-                });
+                resolve({ success: true, statusCode: 200, token: newAccessToken });
             } catch (e) {
                 resolve({
                     success: false,
@@ -230,11 +202,7 @@ const refreshAccessToken = async (refreshToken, req) => {
  */
 const logout = async (userId, accountType) => {
     await userRepo.clearRefreshToken(userId, accountType);
-    return {
-        success: true,
-        message: 'تم تسجيل الخروج وإبطال الجلسة',
-        serverTime: new Date().toISOString()
-    };
+    return { success: true, message: 'تم تسجيل الخروج وإبطال الجلسة' };
 };
 
 module.exports = { login, refreshAccessToken, logout };

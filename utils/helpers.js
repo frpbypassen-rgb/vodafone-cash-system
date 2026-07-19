@@ -2,7 +2,7 @@
 // ====================================================
 // 🔧 الدوال المساعدة المركزية — لمنع تكرار الكود
 // ====================================================
-const ExecutorGroup = require('../models/ExecutorGroup');
+const ExecutorBot = require('../models/ExecutorBot');
 const Transaction = require('../models/Transaction');
 const bcrypt = require('bcryptjs');
 
@@ -10,20 +10,20 @@ const bcrypt = require('bcryptjs');
 // 1️⃣ مزامنة رصيد البوت المنفذ من العمليات المالية
 // ────────────────────────────────────────────────────────────
 const syncBotBalance = async (botId) => {
-    const bot = await ExecutorGroup.findById(botId);
+    const bot = await ExecutorBot.findById(botId);
     if (!bot) return 0;
     
     let queryFilter = {};
-    if (bot.isManagerGroup) {
+    if (bot.isManagerBot) {
         queryFilter = { 
             $or: [
-                { managerGroupId: bot._id, status: 'completed' }, 
-                { executorGroupId: bot._id, status: { $in: ['deposit', 'deduction'] } } 
+                { managerBotId: bot._id, status: 'completed' }, 
+                { executorBotId: bot._id, status: { $in: ['deposit', 'deduction'] } } 
             ]
         };
     } else {
         queryFilter = { 
-            executorGroupId: bot._id, 
+            executorBotId: bot._id, 
             status: { $in: ['completed', 'deposit', 'deduction'] } 
         };
     }

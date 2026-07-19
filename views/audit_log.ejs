@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سجل التدقيق الأمني – منظومة الأهرام</title>
+    <title>سجل التدقيق – منظومة الأهرام</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --brand-gold: #fbbf24;
-            --brand-gold-dark: #d97706;
-            --cyber-green: #10b981;
-            --cyber-cyan: #06b6d4;
-            --cyber-red: #ef4444;
-            --cyber-orange: #f59e0b;
+            --brand-gold: #d4af37;
+            --brand-gold-dark: #b5952f;
+            /* fallbacks إذا لم يتم تحميل sidebar.ejs بعد */
             --bg-body: #f4f7fa;
             --card-bg: #ffffff;
             --border-glass: #e2e8f0;
@@ -22,53 +18,28 @@
             --text-muted: #64748b;
         }
         [data-theme="dark"] {
-            --bg-body: #0b0f19;
-            --card-bg: #111827;
-            --border-glass: #1f2937;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-        }
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
+            --bg-body: #0f172a;
+            --card-bg: #1e293b;
+            --border-glass: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
         .stat-card {
             border-radius: 16px;
-            padding: 20px;
+            padding: 22px 20px;
             border: 1px solid var(--border-glass);
             background: var(--card-bg);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: transparent;
-            transition: background 0.3s;
-        }
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .stat-card:hover::before {
-            background: var(--brand-gold);
-        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
         .stat-icon {
-            width: 48px; height: 48px; border-radius: 12px;
+            width: 52px; height: 52px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem; flex-shrink: 0;
-            transition: transform 0.3s;
+            font-size: 1.4rem; flex-shrink: 0;
         }
-        .stat-card:hover .stat-icon {
-            transform: scale(1.1) rotate(5deg);
-        }
-        .stat-value { font-size: 1.8rem; font-weight: 800; line-height: 1.1; }
-        .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+        .stat-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
 
         .filter-bar {
             background: var(--card-bg);
@@ -82,7 +53,6 @@
             border: 1px solid var(--border-glass);
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
         .audit-table-wrapper .table { margin-bottom: 0; }
         .audit-table-wrapper .table thead th {
@@ -105,75 +75,46 @@
             color: var(--text-main);
         }
         .audit-table-wrapper .table tbody tr:last-child td { border-bottom: none; }
-        .audit-table-wrapper .table tbody tr:hover td { background: rgba(251, 191, 36, 0.03) !important; }
+        .audit-table-wrapper .table tbody tr:hover td { background: rgba(212, 175, 55, 0.04) !important; }
 
-        /* Cyberpunk Terminal Modal Styles */
-        .terminal-modal .modal-content {
-            background-color: #030712 !important;
-            border: 2px solid var(--cyber-green) !important;
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
-            font-family: 'Fira Code', 'Courier New', monospace;
-            color: var(--cyber-green);
+        .action-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700;
+            white-space: nowrap;
         }
-        .terminal-modal .modal-header {
-            border-bottom: 1px solid var(--cyber-green) !important;
-            background-color: #0b0f19;
-            color: var(--cyber-green);
+        .ab-login-success  { background: rgba(34,197,94,0.12);   color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
+        .ab-login-failed   { background: rgba(239,68,68,0.12);   color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+        .ab-transfer       { background: rgba(59,130,246,0.12);  color: #3b82f6; border: 1px solid rgba(59,130,246,0.25); }
+        .ab-cancel         { background: rgba(245,158,11,0.12);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+        .ab-complete       { background: rgba(16,185,129,0.12);  color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+        .ab-token          { background: rgba(139,92,246,0.12);  color: #8b5cf6; border: 1px solid rgba(139,92,246,0.25); }
+        .ab-admin          { background: rgba(212,175,55,0.12);  color: #d4af37; border: 1px solid rgba(212,175,55,0.25); }
+        .ab-default        { background: rgba(100,116,139,0.12); color: #64748b; border: 1px solid rgba(100,116,139,0.25); }
+
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            display: inline-block; margin-left: 6px; flex-shrink: 0;
         }
-        .terminal-modal .modal-title {
-            color: var(--cyber-green);
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
-            font-weight: bold;
+        .dot-success { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.6); }
+        .dot-fail    { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.6); }
+
+        .detail-section {
+            background: var(--bg-body);
+            border-radius: 10px; padding: 14px; margin-bottom: 12px;
+            border: 1px solid var(--border-glass);
         }
-        .terminal-modal .btn-close {
-            filter: invert(1) sepia(1) saturate(5) hue-rotate(90deg);
+        .detail-label {
+            font-size: 0.72rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
         }
-        .terminal-body {
-            background-color: #020617;
-            padding: 22px;
-            border-radius: 8px;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            max-height: 550px;
-            overflow-y: auto;
-            text-align: left;
-            direction: ltr;
-        }
-        .terminal-line {
-            margin-bottom: 6px;
-            line-height: 1.4;
-            white-space: pre-wrap;
-            opacity: 0;
-            animation: typeIn 0.2s forwards;
-            font-size: 0.82rem;
-        }
-        .terminal-success { color: #10b981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.4); }
-        .terminal-info { color: #06b6d4; text-shadow: 0 0 5px rgba(6, 182, 212, 0.4); }
-        .terminal-warning { color: #f59e0b; text-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-        .terminal-danger { color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.4); }
-        .terminal-default { color: #9ca3af; }
-        
-        @keyframes typeIn {
-            to { opacity: 1; }
-        }
-        
-        /* Cyberpunk Log Button */
-        .btn-cyber {
-            background: #020617;
-            border: 1px solid var(--cyber-green);
-            color: var(--cyber-green);
-            font-family: 'Fira Code', monospace;
-            font-size: 0.72rem;
-            font-weight: bold;
-            box-shadow: 0 0 5px rgba(16, 185, 129, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 6px;
-            padding: 4px 10px;
-        }
-        .btn-cyber:hover {
-            background: var(--cyber-green);
-            color: #020617;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
-            transform: scale(1.05);
+        .detail-value { font-size: 0.88rem; font-weight: 600; word-break: break-all; color: var(--text-main); }
+        .json-view {
+            font-family: 'Courier New', monospace; font-size: 0.78rem;
+            background: var(--bg-body); border-radius: 8px; padding: 10px;
+            max-height: 200px; overflow-y: auto; white-space: pre-wrap;
+            border: 1px solid var(--border-glass); color: var(--text-main);
+            direction: ltr; text-align: left;
         }
 
         .pagination .page-link {
@@ -181,9 +122,9 @@
             color: var(--text-main); border-radius: 8px; margin: 0 2px; padding: 8px 14px;
         }
         .pagination .page-item.active .page-link {
-            background: var(--brand-gold); border-color: var(--brand-gold); color: #000; font-weight: bold;
+            background: var(--brand-gold); border-color: var(--brand-gold); color: white;
         }
-        .pagination .page-link:hover { background: rgba(251, 191, 36, 0.1); color: var(--brand-gold-dark); }
+        .pagination .page-link:hover { background: rgba(212,175,55,0.1); color: var(--brand-gold); }
 
         .page-header {
             display: flex; align-items: center; justify-content: space-between;
@@ -200,14 +141,17 @@
             to   { opacity: 1; transform: translateY(0); }
         }
         .fade-in { animation: fadeSlideIn 0.35s ease forwards; }
-    </style>
 
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
+        /* تصحيح Modal في الوضع الليلي */
+        .modal-content {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-glass) !important;
+        }
+        .modal-header { border-color: var(--border-glass) !important; }
+        .btn-close { filter: var(--bs-btn-close-filter, none); }
+        [data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+    </style>
 </head>
 <body>
 
@@ -219,9 +163,9 @@
     <div class="page-header fade-in">
         <div>
             <h2>
-                <i class="fa-solid fa-user-shield me-2" style="color: var(--brand-gold);"></i>
-                سجل التدفق والتدقيق الأمني
-                <small>مراقبة وحماية العمليات والتحويلات اليومية في الزمن الفعلي</small>
+                <i class="fa-solid fa-shield-halved me-2" style="color: var(--brand-gold);"></i>
+                سجل التدقيق الشامل
+                <small>متابعة جميع الحركات والعمليات داخل المنظومة</small>
             </h2>
         </div>
         <div class="d-flex gap-2 flex-wrap">
@@ -229,73 +173,54 @@
                 <i class="fa-solid fa-file-export me-1"></i> تصدير JSON
             </button>
             <button class="btn btn-sm fw-bold" style="background: var(--brand-gold); color: #000;" onclick="location.reload()">
-                <i class="fa-solid fa-rotate me-1"></i> تحديث السجل
+                <i class="fa-solid fa-rotate me-1"></i> تحديث
             </button>
         </div>
     </div>
 
-    <!-- ── كروت الإحصاء الخمسة ── -->
+    <!-- ── كروت الإحصاء السريع ── -->
     <div class="row g-3 mb-4 fade-in">
-        <!-- 1- العمليات اليوم -->
-        <div class="col-6 col-md-4 col-lg">
+        <div class="col-6 col-md-3">
             <div class="stat-card d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;">
-                    <i class="fa-solid fa-server"></i>
+                <div class="stat-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+                    <i class="fa-solid fa-calendar-day"></i>
                 </div>
                 <div>
-                    <div class="stat-value text-primary"><%= stats.todayTotal.toLocaleString() %></div>
-                    <div class="stat-label">عمليات السيرفر اليوم</div>
+                    <div class="stat-value" style="color: #3b82f6;"><%= stats.todayTotal.toLocaleString() %></div>
+                    <div class="stat-label">إجمالي اليوم</div>
                 </div>
             </div>
         </div>
-        <!-- 2- مستخدمي التطبيق -->
-        <div class="col-6 col-md-4 col-lg">
+        <div class="col-6 col-md-3">
             <div class="stat-card d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
-                    <i class="fa-solid fa-mobile-screen-button"></i>
+                <div class="stat-icon" style="background: rgba(34,197,94,0.12); color: #22c55e;">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
                 </div>
                 <div>
-                    <div class="stat-value text-success"><%= stats.appUsers.toLocaleString() %></div>
-                    <div class="stat-label">مستخدمي التطبيق</div>
+                    <div class="stat-value" style="color: #22c55e;"><%= stats.transfersToday.toLocaleString() %></div>
+                    <div class="stat-label">تحويلات اليوم</div>
                 </div>
             </div>
         </div>
-        <!-- 3- مستخدمي الموقع -->
-        <div class="col-6 col-md-4 col-lg">
+        <div class="col-6 col-md-3">
             <div class="stat-card d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6;">
-                    <i class="fa-solid fa-globe"></i>
+                <div class="stat-icon" style="background: rgba(239,68,68,0.12); color: #ef4444;">
+                    <i class="fa-solid fa-user-slash"></i>
                 </div>
                 <div>
-                    <div class="stat-value" style="color:#8b5cf6;"><%= stats.webUsers.toLocaleString() %></div>
-                    <div class="stat-label">مستخدمي الموقع</div>
+                    <div class="stat-value" style="color: #ef4444;"><%= stats.loginsFailed.toLocaleString() %></div>
+                    <div class="stat-label">دخول فاشل اليوم</div>
                 </div>
             </div>
         </div>
-        <!-- 4- المتواجدين الان -->
-        <div class="col-6 col-md-6 col-lg">
+        <div class="col-6 col-md-3">
             <div class="stat-card d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(6,182,212,0.1); color: #06b6d4;">
-                    <i class="fa-solid fa-circle-nodes"></i>
+                <div class="stat-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
                 <div>
-                    <div class="stat-value text-info"><%= stats.onlineUsers.toLocaleString() %></div>
-                    <div class="stat-label">المتواجدين الآن (Socket)</div>
-                </div>
-            </div>
-        </div>
-        <!-- 5- الدخول ناجح وفاشل اليوم -->
-        <div class="col-6 col-md-6 col-lg">
-            <div class="stat-card d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <div>
-                    <div class="stat-value" style="font-size: 1rem; color: #f59e0b; font-weight: 800; line-height: 1.3;">
-                        <span class="text-success"><i class="fa-solid fa-circle-check small"></i> ناجح: <%= stats.loginsSuccessToday %></span><br>
-                        <span class="text-danger"><i class="fa-solid fa-circle-xmark small"></i> فاشل: <%= stats.loginsFailedToday %></span>
-                    </div>
-                    <div class="stat-label">محاولات الدخول اليوم</div>
+                    <div class="stat-value" style="color: #f59e0b;"><%= stats.todayFailed.toLocaleString() %></div>
+                    <div class="stat-label">عمليات فاشلة اليوم</div>
                 </div>
             </div>
         </div>
@@ -309,26 +234,26 @@
                     <label class="form-label fw-semibold small">نوع العملية</label>
                     <select name="action" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">— جميع العمليات —</option>
-                        <optgroup label="🔐 المصادقة والحسابات">
+                        <optgroup label="🔐 المصادقة">
                             <option value="LOGIN_SUCCESS"  <%= filters.action === 'LOGIN_SUCCESS'   ? 'selected' : '' %>>✅ دخول ناجح</option>
                             <option value="LOGIN_FAILED"   <%= filters.action === 'LOGIN_FAILED'    ? 'selected' : '' %>>❌ دخول فاشل</option>
                             <option value="LOGOUT"         <%= filters.action === 'LOGOUT'          ? 'selected' : '' %>>🚪 تسجيل خروج</option>
-                            <option value="USER_CREATED"   <%= filters.action === 'USER_CREATED'    ? 'selected' : '' %>>👤 إنشاء حساب جديد</option>
+                            <option value="TOKEN_REFRESH"  <%= filters.action === 'TOKEN_REFRESH'   ? 'selected' : '' %>>🔄 تجديد توكن</option>
                         </optgroup>
-                        <optgroup label="💸 التحويلات المالية">
-                            <option value="TRANSFER_CREATED"   <%= filters.action === 'TRANSFER_CREATED'   ? 'selected' : '' %>>➕ طلب تحويل</option>
+                        <optgroup label="💸 التحويلات">
+                            <option value="TRANSFER_CREATED"   <%= filters.action === 'TRANSFER_CREATED'   ? 'selected' : '' %>>➕ تحويل جديد</option>
                             <option value="TRANSFER_COMPLETED" <%= filters.action === 'TRANSFER_COMPLETED' ? 'selected' : '' %>>✔️ تحويل مكتمل</option>
                             <option value="TRANSFER_CANCELLED" <%= filters.action === 'TRANSFER_CANCELLED' ? 'selected' : '' %>>🚫 تحويل ملغى</option>
                         </optgroup>
-                        <optgroup label="⚙️ إدارية وأنظمة">
+                        <optgroup label="⚙️ إدارية">
                             <option value="ADMIN_ACTION"     <%= filters.action === 'ADMIN_ACTION'     ? 'selected' : '' %>>🛡️ إجراء إداري</option>
-                            <option value="SETTINGS_CHANGED" <%= filters.action === 'SETTINGS_CHANGED' ? 'selected' : '' %>>⚙️ تعديل إعدادات</option>
+                            <option value="SETTINGS_CHANGED" <%= filters.action === 'SETTINGS_CHANGED' ? 'selected' : '' %>>⚙️ تغيير إعدادات</option>
                             <option value="USER_BANNED"      <%= filters.action === 'USER_BANNED'      ? 'selected' : '' %>>🚫 حظر مستخدم</option>
                         </optgroup>
                     </select>
                 </div>
                 <div class="col-12 col-md-2">
-                    <label class="form-label fw-semibold small">اسم المنفذ</label>
+                    <label class="form-label fw-semibold small">بواسطة</label>
                     <input type="text" name="performedBy" class="form-control form-control-sm"
                            placeholder="اسم المنفذ..." value="<%= filters.performedBy %>">
                 </div>
@@ -367,10 +292,10 @@
              style="border-bottom: 1px solid var(--border-glass);">
             <div>
                 <span class="fw-bold">
-                    <i class="fa-solid fa-list-ul me-2" style="color: var(--brand-gold);"></i>نتائج الاستعلام
+                    <i class="fa-solid fa-list-ul me-2" style="color: var(--brand-gold);"></i>نتائج البحث
                 </span>
                 <span class="badge ms-2"
-                      style="background: rgba(251, 191, 36, 0.15); color: var(--brand-gold); border: 1px solid rgba(251, 191, 36, 0.3);">
+                      style="background: rgba(212,175,55,0.15); color: var(--brand-gold); border: 1px solid rgba(212,175,55,0.3);">
                     <%= total.toLocaleString() %> سجل
                 </span>
             </div>
@@ -385,120 +310,107 @@
                         <th>النتيجة</th>
                         <th>نوع العملية</th>
                         <th>المنفذ</th>
-                        <th>نوع الحركة</th>
-                        <th>الاسم</th>
+                        <th>نوع الحساب</th>
                         <th>العنوان (IP)</th>
-                        <th>الموقع (GPS)</th>
-                        <th>الوقت والتاريخ</th>
-                        <th>سجل الأمان</th>
+                        <th>المسار</th>
+                        <th>الوقت</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <% if (!logs || logs.length === 0) { %>
                     <tr>
-                        <td colspan="10" class="text-center py-5">
+                        <td colspan="9" class="text-center py-5">
                             <i class="fa-solid fa-inbox fa-3x mb-3 d-block"
                                style="color: var(--text-muted); opacity: 0.35;"></i>
                             <p class="text-muted mb-0">لا توجد سجلات مطابقة للبحث</p>
                         </td>
                     </tr>
                     <% } else { %>
+                    <%
+                        // خريطة العمليات — تُعرَّف مرة واحدة خارج حلقة forEach
+                        const ACTION_MAP = {
+                            LOGIN_SUCCESS:      ['ab-login-success', 'fa-right-to-bracket',   'دخول ناجح'],
+                            LOGIN_FAILED:       ['ab-login-failed',  'fa-user-slash',          'دخول فاشل'],
+                            LOGOUT:             ['ab-default',       'fa-right-from-bracket',  'خروج'],
+                            TOKEN_REFRESH:      ['ab-token',         'fa-rotate',              'تجديد توكن'],
+                            TRANSFER_CREATED:   ['ab-transfer',      'fa-paper-plane',         'تحويل جديد'],
+                            TRANSFER_COMPLETED: ['ab-complete',      'fa-circle-check',        'تحويل مكتمل'],
+                            TRANSFER_CANCELLED: ['ab-cancel',        'fa-ban',                 'تحويل ملغى'],
+                            ADMIN_ACTION:       ['ab-admin',         'fa-user-shield',         'إجراء إداري'],
+                            SETTINGS_CHANGED:   ['ab-admin',         'fa-gear',                'تغيير إعدادات'],
+                            USER_BANNED:        ['ab-login-failed',  'fa-lock',                'حظر مستخدم'],
+                        };
+                        const MODEL_MAP = {
+                            Employee:       '👷 منفذ',
+                            ClientEmployee: '🏢 موظف شركة',
+                            User:           '👤 عميل',
+                            Admin:          '🛡️ مدير',
+                            System:         '⚙️ نظام',
+                        };
+                    %>
                     <% logs.forEach(function(log, idx) { %>
                     <%
-                        // Result badge
-                        let resultBadge = '';
-                        if (log.result === 'ناجح') {
-                            resultBadge = '<span class="badge bg-success px-2 py-1">ناجح</span>';
-                        } else if (log.result === 'فاشل') {
-                            resultBadge = '<span class="badge bg-danger px-2 py-1">فاشل</span>';
-                        } else if (log.result === 'معلق') {
-                            resultBadge = '<span class="badge bg-warning text-dark px-2 py-1">معلق</span>';
-                        } else if (log.result === 'محظور') {
-                            resultBadge = '<span class="badge bg-dark text-danger border border-danger px-2 py-1">محظور</span>';
-                        } else {
-                            resultBadge = `<span class="badge bg-secondary px-2 py-1">${log.result || '—'}</span>`;
-                        }
-
-                        // Process Type Label translation
-                        let processLabel = '—';
-                        if (log.action === 'LOGIN_SUCCESS' || log.action === 'LOGIN_FAILED') {
-                            processLabel = 'تسجيل دخول';
-                        } else if (log.action === 'LOGOUT') {
-                            processLabel = 'تسجيل خروج';
-                        } else if (log.action === 'USER_CREATED') {
-                            if (log.metadata && log.metadata.actionLabel) {
-                                processLabel = log.metadata.actionLabel;
-                            } else {
-                                const role = log.metadata?.role || log.newData?.role || '';
-                                if (role === 'accountant') processLabel = 'انشاء حساب محاسب';
-                                else if (role === 'operator' || role === 'employee') processLabel = 'انشاء حساب موظف';
-                                else processLabel = 'انشاء حساب';
-                            }
-                        } else if (log.action && log.action.startsWith('TRANSFER_')) {
-                            const tType = log.metadata?.transferType || log.newData?.transferType || '';
-                            if (tType === 'balance_transfer' || tType === 'internal') {
-                                processLabel = 'تحويل رصيد داخلي';
-                            } else if (tType.includes('post') || tType.includes('بريد')) {
-                                processLabel = 'تحويل بريد';
-                            } else if (tType.includes('سيفا') || tType.includes('niger') || tType.includes('cfa')) {
-                                processLabel = 'تحويل سيفا النيجر';
-                            } else if (tType.includes('بنكك') || tType.includes('sudan') || tType.includes('bankak')) {
-                                processLabel = 'تحويل بنكك السودان';
-                            } else {
-                                processLabel = 'تحويل كاش';
-                            }
-                        } else {
-                            processLabel = log.action || '—';
-                        }
-
-                        // Date digits only & time 12-hour
-                        const logDate = log.createdAt ? new Date(log.createdAt) : null;
-                        let dateStr = '—';
-                        let timeStr = '';
-                        if (logDate) {
-                            const year = logDate.getFullYear();
-                            const month = String(logDate.getMonth() + 1).padStart(2, '0');
-                            const day = String(logDate.getDate()).padStart(2, '0');
-                            dateStr = `${year}-${month}-${day}`;
-                            
-                            let hours = logDate.getHours();
-                            const minutes = String(logDate.getMinutes()).padStart(2, '0');
-                            const seconds = String(logDate.getSeconds()).padStart(2, '0');
-                            const ampm = hours >= 12 ? 'م' : 'ص';
-                            hours = hours % 12;
-                            hours = hours ? hours : 12;
-                            timeStr = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
-                        }
-
-                        // GPS Coordinates link
-                        let gpsHtml = '—';
-                        if (log.location && log.location.latitude && log.location.longitude) {
-                            gpsHtml = `<a href="https://www.google.com/maps?q=${log.location.latitude},${log.location.longitude}" target="_blank" class="btn btn-sm btn-outline-info py-0 px-2 fw-semibold" style="font-size:0.75rem;"><i class="fa-solid fa-map-location-dot"></i> خرائط</a>`;
-                        }
-
-                        // safeLog encoding
-                        const safeLog = JSON.stringify(log)
-                            .replace(/\\/g, '\\\\')
-                            .replace(/'/g, "\\'");
+                        const actionInfo = ACTION_MAP[log.action] || ['ab-default', 'fa-circle', log.action || '—'];
+                        const badgeCls  = actionInfo[0];
+                        const badgeIcon = actionInfo[1];
+                        const badgeText = actionInfo[2];
+                        const modelLabel = MODEL_MAP[log.performedByModel] || (log.performedByModel || '—');
+                        const logDate  = log.createdAt ? new Date(log.createdAt) : null;
+                        const dateStr  = logDate ? logDate.toLocaleDateString('ar-EG', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+                        const timeStr  = logDate ? logDate.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) : '';
                     %>
                     <tr>
                         <td class="text-muted fw-bold small"><%= (page - 1) * limit + idx + 1 %></td>
-                        <td><%- resultBadge %></td>
-                        <td><span class="fw-semibold"><%= processLabel %></span></td>
-                        <td><span class="badge bg-secondary opacity-75"><%= log.initiator || 'موقع' %></span></td>
-                        <td><span class="badge bg-dark"><%= log.deviceType || 'كمبيوتر' %></span></td>
-                        <td><span class="fw-semibold"><%= log.performedByName || '—' %></span></td>
-                        <td><code class="small" style="font-size:0.75rem; color:var(--text-muted);"><%= log.ipAddress || '—' %></code></td>
-                        <td><%- gpsHtml %></td>
+                        <td>
+                            <% if (log.success !== false) { %>
+                                <span class="status-dot dot-success"></span>
+                                <small class="text-success fw-bold">ناجح</small>
+                            <% } else { %>
+                                <span class="status-dot dot-fail"></span>
+                                <small class="text-danger fw-bold">فاشل</small>
+                            <% } %>
+                        </td>
+                        <td>
+                            <span class="action-badge <%= badgeCls %>">
+                                <i class="fa-solid <%= badgeIcon %>"></i> <%= badgeText %>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="fw-semibold"><%= log.performedByName || '—' %></span>
+                        </td>
+                        <td>
+                            <small class="text-muted"><%= modelLabel %></small>
+                        </td>
+                        <td>
+                            <code class="small" style="font-size:0.75rem; color:var(--text-muted);">
+                                <%= log.ipAddress || '—' %>
+                            </code>
+                        </td>
+                        <td>
+                            <small class="text-muted text-truncate d-inline-block"
+                                   style="max-width:160px;"
+                                   title="<%= log.endpoint || '' %>">
+                                <%= log.endpoint || '—' %>
+                            </small>
+                        </td>
                         <td>
                             <small style="white-space:nowrap;">
-                                <span class="d-block text-dark fw-bold" style="font-size:0.8rem;"><%= dateStr %></span>
+                                <span class="d-block"><%= dateStr %></span>
                                 <span class="text-muted"><%= timeStr %></span>
                             </small>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-cyber" onclick="showCyberLog('<%= safeLog %>')">
-                                <i class="fa-solid fa-terminal"></i> LOG
+                            <%
+                                // تحويل log إلى JSON آمن لتمريره عبر onclick
+                                const safeLog = JSON.stringify(log)
+                                    .replace(/\\/g, '\\\\')
+                                    .replace(/'/g, "\\'");
+                            %>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    onclick="showDetails('<%= safeLog %>')"
+                                    title="عرض التفاصيل">
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </td>
                     </tr>
@@ -541,23 +453,22 @@
             </nav>
         </div>
         <% } %>
-    </div>
-</div>
+    </div><!-- /audit-table-wrapper -->
+</div><!-- /main-content -->
 
-<!-- ── Modal التفاصيل (سايبر بنك كونسول) ── -->
-<div class="modal fade terminal-modal" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+<!-- ── Modal التفاصيل ── -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold" id="detailModalLabel">
-                    <i class="fa-solid fa-terminal me-2"></i> SECURITY VERIFICATION CONSOLE
+                    <i class="fa-solid fa-file-magnifying-glass me-2" style="color: var(--brand-gold);"></i>
+                    تفاصيل العملية
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
             </div>
-            <div class="modal-body">
-                <div class="terminal-body" id="detailBody">
-                    <!-- تُملأ عبر Javascript -->
-                </div>
+            <div class="modal-body" id="detailBody">
+                <!-- تُملأ بـ JavaScript -->
             </div>
         </div>
     </div>
@@ -565,8 +476,30 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ── عرض تفاصيل العملية في الكونسول الأمني ──
-    function showCyberLog(jsonStr) {
+    // ── خريطة التسميات ──────────────────────────────────────────
+    const ACTION_LABELS = {
+        LOGIN_SUCCESS:      '✅ دخول ناجح',
+        LOGIN_FAILED:       '❌ دخول فاشل',
+        LOGOUT:             '🚪 تسجيل خروج',
+        TOKEN_REFRESH:      '🔄 تجديد توكن',
+        TRANSFER_CREATED:   '➕ تحويل جديد',
+        TRANSFER_COMPLETED: '✔️ تحويل مكتمل',
+        TRANSFER_CANCELLED: '🚫 تحويل ملغى',
+        ADMIN_ACTION:       '🛡️ إجراء إداري',
+        SETTINGS_CHANGED:   '⚙️ تغيير إعدادات',
+        USER_BANNED:        '🚫 حظر مستخدم',
+    };
+
+    const MODEL_LABELS = {
+        Employee:       '👷 منفذ (Employee)',
+        ClientEmployee: '🏢 موظف شركة',
+        User:           '👤 عميل فردي',
+        Admin:          '🛡️ مدير النظام',
+        System:         '⚙️ النظام',
+    };
+
+    // ── عرض التفاصيل في Modal ───────────────────────────────────
+    function showDetails(jsonStr) {
         let log;
         try {
             log = JSON.parse(jsonStr);
@@ -575,96 +508,103 @@
             return;
         }
 
-        const detailBody = document.getElementById('detailBody');
-        detailBody.innerHTML = ''; // تهيئة الكونسول
-
-        function addLine(text, type = 'info', delay = 0) {
-            const line = document.createElement('div');
-            line.className = `terminal-line terminal-${type}`;
-            line.style.animationDelay = `${delay}ms`;
-            line.innerHTML = text;
-            detailBody.appendChild(line);
-        }
-
-        let delay = 0;
-        const step = 45; // سرعة الكتابة
-
-        addLine(`[SYSTEM] Initializing audit trail cryptographic verification...`, 'info', delay);
-        delay += step;
-
-        addLine(`[SECURITY] Retrieving client network address: ${escHtml(log.ipAddress || 'unknown')}`, 'info', delay);
-        delay += step;
-
-        const ipOk = log.ipAddress && log.ipAddress !== 'unknown';
-        addLine(`[SECURITY] Enforcing client IP existence validation... ${ipOk ? 'PASSED' : 'FAILED'}`, ipOk ? 'success' : 'danger', delay);
-        delay += step;
-
-        const initiator = log.initiator || 'موقع';
-        const deviceType = log.deviceType || 'كمبيوتر';
-        addLine(`[DEVICE] Inspecting HTTP client headers... PLATFORM: ${escHtml(initiator)} | DEVICE: ${escHtml(deviceType)}`, 'info', delay);
-        delay += step;
-        
-        if (log.userAgent) {
-            addLine(`[DEVICE] Raw user agent: ${escHtml(log.userAgent)}`, 'default', delay);
-            delay += step;
-        }
-
-        if (log.location && log.location.latitude && log.location.longitude) {
-            addLine(`[LOCATION] GPS coordinate verification: LAT: ${log.location.latitude}, LON: ${log.location.longitude} (VERIFIED)`, 'success', delay);
-        } else {
-            addLine(`[LOCATION] GPS coordinate verification: No geolocational metadata provided`, 'warning', delay);
-        }
-        delay += step;
-
-        addLine(`[INTEGRITY] Reading ledger cryptographic block hash keys...`, 'info', delay);
-        delay += step;
-        addLine(`   | Previous block hash:  ${escHtml(log.previousHash || 'GENESIS')}`, 'default', delay);
-        delay += step;
-        addLine(`   | Current block hash:   ${escHtml(log.hash || 'N/A')}`, 'default', delay);
-        delay += step;
-        addLine(`[INTEGRITY] Blockchain hash matching verification status: SECURE`, 'success', delay);
-        delay += step;
-
         const d = log.createdAt ? new Date(log.createdAt) : null;
-        const formattedDate = d ? d.toLocaleString('ar-EG') : '—';
-        addLine(`[PROCESS] Launching process payload data execution...`, 'info', delay);
-        delay += step;
-        addLine(`   | Action Name:      ${escHtml(log.action)}`, 'default', delay);
-        delay += step;
-        addLine(`   | Performed By:     ${escHtml(log.performedByName || 'System')} (${escHtml(log.performedByModel || 'System')})`, 'default', delay);
-        delay += step;
-        addLine(`   | Timestamp:        ${formattedDate}`, 'default', delay);
-        delay += step;
+        const formattedDate = d
+            ? d.toLocaleString('ar-EG', {
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+              })
+            : '—';
+
+        const successClass = log.success !== false ? 'text-success' : 'text-danger';
+        const successText  = log.success !== false ? '✅ ناجحة' : '❌ فاشلة';
+        const errorPart    = log.errorCode
+            ? ` &mdash; كود الخطأ: <code>${escHtml(log.errorCode)}</code>`
+            : '';
+
+        let html = `<div class="row g-3">
+            <div class="col-md-6">
+                <div class="detail-section">
+                    <div class="detail-label">نوع العملية</div>
+                    <div class="detail-value">${escHtml(ACTION_LABELS[log.action] || log.action || '—')}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-section">
+                    <div class="detail-label">النتيجة</div>
+                    <div class="detail-value ${successClass}">${successText}${errorPart}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-section">
+                    <div class="detail-label">المنفذ</div>
+                    <div class="detail-value">${escHtml(log.performedByName || '—')}</div>
+                    <small class="text-muted">${escHtml(MODEL_LABELS[log.performedByModel] || log.performedByModel || '')}</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-section">
+                    <div class="detail-label">الوقت</div>
+                    <div class="detail-value">${formattedDate}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-section">
+                    <div class="detail-label">عنوان IP</div>
+                    <div class="detail-value"><code>${escHtml(log.ipAddress || '—')}</code></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-section">
+                    <div class="detail-label">المسار (Endpoint)</div>
+                    <div class="detail-value"><code style="font-size:0.78rem;">${escHtml(log.endpoint || '—')}</code></div>
+                </div>
+            </div>`;
+
+        if (log.userAgent) {
+            html += `<div class="col-12">
+                <div class="detail-section">
+                    <div class="detail-label">المتصفح / التطبيق (User Agent)</div>
+                    <div class="detail-value" style="font-size:0.78rem;">${escHtml(log.userAgent)}</div>
+                </div>
+            </div>`;
+        }
 
         if (log.metadata && Object.keys(log.metadata).length > 0) {
-            addLine(`[PAYLOAD] Metadata: \n${escHtml(JSON.stringify(log.metadata, null, 2))}`, 'info', delay);
-            delay += step;
+            html += `<div class="col-12">
+                <div class="detail-section">
+                    <div class="detail-label">بيانات إضافية (Metadata)</div>
+                    <div class="json-view">${escHtml(JSON.stringify(log.metadata, null, 2))}</div>
+                </div>
+            </div>`;
         }
 
         if (log.oldData && Object.keys(log.oldData).length > 0) {
-            addLine(`[PAYLOAD] Previous Ledger Data (Old Data): \n${escHtml(JSON.stringify(log.oldData, null, 2))}`, 'default', delay);
-            delay += step;
+            html += `<div class="col-12 col-md-6">
+                <div class="detail-section">
+                    <div class="detail-label">📋 البيانات قبل التغيير</div>
+                    <div class="json-view">${escHtml(JSON.stringify(log.oldData, null, 2))}</div>
+                </div>
+            </div>`;
         }
 
         if (log.newData && Object.keys(log.newData).length > 0) {
-            addLine(`[PAYLOAD] Executed Ledger Data (New Data): \n${escHtml(JSON.stringify(log.newData, null, 2))}`, 'default', delay);
-            delay += step;
+            html += `<div class="col-12 col-md-6">
+                <div class="detail-section">
+                    <div class="detail-label">✏️ البيانات بعد التغيير</div>
+                    <div class="json-view">${escHtml(JSON.stringify(log.newData, null, 2))}</div>
+                </div>
+            </div>`;
         }
 
-        const isSuccess = log.success !== false;
-        const resultLabel = log.result || (isSuccess ? 'ناجح' : 'فاشل');
-        let statusType = 'success';
-        if (resultLabel === 'فاشل') statusType = 'danger';
-        else if (resultLabel === 'معلق') statusType = 'warning';
-        else if (resultLabel === 'محظور') statusType = 'danger';
+        html += '</div>';
 
-        addLine(`[RESULT] Transaction block execution completed. Status: [${resultLabel.toUpperCase()}]`, statusType, delay);
-
-        // فتح المودال
+        document.getElementById('detailBody').innerHTML = html;
         const modal = new bootstrap.Modal(document.getElementById('detailModal'));
         modal.show();
     }
 
+    // ── تشفير HTML لمنع XSS ─────────────────────────────────────
     function escHtml(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -675,9 +615,10 @@
             .replace(/'/g, '&#039;');
     }
 
+    // ── تصدير السجلات بصيغة JSON ────────────────────────────────
     function exportLogs() {
         const params = new URLSearchParams(window.location.search);
-        params.delete('page');
+        params.delete('page'); // تصدير بدون ترقيم
         const url = '/audit-log/export?' + params.toString();
 
         const link = document.createElement('a');
@@ -688,7 +629,7 @@
         document.body.removeChild(link);
     }
 
-    // تحديث تلقائي كل 30 ثانية
+    // ── تحديث تلقائي كل 30 ثانية (بدون فلاتر فقط) ─────────────
     const currentParams = new URLSearchParams(window.location.search);
     currentParams.delete('page');
     if (currentParams.toString() === '') {
@@ -696,6 +637,7 @@
             location.reload();
         }, 30000);
 
+        // إيقاف التحديث عند فتح المودال
         document.getElementById('detailModal').addEventListener('show.bs.modal', function () {
             clearInterval(autoRefreshTimer);
         });

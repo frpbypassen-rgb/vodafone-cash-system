@@ -29,7 +29,7 @@ describe('Cancel Task – منطق الإلغاء', () => {
         customId: 'ATT-2601-0001',
         costLYD: 150,
         userId: 'user-telegram-id',
-        companyId: null,
+        clientBotId: null,
         amount: 1000,
         vodafoneNumber: '01012345678',
         notes: '',

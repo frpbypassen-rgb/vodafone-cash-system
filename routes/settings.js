@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 
 const Settings = require('../models/Settings');
-const ExecutorBot = require('../models/ExecutorGroup');
+const ExecutorBot = require('../models/ExecutorBot');
 const ClientBot = require('../models/ClientBot');
 const User = require('../models/User');
 const ClientEmployee = require('../models/ClientEmployee');
@@ -29,6 +29,17 @@ const ALLOWED_CONTENT_SETTINGS = [
     'executorWelcomeMessage', 'executorPendingMessage', 'executorBannedMessage'
 ];
 
+const ALLOWED_EXCEL_SETTINGS = [
+    'excelTitleBg', 'excelHeaderBg', 'excelTotalBg',
+    'excelFontSize', 'excelColWidth', 'excelRowHeight',
+    'excelAlignment', 'excelMainTitle', 'excelColNames',
+    'excelColKeys', 'excelSummaryNames', 'excelSummaryKeys',
+    'execExcelTitleBg', 'execExcelHeaderBg', 'execExcelTotalBg',
+    'execExcelFontSize', 'execExcelColWidth', 'execExcelRowHeight',
+    'execExcelAlignment', 'execExcelMainTitle', 'execExcelColNames',
+    'execExcelColKeys', 'execExcelSummaryNames', 'execExcelSummaryKeys'
+];
+
 const ALLOWED_CLIENT_BOT_FIELDS = [
     'name', 'token', 'welcomeMessage', 'status',
     'rateLevel1', 'rateLevel2', 'rateLevel3'
@@ -43,7 +54,7 @@ router.get('/', async (req, res) => {
     res.render('settings', { settings, executorBots });
 });
 
-router.post('/update', requireMaster, async (req, res) => {
+router.post('/update', async (req, res) => {
     try {
         const data = pickAllowed(req.body, ALLOWED_MAIN_SETTINGS);
         data.isManualClosed = data.isManualClosed === 'true' || data.isManualClosed === true;
@@ -62,6 +73,104 @@ router.post('/update', requireMaster, async (req, res) => {
 });
 
 // =========================================================
+// إعدادات المحتوى
+// =========================================================
+router.get('/content', async (req, res) => {
+    const settings = await Settings.findOne({}) || await Settings.create({});
+    res.render('content_settings', { settings });
+});
+
+router.post('/content/update', async (req, res) => {
+    try {
+        const data = pickAllowed(req.body, ALLOWED_CONTENT_SETTINGS);
+        await Settings.updateOne({}, data, { upsert: true });
+        res.redirect('/settings/content');
+    } catch (e) {
+        console.error('[settings/content/update] خطأ:', e.message);
+        res.redirect('/settings/content');
+    }
+});
+
+// =========================================================
+// إعدادات الإكسيل
+// =========================================================
+router.get('/excel', async (req, res) => {
+    const settings = await Settings.findOne({}) || await Settings.create({});
+    res.render('excel_settings', { settings });
+});
+
+router.post('/excel/update', async (req, res) => {
+    try {
+        const data = pickAllowed(req.body, ALLOWED_EXCEL_SETTINGS);
+        // تحقق من القيم الرقمية
+        ['excelFontSize', 'excelColWidth', 'excelRowHeight',
+         'execExcelFontSize', 'execExcelColWidth', 'execExcelRowHeight'].forEach(field => {
+            if (data[field] !== undefined) data[field] = parseInt(data[field]) || 11;
+        });
+        await Settings.updateOne({}, data, { upsert: true });
+        res.redirect('/settings/excel');
+    } catch (e) {
+        console.error('[settings/excel/update] خطأ:', e.message);
+        res.redirect('/settings/excel');
+    }
+});
+
+// =========================================================
+// إعدادات البوتات
+// =========================================================
+router.get('/bots', async (req, res) => {
+    const executorBots = await ExecutorBot.find({});
+    const clientBots = await ClientBot.find({});
+    res.render('bots', { executorBots, clientBots });
+});
+
+router.post('/bots/add-executor', async (req, res) => {
+    try { 
+        const { name, botType, token, apiUrl, apiToken } = req.body; 
+
+        if (!name || !name.trim()) return res.redirect('/settings/bots');
+
+        let newBotData = {
+            name: name.trim(),
+            status: 'active'
+        };
+
+        if (botType === 'api') {
+            newBotData.isApiBot = true;
+            newBotData.apiUrl = apiUrl;
+            newBotData.apiToken = apiToken;
+            newBotData.token = `API_DUMMY_${Date.now()}`; 
+        } else if (botType === 'manager') {
+            newBotData.isManagerBot = true;
+            newBotData.token = token;
+        } else {
+            newBotData.token = token;
+        }
+
+        await ExecutorBot.create(newBotData); 
+        res.redirect('/settings/bots'); 
+    } catch (e) { 
+        console.error('[settings/bots/add-executor] خطأ:', e.message);
+        res.redirect('/settings/bots'); 
+    }
+});
+
+// ✅ إصلاح: whitelist للحقول المسموحة فقط
+router.post('/bots/add-client', async (req, res) => {
+    try {
+        const data = pickAllowed(req.body, ALLOWED_CLIENT_BOT_FIELDS);
+        if (!data.name || !data.token) return res.redirect('/settings/bots');
+        data.name = data.name.trim();
+        data.token = data.token.trim();
+        await ClientBot.create(data);
+        res.redirect('/settings/bots');
+    } catch (e) {
+        console.error('[settings/bots/add-client] خطأ:', e.message);
+        res.redirect('/settings/bots');
+    }
+});
+
+// =========================================================
 // إدارة حسابات العملاء على الويب
 // =========================================================
 router.get('/clients-web', async (req, res) => {
@@ -69,17 +178,17 @@ router.get('/clients-web', async (req, res) => {
     const companies = await ClientBot.find({ status: 'active' });
     const allClientEmployees = await ClientEmployee.find({ status: 'active' });
     const webUsers = await User.find({ webUsername: { $exists: true, $nin: [null, ""] } });
-    const webEmployeesRaw = await ClientEmployee.find({ webUsername: { $exists: true, $nin: [null, ""] } }).populate('companyId');
+    const webEmployeesRaw = await ClientEmployee.find({ webUsername: { $exists: true, $nin: [null, ""] } }).populate('clientBotId');
     const webEmployees = webEmployeesRaw.map(e => ({
         _id: e._id, name: e.name, role: e.role, webUsername: e.webUsername,
         webPassword: '••••••', // لا نعرض كلمة المرور في الواجهة
-        companyName: e.companyId ? e.companyId.name : 'شركة محذوفة', status: e.status
+        companyName: e.clientBotId ? e.clientBotId.name : 'شركة محذوفة', status: e.status
     }));
     res.render('settings_clients_web', { users, companies, allClientEmployees, webUsers, webEmployees, query: req.query });
 });
 
 // ✅ إصلاح: تشفير كلمة المرور قبل الحفظ
-router.post('/clients-web/add', requireMaster, async (req, res) => {
+router.post('/clients-web/add', async (req, res) => {
     try {
         const { accountType, accountId, employeeId, webUsername, webPassword } = req.body;
         if (!webUsername || !webPassword) return res.redirect('/settings/clients-web?error=missing');
@@ -100,7 +209,7 @@ router.post('/clients-web/add', requireMaster, async (req, res) => {
 });
 
 // ✅ إصلاح: تشفير كلمة المرور عند التعديل
-router.post('/clients-web/edit', requireMaster, async (req, res) => {
+router.post('/clients-web/edit', async (req, res) => {
     try {
         const { accountType, accountId, webUsername, webPassword } = req.body;
         if (!webUsername || !accountId) return res.redirect('/settings/clients-web?error=missing');
@@ -125,7 +234,7 @@ router.post('/clients-web/edit', requireMaster, async (req, res) => {
     }
 });
 
-router.post('/clients-web/delete', requireMaster, async (req, res) => {
+router.post('/clients-web/delete', async (req, res) => {
     try {
         const { accountType, accountId } = req.body;
         if (accountType === 'user') {
@@ -140,7 +249,7 @@ router.post('/clients-web/delete', requireMaster, async (req, res) => {
     }
 });
 
-router.post('/clients-web/toggle', requireMaster, async (req, res) => {
+router.post('/clients-web/toggle', async (req, res) => {
     try {
         const { accountType, accountId } = req.body;
         if (accountType === 'user') {
@@ -172,7 +281,7 @@ router.get('/executors-web', async (req, res) => {
 });
 
 // ✅ إصلاح: تشفير كلمة المرور
-router.post('/executors-web/add', requireMaster, async (req, res) => {
+router.post('/executors-web/add', async (req, res) => {
     try {
         const { employeeId, webUsername, webPassword } = req.body;
         if (!employeeId || !webUsername || !webPassword) return res.redirect('/settings/executors-web?error=missing');
@@ -187,7 +296,7 @@ router.post('/executors-web/add', requireMaster, async (req, res) => {
     }
 });
 
-router.post('/executors-web/delete', requireMaster, async (req, res) => {
+router.post('/executors-web/delete', async (req, res) => {
     try {
         const { employeeId } = req.body;
         await Employee.findByIdAndUpdate(employeeId, { $unset: { webUsername: "", webPassword: "" } });
@@ -212,7 +321,9 @@ router.post('/users/add', requireMaster, async (req, res) => {
         const { name, webUsername, webPassword } = req.body;
         if (!name || !webUsername || !webPassword) return res.redirect('/settings/users');
         
+        const dummyId = `WEB_${Date.now()}`; 
         await Admin.create({ 
+            telegramId: dummyId, 
             name: name.trim(), 
             webUsername: webUsername.trim().toLowerCase(), 
             webPassword: webPassword.trim(), // سيتم تشفيره في pre('save') hook

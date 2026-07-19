@@ -1,6 +1,9 @@
 // tests/transfer.test.js
 // اختبارات نظام التحويلات المالية
 
+const { updateBalanceWithLedger } = require('../services/walletService');
+const mongoose = require('mongoose');
+
 // محاكاة mongoose
 jest.mock('mongoose', () => {
     const mockSession = {
@@ -24,18 +27,7 @@ jest.mock('mongoose', () => {
 
     const mockModel = createMockModel(1000);
 
-    const MockSchema = jest.fn();
-    MockSchema.prototype.index = jest.fn();
-    MockSchema.Types = {
-        ObjectId: String,
-        Mixed: Object
-    };
-
     return {
-        Schema: MockSchema,
-        Types: {
-            ObjectId: String
-        },
         startSession: jest.fn().mockResolvedValue(mockSession),
         model: jest.fn().mockReturnValue(mockModel),
         _mockSession: mockSession,
@@ -51,9 +43,6 @@ jest.mock('../models/Ledger', () => {
         static create() { return Promise.resolve(true); }
     };
 });
-
-const { updateBalanceWithLedger } = require('../services/walletService');
-const mongoose = require('mongoose');
 
 describe('نظام المحرك المالي (WalletService)', () => {
 

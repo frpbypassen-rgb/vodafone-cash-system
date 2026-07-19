@@ -1,7 +1,8 @@
 const puppeteer = require('puppeteer');
+const { Telegram } = require('telegraf');
 const User = require('../models/User');
-const ClientCompany = require('../models/ClientCompany');
-const ExecutorGroup = require('../models/ExecutorGroup');
+const ClientBot = require('../models/ClientBot');
+const ExecutorBot = require('../models/ExecutorBot');
 const Transaction = require('../models/Transaction');
 const Employee = require('../models/Employee');
 const ClientEmployee = require('../models/ClientEmployee');
@@ -28,9 +29,9 @@ const sendBulkReportsInBg = async (periodType, dateValue, appReq) => {
                 let query = { status: { $in: ['completed', 'deposit', 'deduction'] }, updatedAt: { $gte: start, $lte: end } };
                 let queryBefore = { status: { $in: ['completed', 'deposit', 'deduction'] }, updatedAt: { $lt: start } };
 
-                if (type === 'client') { query.companyId = entityId; queryBefore.companyId = entityId; } 
-                else if (type === 'executor') { query.executorGroupId = entityId; queryBefore.executorGroupId = entityId; } 
-                else if (type === 'user') { query.userId = targetObj.phone || targetObj.webUsername; query.companyId = null; queryBefore.userId = targetObj.phone || targetObj.webUsername; queryBefore.companyId = null; }
+                if (type === 'client') { query.clientBotId = entityId; queryBefore.clientBotId = entityId; } 
+                else if (type === 'executor') { query.executorBotId = entityId; queryBefore.executorBotId = entityId; } 
+                else if (type === 'user') { query.userId = targetObj.telegramId; query.clientBotId = null; queryBefore.userId = targetObj.telegramId; queryBefore.clientBotId = null; }
 
                 const transactions = await Transaction.find(query).sort({ updatedAt: 1 });
                 if (transactions.length === 0) return; 
@@ -63,20 +64,19 @@ const sendBulkReportsInBg = async (periodType, dateValue, appReq) => {
                 const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' } });
                 await page.close();
 
-                // 🟢 لا نستخدم التيليجرام بعد الآن، يمكن حفظ التقارير أو إرسالها بالإيميل مستقبلاً
-                const fs = require('fs');
-                const path = require('path');
-                const reportsDir = path.join(process.cwd(), 'reports');
-                if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
+                const api = new Telegram(botToken);
                 const fileName = `Report_${targetObj.name.replace(/\s+/g, '_')}_${dateLabel.replace(/\s+/g, '_')}.pdf`;
-                fs.writeFileSync(path.join(reportsDir, fileName), pdfBuffer);
-                
+                const captionMsg = `📊 <b>تقرير تقفيل (${periodType === 'daily' ? 'اليوم' : 'الشهر'}) المعتمد</b>\n\n🏢 الجهة: ${targetObj.name}\n📅 الفترة: ${dateLabel}\n💰 الرصيد الختامي للفترة: ${closingBalance.toFixed(2)}`;
+
+                for (const emp of employees) {
+                    if (emp && emp.telegramId) { try { await api.sendDocument(emp.telegramId.toString(), { source: Buffer.from(pdfBuffer), filename: fileName }, { caption: captionMsg, parse_mode: 'HTML' }); } catch (e) {} }
+                }
             } catch (err) {}
         };
 
-        const users = await User.find({ status: 'active' }); for (const u of users) await processEntity('user', u._id, u, null, []);
-        const clients = await ClientCompany.find({ status: 'active' }); for (const c of clients) { const emps = await ClientEmployee.find({ companyId: c._id, status: 'active' }); await processEntity('client', c._id, c, null, emps); }
-        const executors = await ExecutorGroup.find({ status: 'active' }); for (const e of executors) { const emps = await Employee.find({ groupId: e._id, status: 'active' }); await processEntity('executor', e._id, e, null, emps); }
+        const users = await User.find({ status: 'active' }); for (const u of users) await processEntity('user', u._id, u, process.env.CLIENT_BOT_TOKEN, [{ telegramId: u.telegramId }]);
+        const clients = await ClientBot.find({ status: 'active' }); for (const c of clients) { const emps = await ClientEmployee.find({ clientBotId: c._id, status: 'active' }); await processEntity('client', c._id, c, c.token, emps); }
+        const executors = await ExecutorBot.find({ status: 'active' }); for (const e of executors) { const emps = await Employee.find({ botId: e._id, status: 'active' }); await processEntity('executor', e._id, e, e.token, emps); }
 
     } catch (err) {
     } finally {

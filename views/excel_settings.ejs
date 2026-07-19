@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محرر الإكسيل | الأهرام</title>
+    <script>
+        const savedTheme = localStorage.getItem('ahram_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        .settings-nav { background: var(--input-bg); border-radius: 16px; padding: 10px; border: 1px solid var(--border-glass); margin-bottom: 25px; overflow-x: auto; white-space: nowrap;}
+        .settings-nav .nav-link { color: var(--text-muted); font-weight: 700; border-radius: 12px; padding: 12px 20px; transition: 0.3s; margin: 0 4px; font-size: 0.9rem;}
+        .settings-nav .nav-link:hover { background: var(--card-bg); color: var(--text-main); }
+        .settings-nav .nav-link.active { background: var(--brand-primary); color: white !important; box-shadow: 0 4px 15px rgba(0, 26, 77, 0.2); }
+        [data-theme="dark"] .settings-nav .nav-link.active { background: var(--brand-gold); color: black !important; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .min-w-fit { min-width: fit-content; }
+
+        .sub-tabs .nav-link { border: 1px solid var(--border-glass); color: var(--text-muted); background: var(--input-bg); margin-left: 5px; font-weight: 700; border-radius: 12px;}
+        .sub-tabs .nav-link.active { background: var(--text-main); color: var(--card-bg) !important; border-color: var(--text-main);}
+
+        .excel-preview { border: 1px solid var(--border-glass); background: #ffffff; padding: 20px; border-radius: 16px; font-family: 'Arial', sans-serif; overflow-x: auto; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); color: #000 !important; }
+        [data-theme="dark"] .excel-preview { background: #f8fafc; }
+        
+        .ex-table { width: 100%; border-collapse: collapse; transition: 0.3s; color: #000;}
+        .ex-table td, .ex-table th { border: 1px solid #cbd5e1; transition: 0.3s; white-space: nowrap; color: #000; }
+        .ex-title { font-weight: bold; color: #fff; text-align: center;}
+        .ex-sub { background: #f1f5f9; font-weight: bold; font-size: 0.9em; text-align: center;}
+        
+        .draggable-list { list-style: none; padding: 0; margin: 0; }
+        .draggable-item { background: var(--card-bg); border: 1px solid var(--border-glass); margin-bottom: 8px; padding: 10px 15px; border-radius: 12px; display: flex; align-items: center; cursor: grab; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .draggable-item:active { cursor: grabbing; opacity: 0.6; transform: scale(0.98); border-color: var(--brand-gold) !important;}
+        .draggable-item i { color: var(--text-muted); margin-left: 10px; cursor: grab; }
+        .col-name-input { border: 1px dashed var(--border-glass); background: transparent; color: var(--text-main); padding: 6px 12px; border-radius: 8px; flex-grow: 1; font-weight: bold; outline: none; transition: 0.3s;}
+        .col-name-input:focus { border-color: var(--brand-primary); background: var(--input-bg); }
+        [data-theme="dark"] .col-name-input:focus { border-color: var(--brand-gold); box-shadow: 0 0 0 2px rgba(212,175,55,0.1); }
+        
+        input[type="color"] { width: 100%; height: 45px; border: 1px solid var(--border-glass); border-radius: 12px; cursor: pointer; padding: 2px; background: var(--input-bg); }
+    </style>
+</head>
+<body>
+
+<button class="mobile-nav-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<%- include('partials/sidebar', { activePage: 'settings_excel' }) %>
+
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="admin-nav mb-4">
+            <h3 class="fw-bold text-dark m-0"><i class="fa-solid fa-arrows-up-down-left-right text-success me-2"></i> المحرر المرئي الذكي لملفات Excel</h3>
+        </div>
+
+        <ul class="nav nav-pills settings-nav d-flex flex-nowrap hide-scrollbar">
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings"><i class="fa-solid fa-sliders me-1"></i> العامة والأسعار</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings/content"><i class="fa-solid fa-comment-dots me-1"></i> رسائل البوت</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings/bots"><i class="fa-solid fa-robot me-1"></i> إدارة البوتات</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link active text-nowrap" href="/settings/excel"><i class="fa-solid fa-file-excel me-1"></i> محرر الإكسيل</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings/clients-web"><i class="fa-solid fa-globe me-1"></i> ويب العملاء</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings/executors-web"><i class="fa-solid fa-laptop-code me-1"></i> ويب المنفذين</a></li>
+            <% if (typeof role !== 'undefined' && role === 'master') { %>
+            <li class="nav-item text-center min-w-fit ms-auto"><a class="nav-link text-danger text-nowrap" href="/settings/users"><i class="fa-solid fa-user-shield me-1"></i> المديرين</a></li>
+            <% } %>
+        </ul>
+
+        <ul class="nav nav-pills mb-4 gap-2 sub-tabs data-card p-2 border-0 d-inline-flex" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active px-4" id="client-tab" data-bs-toggle="pill" data-bs-target="#client-view" type="button" role="tab"><i class="fa-solid fa-file-invoice-dollar me-1"></i> إكسيل العملاء والشركات</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link px-4" id="executor-tab" data-bs-toggle="pill" data-bs-target="#executor-view" type="button" role="tab"><i class="fa-solid fa-file-signature me-1"></i> إكسيل بوت التنفيذ</button></li>
+        </ul>
+
+        <form action="/settings/excel/update" method="POST" id="excelForm">
+            <div class="tab-content" id="excelTabsContent">
+                
+                <div class="tab-pane fade show active" id="client-view" role="tabpanel">
+                    <div class="row g-4">
+                        <div class="col-xl-5">
+                            <div class="data-card border-start border-4 border-success p-4 mb-4">
+                                <h5 class="fw-bold text-success mb-4"><i class="fa-solid fa-list-ol me-2"></i> المسميات والترتيب (العملاء)</h5>
+                                <div class="mb-4">
+                                    <label class="small fw-bold text-muted mb-2">العنوان الرئيسي أعلى الجدول:</label>
+                                    <input type="text" id="mainTitleInput" name="excelMainTitle" class="form-control fw-bold" value="<%= settings.excelMainTitle %>">
+                                </div>
+                                <h6 class="fw-bold text-dark mt-4 mb-3 small"><i class="fa-solid fa-arrows-up-down text-primary me-1"></i> اسحب لإعادة ترتيب أعمدة الجدول:</h6>
+                                <ul class="draggable-list mb-4" id="columnsList"></ul>
+                                
+                                <h6 class="fw-bold text-warning mb-2"><i class="fa-solid fa-calculator me-1"></i> خلايا التجميع السفلي (الإجماليات):</h6>
+                                <ul class="draggable-list" id="summaryList"></ul>
+                                
+                                <input type="hidden" id="excelColNames" name="excelColNames" value="<%= settings.excelColNames %>">
+                                <input type="hidden" id="excelColKeys" name="excelColKeys" value="<%= settings.excelColKeys %>">
+                                <input type="hidden" id="excelSummaryNames" name="excelSummaryNames" value="<%= settings.excelSummaryNames %>">
+                                <input type="hidden" id="excelSummaryKeys" name="excelSummaryKeys" value="<%= settings.excelSummaryKeys %>">
+                            </div>
+                            
+                            <div class="data-card p-4 border-0">
+                                <h6 class="fw-bold text-dark mb-4"><i class="fa-solid fa-palette text-info me-2"></i> الأبعاد والألوان</h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6"><label class="small fw-bold text-muted mb-1">عرض العمود</label><input type="number" id="colWidthInput" name="excelColWidth" class="form-control text-center mono-num" value="<%= settings.excelColWidth %>"></div>
+                                    <div class="col-6"><label class="small fw-bold text-muted mb-1">ارتفاع الصف</label><input type="number" id="rowHeightInput" name="excelRowHeight" class="form-control text-center mono-num" value="<%= settings.excelRowHeight %>"></div>
+                                    <div class="col-6"><label class="small fw-bold text-muted mb-1">حجم الخط</label><input type="number" id="fontSize" name="excelFontSize" class="form-control text-center mono-num" value="<%= settings.excelFontSize %>"></div>
+                                    <div class="col-6">
+                                        <label class="small fw-bold text-muted mb-1">محاذاة النص</label>
+                                        <select id="alignInput" name="excelAlignment" class="form-select text-center fw-bold">
+                                            <option value="center">الوسط</option><option value="right">يمين</option><option value="left">يسار</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-4"><label class="small fw-bold text-muted d-block mb-1 text-center">الخلفية</label><input type="color" id="titleBg" name="excelTitleBg" value="<%= settings.excelTitleBg %>"></div>
+                                    <div class="col-4"><label class="small fw-bold text-muted d-block mb-1 text-center">الرؤوس</label><input type="color" id="headerBg" name="excelHeaderBg" value="<%= settings.excelHeaderBg %>"></div>
+                                    <div class="col-4"><label class="small fw-bold text-muted d-block mb-1 text-center">الإجمالي</label><input type="color" id="totalBg" name="excelTotalBg" value="<%= settings.excelTotalBg %>"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-7">
+                            <div class="data-card h-100 p-4 border-start border-4 border-success" style="position: sticky; top: 20px;">
+                                <h5 class="fw-bold text-success mb-4"><i class="fa-solid fa-eye me-2"></i> معاينة حية (إكسيل العملاء)</h5>
+                                <div class="excel-preview">
+                                    <table class="ex-table" id="previewTable">
+                                        <thead>
+                                            <tr><td class="ex-title" id="prevTitleBg"><span id="prevTitleText"></span></td></tr>
+                                            <tr><td class="ex-sub">الجهة: شركة أبل | الهاتف: 01000000000 | تاريخ: 30-04-2026</td></tr>
+                                            <tr><td style="border:none; height: 10px; background: transparent;"></td></tr>
+                                            <tr class="ex-head text-white" id="prevHeaderRow"></tr>
+                                        </thead>
+                                        <tbody id="prevBody"></tbody>
+                                        <tfoot id="prevFooter"></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="executor-view" role="tabpanel">
+                    <div class="row g-4">
+                        <div class="col-xl-5">
+                            <div class="data-card border-start border-4 border-primary p-4 mb-4">
+                                <h5 class="fw-bold text-primary mb-4"><i class="fa-solid fa-list-ol me-2"></i> المسميات والترتيب (التنفيذ)</h5>
+                                <div class="mb-4">
+                                    <label class="small fw-bold text-muted mb-2">العنوان الرئيسي أعلى الإكسيل:</label>
+                                    <input type="text" id="e_mainTitleInput" name="execExcelMainTitle" class="form-control fw-bold" value="<%= settings.execExcelMainTitle %>">
+                                </div>
+                                <h6 class="fw-bold text-dark mt-4 mb-3 small"><i class="fa-solid fa-arrows-up-down text-primary me-1"></i> أعمدة الجدول:</h6>
+                                <ul class="draggable-list" id="e_columnsList"></ul>
+                                
+                                <h6 class="fw-bold text-warning mt-4 mb-3"><i class="fa-solid fa-calculator"></i> خلايا التجميع السفلي:</h6>
+                                <ul class="draggable-list" id="e_summaryList"></ul>
+                                
+                                <input type="hidden" id="e_excelColNames" name="execExcelColNames" value="<%= settings.execExcelColNames %>">
+                                <input type="hidden" id="e_excelColKeys" name="execExcelColKeys" value="<%= settings.execExcelColKeys %>">
+                                <input type="hidden" id="e_excelSummaryNames" name="execExcelSummaryNames" value="<%= settings.execExcelSummaryNames %>">
+                                <input type="hidden" id="e_excelSummaryKeys" name="execExcelSummaryKeys" value="<%= settings.execExcelSummaryKeys %>">
+                            </div>
+                            
+                            <div class="data-card p-4 border-0">
+                                <h6 class="fw-bold text-dark mb-4"><i class="fa-solid fa-palette text-info me-2"></i> الأبعاد والألوان</h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6"><label class="small fw-bold text-muted mb-1">عرض العمود</label><input type="number" id="e_colWidthInput" name="execExcelColWidth" class="form-control text-center mono-num" value="<%= settings.execExcelColWidth %>"></div>
+                                    <div class="col-6"><label class="small fw-bold text-muted mb-1">ارتفاع الصف</label><input type="number" id="e_rowHeightInput" name="execExcelRowHeight" class="form-control text-center mono-num" value="<%= settings.execExcelRowHeight %>"></div>
+                                    <div class="col-6"><label class="small fw-bold text-muted mb-1">حجم الخط</label><input type="number" id="e_fontSize" name="execExcelFontSize" class="form-control text-center mono-num" value="<%= settings.execExcelFontSize %>"></div>
+                                    <div class="col-6">
+                                        <label class="small fw-bold text-muted mb-1">محاذاة النص</label>
+                                        <select id="e_alignInput" name="execExcelAlignment" class="form-select text-center fw-bold">
+                                            <option value="center">الوسط</option><option value="right">يمين</option><option value="left">يسار</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-4"><label class="small fw-bold text-muted d-block mb-1 text-center">العنوان</label><input type="color" id="e_titleBg" name="execExcelTitleBg" value="<%= settings.execExcelTitleBg %>"></div>
+                                    <div class="col-4"><label class="small fw-bold text-muted d-block mb-1 text-center">الرؤوس</label><input type="color" id="e_headerBg" name="execExcelHeaderBg" value="<%= settings.execExcelHeaderBg %>"></div>
+                                    <div class="col-4"><label class="small fw-bold text-muted d-block mb-1 text-center">الإجمالي</label><input type="color" id="e_totalBg" name="execExcelTotalBg" value="<%= settings.execExcelTotalBg %>"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-7">
+                            <div class="data-card h-100 p-4 border-start border-4 border-primary" style="position: sticky; top: 20px;">
+                                <h5 class="fw-bold text-primary mb-4"><i class="fa-solid fa-eye me-2"></i> معاينة حية (إكسيل التنفيذ)</h5>
+                                <div class="excel-preview">
+                                    <table class="ex-table" id="e_previewTable">
+                                        <thead>
+                                            <tr><td class="ex-title" id="e_prevTitleBg"><span id="e_prevTitleText"></span></td></tr>
+                                            <tr><td class="ex-sub">البوت: بوت التنفيذ الرئيسي | تاريخ التقرير: 30-04-2026</td></tr>
+                                            <tr><td style="border:none; height: 10px; background: transparent;"></td></tr>
+                                            <tr class="ex-head text-white" id="e_prevHeaderRow"></tr>
+                                        </thead>
+                                        <tbody id="e_prevBody"></tbody>
+                                        <tfoot id="e_prevFooter"></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="text-end mt-4 pt-4 border-top" style="border-color: var(--border-glass) !important;">
+                <button type="submit" class="btn btn-primary btn-lg fw-bold px-5 shadow-sm rounded-pill"><i class="fa-solid fa-floppy-disk me-2"></i> حفظ تصميمات الإكسيل</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
+
+    function initExcelBuilder(prefix, dataSettings) {
+        const p = prefix === 'client' ? '' : 'e_';
+        const savedKeys = dataSettings.colKeys.split(','), savedNames = dataSettings.colNames.split(',');
+        const savedSumKeys = dataSettings.sumKeys.split(','), savedSumNames = dataSettings.sumNames.split(',');
+        document.getElementById(p+'alignInput').value = dataSettings.alignment;
+
+        function buildDragLists() {
+            const colList = document.getElementById(p+'columnsList'); colList.innerHTML = '';
+            savedKeys.forEach((key, index) => {
+                const li = document.createElement('li'); li.className = 'draggable-item border-start border-4 border-secondary'; li.draggable = true; li.dataset.key = key;
+                li.innerHTML = `<i class="fa-solid fa-grip-vertical text-muted fs-5"></i><input type="text" class="col-name-input mx-3" value="${savedNames[index]}">`;
+                colList.appendChild(li);
+            });
+            const sumList = document.getElementById(p+'summaryList'); sumList.innerHTML = '';
+            savedSumKeys.forEach((key, index) => {
+                const li = document.createElement('li'); li.className = 'draggable-item border-start border-4 border-warning'; li.draggable = true; li.dataset.key = key;
+                li.innerHTML = `<i class="fa-solid fa-grip-vertical text-warning fs-5"></i><input type="text" class="col-name-input mx-3" value="${savedSumNames[index]}">`;
+                sumList.appendChild(li);
+            });
+            attachDragEvents();
+        }
+
+        function attachDragEvents() {
+            let draggedItem = null;
+            const items = document.querySelectorAll(`#${p}columnsList .draggable-item, #${p}summaryList .draggable-item`);
+            items.forEach(item => {
+                item.addEventListener('dragstart', function(e) { draggedItem = this; setTimeout(() => this.style.opacity = '0.5', 0); });
+                item.addEventListener('dragend', function() { this.style.opacity = '1'; draggedItem = null; updateHiddenInputsAndPreview(); });
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (this !== draggedItem && this.parentNode === draggedItem.parentNode) {
+                        let offset = this.getBoundingClientRect().y + (this.getBoundingClientRect().height / 2);
+                        if (e.clientY - offset > 0) this.after(draggedItem); else this.before(draggedItem);
+                    }
+                });
+                item.querySelector('input').addEventListener('input', updateHiddenInputsAndPreview);
+            });
+        }
+
+        function updateHiddenInputsAndPreview() {
+            const colItems = document.querySelectorAll(`#${p}columnsList .draggable-item`);
+            const newKeys = [], newNames = [];
+            colItems.forEach(item => { newKeys.push(item.dataset.key); newNames.push(item.querySelector('input').value); });
+            document.getElementById(p === '' ? 'excelColKeys' : 'e_excelColKeys').value = newKeys.join(',');
+            document.getElementById(p === '' ? 'excelColNames' : 'e_excelColNames').value = newNames.join(',');
+
+            const sumItems = document.querySelectorAll(`#${p}summaryList .draggable-item`);
+            const newSumKeys = [], newSumNames = [];
+            sumItems.forEach(item => { newSumKeys.push(item.dataset.key); newSumNames.push(item.querySelector('input').value); });
+            document.getElementById(p === '' ? 'excelSummaryKeys' : 'e_excelSummaryKeys').value = newSumKeys.join(',');
+            document.getElementById(p === '' ? 'excelSummaryNames' : 'e_excelSummaryNames').value = newSumNames.join(',');
+            
+            updatePreviewTable(newKeys, newNames, newSumKeys, newSumNames);
+        }
+
+        function updatePreviewTable(keys, names, sumKeys, sumNames) {
+            const colCount = keys.length;
+            document.getElementById(p+'prevTitleBg').colSpan = colCount;
+            document.querySelector(`#${p}previewTable .ex-sub`).colSpan = colCount;
+            document.querySelector(`#${p}previewTable tr td[style*="border:none"]`).colSpan = colCount;
+
+            const headerRow = document.getElementById(p+'prevHeaderRow');
+            headerRow.innerHTML = ''; headerRow.style.backgroundColor = document.getElementById(p+'headerBg').value;
+            names.forEach(name => { headerRow.innerHTML += `<td style="padding:10px; border:1px solid rgba(255,255,255,0.2);">${name}</td>`; });
+
+            const tbody = document.getElementById(p+'prevBody');
+            tbody.innerHTML = '';
+            dataSettings.dummyData.forEach(row => {
+                let tr = '<tr>'; keys.forEach(k => { tr += `<td style="padding:10px;">${row[k] || '-'}</td>`; }); tr += '</tr>'; tbody.innerHTML += tr;
+            });
+
+            const tfoot = document.getElementById(p+'prevFooter');
+            tfoot.innerHTML = `<tr><td colspan="${colCount}" style="border:none; height: 10px; background:transparent;"></td></tr>`;
+            
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const borderCol = isDark ? '#334155' : '#d4d4d4';
+            const textCol = isDark ? '#f8fafc' : '#333';
+
+            sumKeys.forEach((key, index) => {
+                const item = dataSettings.summaryValues[key]; if (!item) return;
+                let tr = '<tr>'; if (colCount > 2) tr += `<td colspan="${colCount - 2}" style="border:none; background:transparent;"></td>`;
+                
+                let bgName = isDark ? 'transparent' : item.bg;
+                let textColor = isDark ? '#fbbf24' : '#000';
+                if(item.isTotal) { bgName = document.getElementById(p+'totalBg').value; textColor = '#fff'; }
+                
+                tr += `<td style="background:${isDark? 'rgba(255,255,255,0.05)' : item.bg}; color:${textCol}; font-weight:bold; text-align:left; padding:8px; border: 1px solid ${borderCol};">${sumNames[index]}</td>`;
+                tr += `<td style="background:${isDark? 'rgba(0,0,0,0.2)' : 'transparent'}; color:${textCol}; font-weight:bold; padding:8px; border: 1px solid ${borderCol}; ${item.isTotal ? 'font-size:1.1em; color:#d4af37;' : ''}">${item.val}</td>`;
+                tr += '</tr>'; tfoot.innerHTML += tr;
+            });
+            applyStyles();
+        }
+
+        function applyStyles() {
+            const table = document.getElementById(p+'previewTable');
+            document.getElementById(p+'prevTitleBg').style.backgroundColor = document.getElementById(p+'titleBg').value;
+            document.getElementById(p+'prevTitleText').innerText = document.getElementById(p+'mainTitleInput').value;
+            table.style.fontSize = document.getElementById(p+'fontSize').value + 'px';
+            const rowH = document.getElementById(p+'rowHeightInput').value + 'px';
+            const colW = (document.getElementById(p+'colWidthInput').value * 4) + 'px'; 
+            const align = document.getElementById(p+'alignInput').value;
+            table.querySelectorAll('td').forEach(c => {
+                if(c.colSpan === 1 && !c.style.border.includes('none')) { c.style.paddingTop = (parseInt(rowH)/4) + 'px'; c.style.paddingBottom = (parseInt(rowH)/4) + 'px'; c.style.minWidth = colW; c.style.textAlign = align; }
+            });
+            document.getElementById(p+'prevTitleBg').style.textAlign = 'center';
+            document.querySelector(`#${p}previewTable .ex-sub`).style.textAlign = 'center';
+        }
+
+        const styleInputs = ['titleBg', 'headerBg', 'totalBg', 'fontSize', 'mainTitleInput', 'colWidthInput', 'rowHeightInput', 'alignInput'];
+        styleInputs.forEach(id => { document.getElementById(p+id).addEventListener('input', () => { if(id === 'headerBg' || id === 'totalBg') updateHiddenInputsAndPreview(); else applyStyles(); }); });
+
+        buildDragLists(); updateHiddenInputsAndPreview();
+        
+        const observer = new MutationObserver(() => { updateHiddenInputsAndPreview(); });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initExcelBuilder('client', {
+            colKeys: "<%= settings.excelColKeys %>", colNames: "<%= settings.excelColNames %>",
+            sumKeys: "<%= settings.excelSummaryKeys %>", sumNames: "<%= settings.excelSummaryNames %>",
+            alignment: "<%= settings.excelAlignment %>",
+            dummyData: [{ id: 'ATT-001', employee: 'أحمد علي', phone: '01012345678', amount: '1000', rate: '6.45', cost: '155.04', date: '30/04/2026' }],
+            summaryValues: { 'totalEGP': { val: '1500.00', bg: '#fff2cc' }, 'prevLYD': { val: '1000.00', bg: '#f2f2f2' }, 'totalLYD': { val: '232.56', bg: '#eaeaea' }, 'deposits': { val: '0.00', bg: '#d9ead3' }, 'netBalance': { val: '767.44', bg: document.getElementById('totalBg').value, isTotal: true } }
+        });
+        initExcelBuilder('executor', {
+            colKeys: "<%= settings.execExcelColKeys %>", colNames: "<%= settings.execExcelColNames %>",
+            sumKeys: "<%= settings.execExcelSummaryKeys %>", sumNames: "<%= settings.execExcelSummaryNames %>",
+            alignment: "<%= settings.execExcelAlignment %>",
+            dummyData: [{ id: 'ATT-001', employee: 'محمد أحمد', phone: '01099999999', amount: '2500', status: 'مكتمل', date: '30/04/2026' }],
+            summaryValues: { 'totalEGP': { val: '2500.00', bg: '#fff2cc' }, 'prevValue': { val: '0.00', bg: '#f2f2f2' }, 'paid': { val: '0.00', bg: '#d9ead3' }, 'grandTotal': { val: '2500.00', bg: document.getElementById('e_totalBg').value, isTotal: true } }
+        });
+    });
+</script>
+</body>
+</html>

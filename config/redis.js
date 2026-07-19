@@ -75,10 +75,6 @@ const initRedis = async () => {
     const REDIS_URL = process.env.REDIS_URL || process.env.REDIS_URI;
 
     if (!REDIS_URL) {
-        if (process.env.NODE_ENV === 'production') {
-            logger.error('🚨 [FATAL] REDIS_URL/REDIS_URI غير مهيأ في بيئة الإنتاج.');
-            process.exit(1);
-        }
         logger.info('⚠️ Redis URL not configured — using in-memory cache fallback');
         redisClient = new MemoryCache();
         return redisClient;
@@ -91,10 +87,6 @@ const initRedis = async () => {
             maxRetriesPerRequest: 3,
             retryStrategy: (times) => {
                 if (times > 3) {
-                    if (process.env.NODE_ENV === 'production') {
-                        logger.error('🚨 [FATAL] فشل الاتصال بخدمة Redis في بيئة الإنتاج.');
-                        process.exit(1);
-                    }
                     logger.warn('Redis connection failed — falling back to in-memory cache');
                     redisClient = new MemoryCache();
                     isRedisAvailable = false;
@@ -110,10 +102,6 @@ const initRedis = async () => {
         logger.info('✅ Redis connected successfully');
         return redisClient;
     } catch (error) {
-        if (process.env.NODE_ENV === 'production') {
-            logger.error(`🚨 [FATAL] فشل الاتصال بخدمة Redis في بيئة الإنتاج: ${error.message}`);
-            process.exit(1);
-        }
         logger.warn(`⚠️ Redis unavailable: ${error.message} — using in-memory cache`);
         redisClient = new MemoryCache();
         isRedisAvailable = false;

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إدارة البوتات | الأهرام</title>
+    <script>
+        const savedTheme = localStorage.getItem('ahram_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        .settings-nav { background: var(--input-bg); border-radius: 16px; padding: 10px; border: 1px solid var(--border-glass); margin-bottom: 25px; overflow-x: auto; white-space: nowrap;}
+        .settings-nav .nav-link { color: var(--text-muted); font-weight: 700; border-radius: 12px; padding: 12px 20px; transition: 0.3s; margin: 0 4px; font-size: 0.9rem;}
+        .settings-nav .nav-link:hover { background: var(--card-bg); color: var(--text-main); }
+        .settings-nav .nav-link.active { background: var(--brand-primary); color: white !important; box-shadow: 0 4px 15px rgba(0, 26, 77, 0.2); }
+        [data-theme="dark"] .settings-nav .nav-link.active { background: var(--brand-gold); color: black !important; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .min-w-fit { min-width: fit-content; }
+        .mono-num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;}
+
+        .tabs-container .nav-pills .nav-link { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-glass); font-weight: 700;}
+        .tabs-container .nav-pills .nav-link.active { background: var(--brand-primary); color: white; border-color: var(--brand-primary);}
+        [data-theme="dark"] .tabs-container .nav-pills .nav-link.active { background: var(--brand-gold); color: black; border-color: var(--brand-gold);}
+    </style>
+</head>
+<body>
+
+<button class="mobile-nav-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<%- include('partials/sidebar', { activePage: 'settings_bots' }) %>
+
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="admin-nav mb-4">
+            <h3 class="fw-bold text-dark m-0"><i class="fa-solid fa-gears text-primary me-2"></i> لوحة تحكم الإعدادات الشاملة</h3>
+        </div>
+
+        <ul class="nav nav-pills settings-nav d-flex flex-nowrap hide-scrollbar">
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings"><i class="fa-solid fa-sliders me-1"></i> العامة والأسعار</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings/content"><i class="fa-solid fa-comment-dots me-1"></i> رسائل البوت</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link active text-nowrap" href="/settings/bots"><i class="fa-solid fa-robot me-1"></i> إدارة البوتات</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings/excel"><i class="fa-solid fa-file-excel me-1"></i> محرر الإكسيل</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings/clients-web"><i class="fa-solid fa-globe me-1"></i> ويب العملاء</a></li>
+            <li class="nav-item text-center min-w-fit"><a class="nav-link text-nowrap" href="/settings/executors-web"><i class="fa-solid fa-laptop-code me-1"></i> ويب المنفذين</a></li>
+            <% if (typeof role !== 'undefined' && role === 'master') { %>
+            <li class="nav-item text-center min-w-fit ms-auto"><a class="nav-link text-danger text-nowrap" href="/settings/users"><i class="fa-solid fa-user-shield me-1"></i> المديرين</a></li>
+            <% } %>
+        </ul>
+
+        <div class="tabs-container mb-4">
+            <ul class="nav nav-pills gap-2" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active px-4 rounded-pill shadow-sm" data-bs-toggle="pill" data-bs-target="#executors" type="button"><i class="fa-solid fa-gears me-1"></i> جهات التنفيذ (البوتات/الشركات)</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 rounded-pill shadow-sm" data-bs-toggle="pill" data-bs-target="#clients" type="button"><i class="fa-solid fa-building me-1"></i> بوتات العملاء (الشركات)</button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="executors">
+                <div class="row g-4">
+                    <div class="col-xl-4">
+                        <div class="data-card border-start border-4 border-info p-4 h-100">
+                            <h5 class="fw-bold mb-4 text-info"><i class="fa-solid fa-plus-circle me-2"></i> إضافة جهة تنفيذ جديدة</h5>
+                            
+                            <form action="/settings/bots/add-executor" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">الاسم (للعرض في النظام)</label>
+                                    <input type="text" name="name" class="form-control fw-bold" placeholder="مثال: شركة سويفت للتحويلات" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">نوع الربط والتنفيذ</label>
+                                    <select name="botType" id="botTypeSelect" class="form-select fw-bold text-center border-info" onchange="toggleBotFields()" required>
+                                        <option value="normal" selected>👨‍💻 كاشير بشري (بوت تيليجرام مباشر)</option>
+                                        <option value="manager">🏢 وكالة إدارية (بوت تيليجرام وكيل)</option>
+                                        <option value="api">🤖 ربط آلي (API مع شركة خارجية)</option>
+                                    </select>
+                                </div>
+
+                                <div id="telegramFields">
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold small text-muted">توكن البوت (Bot Token)</label>
+                                        <input type="text" name="token" id="tgTokenInput" class="form-control mono-num text-primary" dir="ltr" placeholder="123456:ABC-DEF..." required>
+                                    </div>
+                                </div>
+
+                                <div id="apiFields" style="display: none;">
+                                    <div class="mb-4 p-3 rounded-4 border shadow-sm" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3) !important;">
+                                        <label class="form-label fw-bold small text-success"><i class="fa-solid fa-link me-1"></i> رابط الشركة (API URL)</label>
+                                        <input type="url" name="apiUrl" id="apiUrlInput" class="form-control mono-num text-success mb-3" dir="ltr" placeholder="https://api.company.com/transfer">
+                                        
+                                        <label class="form-label fw-bold small text-success"><i class="fa-solid fa-key me-1"></i> التوكن أو مفتاح المصادقة (Secret)</label>
+                                        <input type="text" name="apiToken" id="apiTokenInput" class="form-control mono-num text-danger" dir="ltr" placeholder="Bearer eyJhYmd...">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-info text-white w-100 fw-bold rounded-pill py-2 shadow-sm mt-2"><i class="fa-solid fa-play me-1"></i> حفظ وتفعيل الإضافة</button>
+                            </form>
+
+                        </div>
+                    </div>
+                    <div class="col-xl-8">
+                        <div class="data-card border-start border-4 border-secondary p-0 overflow-hidden h-100">
+                            <div class="p-4 border-bottom" style="background: var(--input-bg);">
+                                <h5 class="fw-bold m-0 text-secondary"><i class="fa-solid fa-list me-2"></i> قائمة جهات التنفيذ النشطة</h5>
+                            </div>
+                            <div class="table-responsive m-0 border-0">
+                                <table class="table text-center align-middle m-0 table-hover">
+                                    <thead class="table-light"><tr><th>الاسم والنوع</th><th>بيانات الربط (Token/API)</th><th>تاريخ الإضافة</th><th>الحالة</th></tr></thead>
+                                    <tbody>
+                                        <% if (executorBots.length === 0) { %>
+                                            <tr><td colspan="4" class="text-muted py-5 fw-bold border-0 fs-5"><i class="fa-solid fa-robot fs-1 d-block opacity-25 mb-3"></i>لا توجد جهات تنفيذ مسجلة.</td></tr>
+                                        <% } else { %>
+                                            <% executorBots.forEach(bot => { %>
+                                                <tr>
+                                                    <td class="fw-bold text-dark">
+                                                        <%= bot.name %><br>
+                                                        <% if(bot.isApiBot) { %>
+                                                            <span class="badge bg-success bg-opacity-25 text-success border border-success px-2 mt-1 rounded-pill"><i class="fa-solid fa-network-wired me-1"></i> ربط API آلي</span>
+                                                        <% } else if(bot.isManagerBot) { %>
+                                                            <span class="badge bg-primary bg-opacity-25 text-primary border border-primary px-2 mt-1 rounded-pill"><i class="fa-solid fa-building me-1"></i> وكالة إدارية</span>
+                                                        <% } else { %>
+                                                            <span class="badge bg-secondary bg-opacity-25 text-secondary border px-2 mt-1 rounded-pill"><i class="fa-solid fa-bolt me-1"></i> بوت بشري مباشر</span>
+                                                        <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <% if(bot.isApiBot) { %>
+                                                            <div class="mono-num bg-light p-2 rounded-3 border text-start small mb-1" style="background-color: var(--input-bg) !important; word-break: break-all; color: var(--accent-green);"><i class="fa-solid fa-link"></i> <%= bot.apiUrl || '---' %></div>
+                                                            <div class="mono-num bg-light p-2 rounded-3 border text-start small" style="background-color: var(--input-bg) !important; word-break: break-all; color: var(--accent-red);"><i class="fa-solid fa-key"></i> <%= bot.apiToken ? '***' + bot.apiToken.slice(-5) : '---' %></div>
+                                                        <% } else { %>
+                                                            <div class="mono-num bg-light p-2 rounded-3 border text-start" style="background-color: var(--input-bg) !important; word-break: break-all;"><%= bot.token %></div>
+                                                        <% } %>
+                                                    </td>
+                                                    <td class="small text-muted mono-num"><%= bot.createdAt.toLocaleDateString('en-GB') %></td>
+                                                    <td><span class="badge <%= bot.status === 'active' ? 'bg-success' : 'bg-danger' %> px-3 rounded-pill"><%= bot.status === 'active' ? 'نشط' : 'متوقف' %></span></td>
+                                                </tr>
+                                            <% }) %>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="clients">
+                <div class="row g-4">
+                    <div class="col-xl-4">
+                        <div class="data-card border-start border-4 border-primary p-4 h-100">
+                            <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-building-user me-2"></i> إضافة بوت عملاء/شركة</h5>
+                            <form action="/settings/bots/add-client" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">اسم الشركة / البوت</label>
+                                    <input type="text" name="name" class="form-control fw-bold" placeholder="مثال: شركة الرواد" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">هاتف الشركة (للتواصل)</label>
+                                    <input type="text" name="phone" class="form-control mono-num text-dark" dir="ltr" placeholder="09X XXX XXXX" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-muted">توكن البوت (Bot Token)</label>
+                                    <input type="text" name="token" class="form-control mono-num text-primary" dir="ltr" placeholder="123456:ABC-DEF1234..." required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill py-2"><i class="fa-solid fa-plus me-1"></i> إنشاء بوت الشركة</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-xl-8">
+                        <div class="data-card border-start border-4 border-secondary p-0 overflow-hidden h-100">
+                            <div class="p-4 border-bottom" style="background: var(--input-bg);">
+                                <h5 class="fw-bold m-0 text-secondary"><i class="fa-solid fa-building me-2"></i> قائمة بوتات العملاء (الشركات)</h5>
+                            </div>
+                            <div class="table-responsive m-0 border-0">
+                                <table class="table table-hover align-middle text-center m-0">
+                                    <thead class="table-light"><tr><th>الشركة</th><th>الهاتف</th><th>التوكن (Token)</th><th>الرصيد</th><th>الحالة</th></tr></thead>
+                                    <tbody>
+                                        <% if (clientBots.length === 0) { %>
+                                            <tr><td colspan="5" class="text-muted py-5 fw-bold border-0 fs-5"><i class="fa-solid fa-building-circle-xmark fs-1 d-block opacity-25 mb-3"></i>لا يوجد شركات مسجلة.</td></tr>
+                                        <% } else { %>
+                                            <% clientBots.forEach(bot => { %>
+                                                <tr>
+                                                    <td class="fw-bold text-primary"><%= bot.name %></td>
+                                                    <td dir="ltr" class="small mono-num text-dark"><%= bot.phone %></td>
+                                                    <td><div class="mono-num bg-light p-2 rounded-3 border text-start" style="background-color: var(--input-bg) !important; word-break: break-all;"><%= bot.token %></div></td>
+                                                    <td class="fw-bold text-success mono-num fs-5" dir="ltr"><%= bot.balance.toFixed(2) %></td>
+                                                    <td><span class="badge <%= bot.status === 'active' ? 'bg-success text-success border-success' : 'bg-danger text-danger border-danger' %> bg-opacity-10 border px-3 py-1 rounded-pill"><%= bot.status === 'active' ? 'نشط' : 'متوقف' %></span></td>
+                                                </tr>
+                                            <% }) %>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() { 
+        document.querySelector('.sidebar').classList.toggle('active'); 
+        document.querySelector('.sidebar-overlay').classList.toggle('active'); 
+    }
+
+    // 🚀 السكريبت الخاص بإظهار/إخفاء الحقول بناءً على نوع الربط
+    function toggleBotFields() {
+        const type = document.getElementById('botTypeSelect').value;
+        const tgFields = document.getElementById('telegramFields');
+        const apiFields = document.getElementById('apiFields');
+        const tgInput = document.getElementById('tgTokenInput');
+        const apiUrlInput = document.getElementById('apiUrlInput');
+
+        if (type === 'api') {
+            tgFields.style.display = 'none';
+            apiFields.style.display = 'block';
+            tgInput.removeAttribute('required');
+            apiUrlInput.setAttribute('required', 'true');
+        } else {
+            tgFields.style.display = 'block';
+            apiFields.style.display = 'none';
+            tgInput.setAttribute('required', 'true');
+            apiUrlInput.removeAttribute('required');
+        }
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

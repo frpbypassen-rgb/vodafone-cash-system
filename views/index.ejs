@@ -42,26 +42,18 @@
             .user-time-widget { position: static; margin-top: 30px; width: 100%; border-bottom: none; border-top: 4px solid var(--brand-gold);}
         }
     </style>
-
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
-    <!-- End PWA -->
 </head>
 <body>
 
-<button class="mobile-nav-toggle no-print" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-<div class="sidebar-overlay no-print" onclick="toggleSidebar()"></div>
+<button class="mobile-nav-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <%- include('partials/sidebar', { activePage: 'dashboard' }) %>
 
 <div class="main-content">
     <div class="container-fluid">
 
-        <div class="top-header data-card d-none d-lg-flex">
+        <div class="top-header data-card">
             <div class="d-flex align-items-center">
                 <div class="company-logo-box me-3"><i class="fa-solid fa-shield-halved"></i></div>
                 <div class="text-start">
@@ -86,75 +78,15 @@
                         </div>
                     </ul>
                 </div>
-                <div class="px-3 py-2 rounded-pill fw-bold small" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+                <div class="d-none d-md-flex px-3 py-2 rounded-pill fw-bold small" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
                     <i class="fa-solid fa-database me-2"></i> النظام متصل
                 </div>
             </div>
         </div>
 
-        <!-- إحصائيات اليوم (للهواتف فقط) -->
-        <div class="d-block d-lg-none mb-5 mt-4">
-            <h5 class="fw-bold mb-3" style="color: var(--text-main);"><i class="fa-solid fa-calendar-day me-2 text-primary"></i> إحصائيات اليوم</h5>
-            <div class="row g-3">
-                <div class="col-6">
-                    <div class="d-flex flex-column align-items-center justify-content-center rounded-4 data-card m-0 p-3 text-center" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); min-height: 120px;">
-                        <i class="fa-solid fa-check-circle fs-3 mb-2" style="color: #10b981;"></i>
-                        <div class="small fw-bold text-muted mb-1">مكتملة</div>
-                        <h4 class="fw-bold m-0" style="color: #10b981;"><%= typeof todayCompleted !== 'undefined' ? todayCompleted : 0 %></h4>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="d-flex flex-column align-items-center justify-content-center rounded-4 data-card m-0 p-3 text-center" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); min-height: 120px;">
-                        <i class="fa-solid fa-hourglass-half fs-3 mb-2" style="color: #f59e0b;"></i>
-                        <div class="small fw-bold text-muted mb-1">معلقة</div>
-                        <h4 class="fw-bold m-0" style="color: #f59e0b;"><%= typeof todayPending !== 'undefined' ? todayPending : 0 %></h4>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="d-flex flex-column align-items-center justify-content-center rounded-4 data-card m-0 p-3 text-center" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); min-height: 120px;">
-                        <i class="fa-solid fa-ban fs-3 mb-2" style="color: #ef4444;"></i>
-                        <div class="small fw-bold text-muted mb-1">ملغية</div>
-                        <h4 class="fw-bold m-0" style="color: #ef4444;"><%= typeof todayCancelled !== 'undefined' ? todayCancelled : 0 %></h4>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="d-flex flex-column align-items-center justify-content-center rounded-4 data-card m-0 p-3 text-center" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); min-height: 120px;">
-                        <i class="fa-solid fa-list-ol fs-3 mb-2" style="color: #3b82f6;"></i>
-                        <div class="small fw-bold text-muted mb-1">إجمالي الحركات</div>
-                        <h4 class="fw-bold m-0" style="color: #3b82f6;"><%= typeof todayTotal !== 'undefined' ? todayTotal : 0 %></h4>
-                    </div>
-                </div>
-                <div class="col-12 mt-4">
-                    <div class="d-flex flex-column justify-content-center rounded-4 data-card m-0 p-4 text-center" style="background: linear-gradient(135deg, var(--card-bg) 0%, rgba(212, 175, 55, 0.05) 100%); border: 1px solid rgba(212, 175, 55, 0.3);">
-                        <h6 class="fw-bold text-muted mb-4"><i class="fa-solid fa-money-bill-wave me-2" style="color: var(--brand-gold);"></i> المبالغ المكتملة اليوم</h6>
-                        <div class="d-flex justify-content-around w-100 align-items-center">
-                            <div class="text-center" style="flex: 1;">
-                                <div class="small fw-bold mb-2" style="color: var(--text-muted);">جنيه مصري</div>
-                                <h3 class="fw-bold m-0" style="color: var(--text-main);"><%= typeof todayEGP !== 'undefined' ? todayEGP.toLocaleString() : 0 %> <span style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">EGP</span></h3>
-                            </div>
-                            <div style="height: 40px; border-left: 2px solid rgba(212, 175, 55, 0.2);"></div>
-                            <div class="text-center" style="flex: 1;">
-                                <div class="small fw-bold mb-2" style="color: var(--text-muted);">دينار ليبي</div>
-                                <h3 class="fw-bold m-0" style="color: var(--text-main);"><%= typeof todayLYD !== 'undefined' ? todayLYD.toLocaleString() : 0 %> <span style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">LYD</span></h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- الرسم البياني للهاتف -->
-                <div class="col-12 mt-4">
-                    <div class="data-card p-3 rounded-4 border-0 text-center" style="box-shadow: var(--shadow-soft);">
-                        <h6 class="fw-bold mb-3" style="color: var(--text-main);"><i class="fa-solid fa-chart-pie text-primary me-2"></i> توزيع حالات اليوم</h6>
-                        <div style="height: 250px; width: 100%; position: relative;">
-                            <canvas id="mobileTodayChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h4 class="fw-bold mb-4 mt-4" style="color: var(--text-main);"><i class="fa-solid fa-chart-pie me-2 text-primary"></i> الإحصائيات الحية للمنصة</h4>
 
-        <h4 class="fw-bold mb-4 mt-5 d-none d-lg-block" style="color: var(--text-main);"><i class="fa-solid fa-chart-pie me-2 text-primary"></i> الإحصائيات الحية للمنصة</h4>
-
-        <div class="row g-4 mb-5 d-none d-lg-flex">
+        <div class="row g-4 mb-5">
             <div class="col-xl-4 col-md-6">
                 <a href="/clients" class="text-decoration-none hover-card">
                     <div class="stat-card stat-users data-card m-0">
@@ -223,7 +155,7 @@
             </div>
         </div>
 
-        <div class="row d-none d-lg-flex">
+        <div class="row">
             <div class="col-12">
                 <div class="data-card p-4 rounded-4 border-0">
                     <h5 class="fw-bold mb-4" style="color: var(--text-main);"><i class="fa-solid fa-chart-line text-primary me-2"></i> مسار عمليات اليوم</h5>
@@ -268,7 +200,21 @@
     }
     setInterval(updateRealTimeClock, 1000); updateRealTimeClock();
 
-    // Notification logic moved to sidebar.ejs
+    async function fetchNotifications() {
+        try {
+            const res = await fetch('/api/notifications/unread'); const data = await res.json();
+            const badge = document.getElementById('notifBadge'); const list = document.getElementById('notifList');
+            if (data.count > 0) {
+                badge.innerText = data.count; badge.classList.remove('d-none');
+                let html = ''; data.notifications.forEach(n => { html += `<li class="dropdown-item border-bottom p-3" style="cursor:pointer; border-color: var(--border-glass) !important;" onclick="markRead('${n._id}')"><div class="fw-bold small mb-1" style="color: var(--text-main);"><i class="fa-solid fa-circle-info text-primary me-1"></i> ${n.title}</div><div class="text-muted" style="font-size: 0.85rem;">${n.message}</div><div class="text-end text-muted mt-2 mono-num opacity-50" style="font-size: 0.75rem;">${new Date(n.createdAt).toLocaleTimeString('en-US')}</div></li>`; });
+                list.innerHTML = html;
+            } else { badge.classList.add('d-none'); list.innerHTML = '<li class="p-4 text-center text-muted fw-bold"><i class="fa-solid fa-check-circle fs-1 opacity-25 d-block mb-2"></i> لا توجد إشعارات جديدة</li>'; }
+        } catch (e) {}
+    }
+    async function markRead(id) { await fetch(`/api/notifications/${id}/read`, { method: 'POST' }); fetchNotifications(); }
+    async function markAllRead() { await fetch(`/api/notifications/read-all`, { method: 'POST' }); fetchNotifications(); }
+    setInterval(fetchNotifications, 5000); fetchNotifications();
+
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('transactionsChart').getContext('2d');
         const theme = localStorage.getItem('ahram_theme') || 'light';
@@ -288,33 +234,6 @@
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'JetBrains Mono' } }, grid: { color: 'rgba(100,116,139,0.1)' } }, x: { grid: { display: false } } } }
-        });
-
-        // 📱 رسم بياني مخصص للهواتف (حالات اليوم)
-        const mobileCtx = document.getElementById('mobileTodayChart').getContext('2d');
-        window.mobileTodayChart = new Chart(mobileCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['مكتملة', 'معلقة/قيد التنفيذ', 'ملغية'],
-                datasets: [{
-                    data: [
-                        Number('<%= typeof todayCompleted !== "undefined" ? todayCompleted : 0 %>'),
-                        Number('<%= typeof todayPending !== "undefined" ? todayPending : 0 %>') + Number('<%= typeof todayProcessing !== "undefined" ? todayProcessing : 0 %>'),
-                        Number('<%= typeof todayCancelled !== "undefined" ? todayCancelled : 0 %>')
-                    ],
-                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '75%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'Tajawal', size: 12 }, color: chartColor, padding: 20 } }
-                }
-            }
         });
     });
 </script>

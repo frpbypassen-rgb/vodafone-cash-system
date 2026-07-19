@@ -95,17 +95,7 @@ const executeTransferViaApi = async (tx, apiBot) => {
             }
             addLog("PAYMENT_SUCCESS", `اكتملت العملية بنجاح! رقم المرجع: ${extRef}`);
             addLog("API_FULL_RESPONSE", prettyLog);
-            return {
-                success: true,
-                external_transaction_id: extRef,
-                message: paymentRes.data.Message || 'تم التحويل الآلي',
-                sender_number: refTxNum,
-                balance_before: pd.BalanceBefore,
-                balance_after: pd.BalanceAfter,
-                transaction_time: pd.TransactionTime || new Date().toLocaleString('ar-EG'),
-                status: pd.Status || paymentRes.data.Message || 'عمليه ناجحه',
-                processLog: processLog.join('\n')
-            };
+            return { success: true, external_transaction_id: extRef, message: paymentRes.data.Message || 'تم التحويل الآلي', sender_number: refTxNum, processLog: processLog.join('\n') };
         } else {
             addLog("PAYMENT_FAIL", paymentRes.data.Message || "تم الرفض أثناء التنفيذ النهائي");
             addLog("API_FULL_RESPONSE", prettyLog);

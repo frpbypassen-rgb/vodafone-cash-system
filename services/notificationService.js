@@ -1,45 +1,51 @@
-// تم استبدال آلية الإشعارات الخارجية بآلية الإشعارات الداخلية عبر الموقع/التطبيق
+const { Telegram } = require('telegraf');
 const Notification = require('../models/Notification'); // موديل الإشعارات الموجود لديك
 
 /**
  * خدمة الإشعارات المعزولة (Decoupled Notification Service)
- * تضمن عدم توقف النظام أو انهياره.
+ * تضمن عدم توقف النظام أو انهياره إذا تعطل سيرفر تيليجرام أو تم حظر البوت
  */
 class NotificationService {
     
     // إرسال رسالة نصية آمنة
-    static async sendSafeMessage(token, userId, message, markup = { parse_mode: 'HTML' }) {
-        if (!userId) return null;
+    static async sendSafeMessage(token, telegramId, message, markup = { parse_mode: 'HTML' }) {
+        if (!telegramId || !token) return null;
         
         try {
-            // 🟢 حفظ الإشعار في قاعدة البيانات ليراه المستخدم في الموقع أو التطبيق
+            const api = new Telegram(token);
+            const sent = await api.sendMessage(telegramId, message, markup);
+            return sent;
+        } catch (error) {
+            console.error(`⚠️ [Telegram Fallback] فشل إرسال رسالة لـ ${telegramId}: ${error.message}`);
+            
+            // 🟢 إذا فشل تيليجرام، يتم حفظ الإشعار في قاعدة البيانات ليراه المستخدم في الموقع!
             try {
                 await Notification.create({
-                    userId: userId,
-                    title: 'إشعار نظام',
+                    userId: telegramId,
+                    title: 'إشعار نظام (لم يصل للتليجرام)',
                     message: message.replace(/<[^>]*>?/gm, ''), // إزالة كود الـ HTML
                     type: 'system_alert'
                 });
             } catch (dbError) {}
             
             return null; // نرجع null بدلاً من أن ينهار التطبيق
-        } catch (error) {
-            return null;
         }
     }
 
     // إرسال صورة آمنة
-    static async sendSafePhoto(token, userId, photoData, options = { parse_mode: 'HTML' }) {
-        if (!userId || !photoData) return null;
+    static async sendSafePhoto(token, telegramId, photoData, options = { parse_mode: 'HTML' }) {
+        if (!telegramId || !token || !photoData) return null;
 
         try {
-            // 🟢 محاولة إرسال النص فقط (حفظ كإشعار).
-            if (options.caption) {
-                return await this.sendSafeMessage(token, userId, `🖼️ (مرفق صورة)\n\n${options.caption}`, { parse_mode: options.parse_mode });
-            }
-            return null;
+            const api = new Telegram(token);
+            const sent = await api.sendPhoto(telegramId, photoData, options);
+            return sent;
         } catch (error) {
-            console.error(`⚠️ فشل تسجيل إشعار الصورة لـ ${userId}: ${error.message}`);
+            console.error(`⚠️ [Telegram Fallback] فشل إرسال صورة لـ ${telegramId}: ${error.message}`);
+            // محاولة إرسال النص فقط إذا فشلت الصورة (مثلاً بسبب ضعف الإنترنت)
+            if (options.caption) {
+                return await this.sendSafeMessage(token, telegramId, `🖼️ (مرفق صورة تعذر إرسالها)\n\n${options.caption}`, { parse_mode: options.parse_mode });
+            }
             return null;
         }
     }

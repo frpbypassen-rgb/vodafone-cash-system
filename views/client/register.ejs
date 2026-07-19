@@ -305,11 +305,11 @@
 
                 <% if (typeof createdUsername !== 'undefined' && createdUsername) { %>
                     <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-top: 15px; text-align: left; border: 1px solid var(--border-glass);">
-                        <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">اسم مستخدم المدير (Manager Username):</div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">اسم المستخدم (Username):</div>
                         <div style="color: var(--brand-gold); font-weight: 700; font-size: 1.2rem; margin-bottom: 15px; font-family: monospace;" dir="ltr"><%= createdUsername %></div>
                         
                         <% if (typeof createdPassword !== 'undefined' && createdPassword) { %>
-                            <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">كلمة مرور المدير (Manager Password):</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">كلمة المرور (Password):</div>
                             <div style="color: #fff; font-weight: 700; font-size: 1.2rem; font-family: monospace; margin-bottom: 15px;" dir="ltr"><%= createdPassword %></div>
                         <% } %>
 
@@ -340,8 +340,6 @@
             <% } %>
 
             <form action="/client/register" method="POST" id="registerForm" autocomplete="off" novalidate>
-                <input type="hidden" name="latitude" id="latitudeInput">
-                <input type="hidden" name="longitude" id="longitudeInput">
                 
                 <div class="account-type-grid">
                     <button type="button" class="account-type-btn" data-type="direct" onclick="selectAccountType(this, 'direct')">
@@ -623,22 +621,6 @@
 
         document.getElementById('companyPassword')?.addEventListener('input', function(){ checkPass(this.value, 'strengthBarCompany'); matchPass('companyPassword', 'companyPasswordConfirm', 'passwordMatchMsgCompany'); });
         document.getElementById('companyPasswordConfirm')?.addEventListener('input', () => matchPass('companyPassword', 'companyPasswordConfirm', 'passwordMatchMsgCompany'));
-
-        // Request GPS coordinates immediately
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const latInput = document.getElementById('latitudeInput');
-                    const lngInput = document.getElementById('longitudeInput');
-                    if (latInput) latInput.value = position.coords.latitude;
-                    if (lngInput) lngInput.value = position.coords.longitude;
-                },
-                (error) => {
-                    console.warn("GPS request warning:", error.message);
-                },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-            );
-        }
 
         document.getElementById('registerForm')?.addEventListener('submit', function(e) {
             const btn = document.getElementById('submitBtn');

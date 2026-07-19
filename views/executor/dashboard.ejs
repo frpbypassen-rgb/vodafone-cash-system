@@ -168,107 +168,16 @@
 
         /* 📱 شاشات الهواتف الذكية */
         @media (max-width: 768px) {
-            body {
-                padding-top: 75px !important;
-                padding-bottom: 90px !important;
-            }
-            .navbar-glass {
-                position: fixed !important;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1050;
-                margin-bottom: 0 !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                padding: 10px 16px !important;
-                border-radius: 0 0 16px 16px !important;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-            }
-            .executor-info {
-                width: auto !important;
-                justify-content: flex-start !important;
-                gap: 8px !important;
-            }
-            .executor-avatar {
-                width: 36px !important;
-                height: 36px !important;
-                border-radius: 10px !important;
-                font-size: 1.1rem !important;
-            }
-            .executor-name {
-                font-size: 0.9rem !important;
-            }
-            .executor-role {
-                display: none !important;
-            }
-            .nav-actions {
-                width: auto !important;
-                justify-content: flex-end !important;
-                gap: 6px !important;
-            }
-            .nav-btn {
-                padding: 6px 10px !important;
-                font-size: 0.8rem !important;
-                border-radius: 8px !important;
-                flex: none !important;
-            }
-            .nav-btn span {
-                display: none !important;
-            }
+            .navbar-glass { flex-direction: column; gap: 12px; padding: 14px 16px; border-radius: 0 0 18px 18px; }
+            .executor-info { width: 100%; justify-content: center; }
+            .nav-actions { width: 100%; justify-content: center; flex-wrap: wrap; gap: 6px; }
+            .nav-btn { flex: 1 1 calc(33% - 6px); padding: 7px 4px; font-size: 0.78rem; min-width: 0; }
             .task-card { padding: 16px; border-radius: 16px; }
             .copy-val { font-size: 1.05rem; }
             .copy-val.amount { font-size: 1.25rem; }
             .copy-box { padding: 8px 12px; }
             .btn-text-hide { display: none; }
             .btn-cyber-sub { padding: 10px; font-size: 0.95rem; } 
-
-            /* 📱 شريط التنقل السفلي للهواتف */
-            .bottom-nav-mobile {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 64px;
-                background: var(--nav-gradient);
-                backdrop-filter: blur(20px) saturate(1.2);
-                -webkit-backdrop-filter: blur(20px) saturate(1.2);
-                border-top: 1px solid var(--glass-border);
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                z-index: 1050;
-                box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-            .bottom-nav-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 4px;
-                color: var(--text-muted);
-                text-decoration: none;
-                flex: 1;
-                height: 100%;
-                transition: all 0.2s ease;
-                font-size: 0.72rem;
-                font-weight: 700;
-            }
-            .bottom-nav-item i {
-                font-size: 1.25rem;
-                transition: transform 0.2s ease;
-            }
-            .bottom-nav-item:hover {
-                color: var(--text-main);
-            }
-            .bottom-nav-item.active {
-                color: var(--accent-gold);
-            }
-            .bottom-nav-item.active i {
-                transform: translateY(-2px);
-            }
         }
 
         @media (min-width: 769px) {
@@ -323,101 +232,29 @@
         <div class="executor-avatar"><i class="fa-solid fa-user-astronaut"></i></div>
         <div>
             <h4 class="executor-name"><%= emp.name %></h4>
-            <span class="executor-role"><i class="fa-solid fa-network-wired me-1"></i> غرفة العمليات: <%= emp.groupId?.name || 'بدون غرفة' %></span>
+            <span class="executor-role"><i class="fa-solid fa-network-wired me-1"></i> غرفة العمليات: <%= emp.botId.name %></span>
         </div>
     </div>
     <div class="nav-actions">
-        <span class="nav-btn text-success border border-success border-opacity-25" style="cursor: default; font-weight: 800;" title="المبلغ المتاح"><i class="fa-solid fa-wallet me-1"></i> <%= emp.groupId ? emp.groupId.balance.toFixed(2) : '0.00' %> EGP</span>
         <button class="nav-btn btn-theme shadow-sm" onclick="toggleTheme()" title="المظهر"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+        <a href="/executor-portal/dashboard" class="nav-btn active"><i class="fa-solid fa-satellite-dish me-1"></i> <span class="d-none d-sm-inline">الرادار</span></a>
+        <% if (emp.role === 'manager') { %>
+        <a href="/executor-portal/employees" class="nav-btn" style="color: var(--accent-gold); border-color: rgba(212, 175, 55, 0.3);"><i class="fa-solid fa-users-gear me-1"></i> <span class="d-none d-sm-inline">الموظفين</span></a>
+        <% } %>
+        <% if (!emp.telegramId) { %>
+        <button onclick="activateTelegram(); return false;" class="nav-btn" style="color: #0ea5e9; border-color: rgba(14, 165, 233, 0.3); cursor:pointer;"><i class="fa-brands fa-telegram me-1"></i> <span class="d-none d-sm-inline">تفعيل تليجرام</span></button>
+        <% } %>
         <a href="/executor-portal/logout" class="nav-btn btn-logout"><i class="fa-solid fa-power-off"></i></a>
     </div>
 </nav>
 
 <div class="container-fluid px-3 px-md-4 mt-2 mb-5">
-    <!-- 📡 قسم الرادار -->
-    <div id="radarSection">
     <div class="radar-box mb-4 px-2">
         <div class="pulse-dot"></div>
         <h4 class="fw-bold m-0" style="color: var(--text-main);">الرادار <span class="fs-6 fw-normal text-muted ms-1">(نظام الطابور)</span></h4>
     </div>
     
     <div id="tasksList" class="row g-3 g-xl-4"></div>
-    </div>
-
-    <!-- 👤 قسم حسابي -->
-    <div id="profileSection" style="display: none;">
-        <div class="row g-3 g-xl-4">
-            <!-- كارت الملف الشخصي والتعريف -->
-            <div class="col-12 col-lg-4">
-                <div class="p-4" style="background: var(--glass-bg); backdrop-filter: blur(14px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-card); text-align: center;">
-                    <div class="mx-auto mb-3" style="width: 80px; height: 80px; border-radius: 22px; background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05)); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(212,175,55,0.25);">
-                        <i class="fa-solid fa-user-astronaut fs-1 text-warning"></i>
-                    </div>
-                    <h4 class="fw-bold mb-1" style="color: var(--text-main);"><%= emp.name %></h4>
-                    <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-1.5 rounded-pill mb-4" style="font-size: 0.8rem; border: 1px solid rgba(251,191,36,0.2);">
-                        <%= emp.role === 'manager' ? 'مدير النظام' : 'منفذ العمليات' %>
-                    </span>
-                    
-                    <div class="text-start border-top pt-3" style="border-top-style: dashed !important; border-color: var(--glass-border) !important; display: flex; flex-direction: column; gap: 12px;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-regular fa-envelope me-1"></i> اسم المستخدم:</span>
-                            <span class="fw-bold" style="color: var(--text-main);"><%= emp.webUsername %></span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-solid fa-network-wired me-1"></i> غرفة العمليات:</span>
-                            <span class="fw-bold" style="color: var(--text-main);"><%= emp.groupId?.name || 'بدون غرفة' %></span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-solid fa-phone me-1"></i> رقم الهاتف:</span>
-                            <span class="fw-bold" style="color: var(--text-main); font-family: monospace;"><%= emp.phone || '---' %></span>
-                        </div>
-                        <% if (emp.telegramId) { %>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-brands fa-telegram me-1"></i> معرف التليجرام:</span>
-                            <span class="fw-bold" style="color: var(--text-main); font-family: monospace;"><%= emp.telegramId %></span>
-                        </div>
-                        <% } %>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-solid fa-circle-check me-1"></i> الحالة:</span>
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 py-1 px-2.5">نشط</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- كارت إدارة العهدة والإحصائيات -->
-            <div class="col-12 col-lg-8">
-
-
-                <!-- إحصائيات اليوم -->
-                <div class="row g-3 mb-4">
-                    <div class="col-6">
-                        <div class="p-4 text-center" style="background: var(--glass-bg); backdrop-filter: blur(14px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-card); height: 100%;">
-                            <div class="mb-2 text-success"><i class="fa-solid fa-check-double fs-1"></i></div>
-                            <span class="text-muted small fw-bold">العمليات المنفذة اليوم</span>
-                            <h2 id="completedCount" class="fw-bold mt-2 text-main m-0">0</h2>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="p-4 text-center" style="background: var(--glass-bg); backdrop-filter: blur(14px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-card); height: 100%;">
-                            <div class="mb-2 text-primary"><i class="fa-solid fa-sack-dollar fs-1"></i></div>
-                            <span class="text-muted small fw-bold">إجمالي المبالغ اليوم</span>
-                            <h2 id="completedSum" class="fw-bold mt-2 text-success m-0" style="font-family: 'JetBrains Mono', monospace; font-size: 1.8rem;">0 <span class="fs-6 fw-normal text-muted">EGP</span></h2>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- العمليات المنفذة اليوم -->
-                <div class="p-4" style="background: var(--glass-bg); backdrop-filter: blur(14px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-card);">
-                    <h5 class="fw-bold mb-3 text-main"><i class="fa-solid fa-clock-rotate-left text-muted me-1"></i> تفاصيل العمليات المنفذة اليوم</h5>
-                    <div id="completedTasksList" style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-left: 5px;">
-                        <!-- dynamic items -->
-                        <div class="text-center text-muted py-4"><i class="fa-solid fa-satellite-dish fs-3 mb-2 opacity-50"></i><p class="m-0 small">لا يوجد عمليات منفذة اليوم بعد</p></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="modal fade" id="uploadModal" tabindex="-1">
@@ -453,78 +290,7 @@
 <audio id="sirenSound" src="https://assets.mixkit.co/active_storage/sfx/991/991-preview.mp3" loop preload="auto"></audio>
 <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-<!-- شريط التنقل السفلي للهواتف (App-like Bottom Navigation) -->
-<div class="bottom-nav-mobile d-md-none">
-    <!-- حسابي (الملف الشخصي والمنجزات) -->
-    <a href="#profile" onclick="switchSection('profile')" class="bottom-nav-item" id="nav-profile">
-        <i class="fa-solid fa-circle-user"></i>
-        <span>حسابي</span>
-    </a>
-    <!-- الرادار -->
-    <a href="#radar" onclick="switchSection('radar')" class="bottom-nav-item active" id="nav-dash">
-        <i class="fa-solid fa-satellite-dish"></i>
-        <span>الرادار</span>
-    </a>
-    <!-- التقارير -->
-    <a href="/executor-portal/reports" class="bottom-nav-item" id="nav-rep">
-        <i class="fa-solid fa-chart-line"></i>
-        <span>التقارير</span>
-    </a>
-    <% if (emp.role === 'manager') { %>
-    <!-- الموظفين -->
-    <a href="/executor-portal/employees" class="bottom-nav-item" id="nav-emp">
-        <i class="fa-solid fa-users"></i>
-        <span>الموظفين</span>
-    </a>
-    <% } %>
-</div>
-
 <script>
-    // 🔀 Section Toggling Logic
-    function switchSection(sectionId) {
-        const radarSec = document.getElementById('radarSection');
-        const profileSec = document.getElementById('profileSection');
-        
-        // Top nav buttons
-        const topNavRadar = document.getElementById('top-nav-radar');
-        const topNavProfile = document.getElementById('top-nav-profile');
-        
-        // Bottom nav buttons
-        const botNavRadar = document.getElementById('nav-dash');
-        const botNavProfile = document.getElementById('nav-profile');
-        
-        // De-activate all
-        topNavRadar?.classList.remove('active');
-        topNavProfile?.classList.remove('active');
-        botNavRadar?.classList.remove('active');
-        botNavProfile?.classList.remove('active');
-        
-        if (sectionId === 'profile') {
-            if (radarSec) radarSec.style.display = 'none';
-            if (profileSec) profileSec.style.display = 'block';
-            
-            topNavProfile?.classList.add('active');
-            botNavProfile?.classList.add('active');
-        } else {
-            if (radarSec) radarSec.style.display = 'block';
-            if (profileSec) profileSec.style.display = 'none';
-            
-            topNavRadar?.classList.add('active');
-            botNavRadar?.classList.add('active');
-        }
-    }
-
-    function handleHashChange() {
-        const hash = window.location.hash;
-        if (hash === '#profile') {
-            switchSection('profile');
-        } else {
-            switchSection('radar');
-        }
-    }
-
-    window.addEventListener('hashchange', handleHashChange);
-    document.addEventListener('DOMContentLoaded', handleHashChange);
     // 🌓 Theme Logic
     function toggleTheme() {
         const html = document.documentElement;
@@ -650,66 +416,6 @@
         try {
             const res = await fetch('/executor-portal/api/live-tasks');
             const data = await res.json();
-            
-            // 📊 تحديث إحصائيات المعاملات المنجزة اليوم في صفحة حسابي
-            if (data.completedToday) {
-                const count = data.completedToday.length;
-                let sum = 0;
-                let listHtml = '';
-                
-                data.completedToday.forEach(tx => {
-                    const txAmt = parseFloat(tx.amount) || 0;
-                    sum += txAmt;
-                    
-                    let typeBadge = '';
-                    if (tx.transferType === 'post_account') {
-                        typeBadge = '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" style="font-size: 0.72rem;"><i class="fa-solid fa-envelope me-1"></i> بريد</span>';
-                    } else if (tx.transferType === 'post_card') {
-                        typeBadge = '<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" style="font-size: 0.72rem;"><i class="fa-solid fa-id-card me-1"></i> بطاقة</span>';
-                    } else {
-                        typeBadge = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size: 0.72rem;"><i class="fa-solid fa-mobile-screen me-1"></i> كاش</span>';
-                    }
-                    
-                    const timeStr = tx.updatedAt ? new Date(tx.updatedAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '---';
-                    
-                    listHtml += `
-                        <div class="d-flex justify-content-between align-items-center p-2.5 rounded-3 border mb-1" style="background: rgba(128,128,128,0.03); border-color: var(--glass-border) !important;">
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(16, 185, 129, 0.1); color: var(--accent-green);">
-                                    <i class="fa-solid fa-check" style="font-size: 0.85rem;"></i>
-                                </div>
-                                <div>
-                                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                                        <span class="fw-bold text-main" style="font-size: 0.85rem;">#${tx.customId}</span>
-                                        ${typeBadge}
-                                    </div>
-                                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" dir="ltr">${tx.vodafoneNumber || tx.accountNumber || '---'}</small>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <span class="fw-bold text-success d-block" style="font-size: 0.95rem; font-family: monospace;">+${tx.amount}</span>
-                                <small class="text-muted" style="font-size: 0.7rem;"><i class="fa-regular fa-clock me-1"></i> ${timeStr}</small>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                const countEl = document.getElementById('completedCount');
-                if (countEl) countEl.innerText = count;
-                
-                const sumEl = document.getElementById('completedSum');
-                if (sumEl) sumEl.innerText = sum.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' EGP';
-                
-                const listEl = document.getElementById('completedTasksList');
-                if (listEl) {
-                    listEl.innerHTML = listHtml || `
-                        <div class="text-center text-muted py-4">
-                            <i class="fa-solid fa-satellite-dish fs-3 mb-2 opacity-50"></i>
-                            <p class="m-0 small">لا يوجد عمليات منفذة اليوم بعد</p>
-                        </div>
-                    `;
-                }
-            }
             
             // 🚨 الطوارئ الذكية: تحديد إذا كان الموظف مشغولاً أم لا
             const amIBusy = data.tasks.some(t => t.operatorId === myTelegramId && t.status === 'accepted');
@@ -890,7 +596,14 @@
         try { await fetch('/executor-portal/api/clear-alert/' + tempId, { method: 'POST' }); } catch(e) {}
     }
 
-
+    async function requestDeposit() {
+        const { value: amount } = await Swal.fire({ title: 'طلب إيداع عهدة', input: 'number', inputPlaceholder: 'المبلغ...', showCancelButton: true, confirmButtonText: 'إرسال', cancelButtonText: 'إلغاء', confirmButtonColor: '#10b981' });
+        if (amount) {
+            Swal.fire({ title: 'جاري الإرسال...', didOpen: () => Swal.showLoading() });
+            try { const res = await fetch('/executor-portal/api/request-deposit', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ amount }) });
+            if ((await res.json()).success) Swal.fire('تم الإرسال', 'الطلب قيد المراجعة في الإدارة', 'success'); } catch(e) {}
+        }
+    }
 
     async function acceptTask(id) { await fetch('/executor-portal/api/accept-task/' + id, { method: 'POST' }); refreshTasks(); }
     function openUpload(id) { currentCompletingId = id; resetUploadModal(); new bootstrap.Modal(document.getElementById('uploadModal')).show(); }

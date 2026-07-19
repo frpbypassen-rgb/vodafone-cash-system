@@ -53,56 +53,6 @@
         .timeline-item { position: relative; padding-bottom: 25px; text-align: right; }
         .timeline-item::after { content: ''; position: absolute; right: -36px; top: 5px; width: 10px; height: 10px; background: var(--brand-gold); border-radius: 50%; box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 6px rgba(212, 175, 55, 0.2); }
         .data-line { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-glass); padding: 12px 0; font-size: 0.9rem; }
-        @media (max-width: 991.98px) {
-            .mobile-tx-card {
-                border-radius: 16px;
-                background: var(--card-bg);
-                box-shadow: var(--shadow-sm);
-                transition: 0.2s;
-                border: 1px solid var(--border-glass);
-            }
-            .mobile-tx-card:active {
-                transform: scale(0.98);
-            }
-            .mobile-card-pending {
-                background: rgba(245, 158, 11, 0.02);
-            }
-            .mobile-card-completed {
-                background: rgba(16, 185, 129, 0.02);
-            }
-        }
-        
-        /* 🟢 تنسيق أزرار التصفية السريعة الجديدة */
-        .filter-btn {
-            background: var(--input-bg);
-            color: var(--text-main);
-            border: 1px solid var(--border-glass) !important;
-            transition: all 0.2s ease-in-out;
-            text-decoration: none;
-        }
-        .filter-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            color: var(--text-main);
-            background: rgba(59, 130, 246, 0.05);
-            border-color: var(--brand-primary) !important;
-        }
-        [data-theme="dark"] .filter-btn:hover {
-            background: rgba(212, 175, 55, 0.05);
-            border-color: var(--brand-gold) !important;
-        }
-        .filter-btn.active {
-            background: var(--brand-primary) !important;
-            color: white !important;
-            border-color: var(--brand-primary) !important;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
-        }
-        [data-theme="dark"] .filter-btn.active {
-            background: var(--brand-gold) !important;
-            color: black !important;
-            border-color: var(--brand-gold) !important;
-            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.25);
-        }
     </style>
 </head>
 <body>
@@ -119,7 +69,7 @@
             <h3 class="fw-bold m-0" style="color: var(--text-main);"><i class="fa-solid fa-server text-primary me-2"></i> السجل المركزي والمراقبة <span class="spinner-grow spinner-grow-sm text-success ms-2 opacity-50" title="تحديث تلقائي"></span></h3>
         </div>
 
-        <div class="row g-3 mb-4 d-none d-lg-flex">
+        <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="data-card summary-box box-success m-0">
                     <div>
@@ -150,9 +100,8 @@
             </div>
         </div>
 
-        <div class="data-card border-0 mb-4 p-4 d-none d-lg-block">
+        <div class="data-card border-0 mb-4 p-4">
             <form method="GET" action="/transactions" class="row g-3 align-items-end">
-                <input type="hidden" name="filterType" value="<%= typeof filterType !== 'undefined' ? filterType : '' %>">
                 <div class="col-md-3">
                     <label class="form-label fw-bold small text-muted">البحث الشامل</label>
                     <div class="input-group">
@@ -190,45 +139,8 @@
             </form>
         </div>
 
-        <!-- أزرار التصفية السريعة بالاعلي -->
-        <div class="mb-4 d-none d-lg-block">
-            <div class="d-flex justify-content-start align-items-center gap-2 p-2 rounded-4 shadow-sm" style="background: var(--card-bg) !important; border: 1px solid var(--border-glass) !important;">
-                <span class="fw-bold me-3 text-muted small ms-2"><i class="fa-solid fa-tags text-primary"></i> تصفية سريعة:</span>
-                
-                <a href="?filterType=&fromDate=<%= fromDate %>&toDate=<%= toDate %>&search=<%= search %>&status=<%= statusFilter %>" 
-                   class="btn fw-bold px-4 py-2 border-0 rounded-3 filter-btn <%= !filterType ? 'active' : '' %>" 
-                   style="font-size: 0.9rem;">
-                    <i class="fa-solid fa-list-check me-1"></i> جميع العمليات
-                </a>
-                
-                <a href="?filterType=cash_transfer&fromDate=<%= fromDate %>&toDate=<%= toDate %>&search=<%= search %>&status=<%= statusFilter %>" 
-                   class="btn fw-bold px-4 py-2 border-0 rounded-3 filter-btn <%= filterType === 'cash_transfer' ? 'active' : '' %>" 
-                   style="font-size: 0.9rem;">
-                    <i class="fa-solid fa-mobile-screen me-1"></i> تحويلات الكاش
-                </a>
-                
-                <a href="?filterType=deposit_deduction&fromDate=<%= fromDate %>&toDate=<%= toDate %>&search=<%= search %>&status=<%= statusFilter %>" 
-                   class="btn fw-bold px-4 py-2 border-0 rounded-3 filter-btn <%= filterType === 'deposit_deduction' ? 'active' : '' %>" 
-                   style="font-size: 0.9rem;">
-                    <i class="fa-solid fa-hand-holding-dollar me-1"></i> الإيداعات والخصم
-                </a>
-                
-                <a href="?filterType=balance_transfer&fromDate=<%= fromDate %>&toDate=<%= toDate %>&search=<%= search %>&status=<%= statusFilter %>" 
-                   class="btn fw-bold px-4 py-2 border-0 rounded-3 filter-btn <%= filterType === 'balance_transfer' ? 'active' : '' %>" 
-                   style="font-size: 0.9rem;">
-                    <i class="fa-solid fa-right-left me-1"></i> التحويلات بين العملاء
-                </a>
-
-                <a href="?filterType=cancelled&fromDate=<%= fromDate %>&toDate=<%= toDate %>&search=<%= search %>&status=<%= statusFilter %>" 
-                   class="btn fw-bold px-4 py-2 border-0 rounded-3 filter-btn <%= filterType === 'cancelled' ? 'active' : '' %>" 
-                   style="font-size: 0.9rem;">
-                    <i class="fa-solid fa-ban me-1"></i> العمليات الملغية
-                </a>
-            </div>
-        </div>
-
         <div class="data-card border-0 p-0 overflow-hidden">
-            <div class="table-responsive border-0 m-0 d-none d-lg-block">
+            <div class="table-responsive border-0 m-0">
                 <table class="table text-center align-middle m-0" id="transactionsTable">
                     <thead class="table-light">
                         <tr>
@@ -321,8 +233,7 @@
                             </td>
 
                             <td>
-                                <% if(tx.transferType === 'balance_transfer') { %> <span class="badge-st st-done"><i class="fa-solid fa-check"></i> مكتمل</span>
-                                <% } else if(tx.status === 'completed') { %> <span class="badge-st st-done"><i class="fa-solid fa-check"></i> مكتمل</span>
+                                <% if(tx.status === 'completed') { %> <span class="badge-st st-done"><i class="fa-solid fa-check"></i> مكتمل</span>
                                 <% } else if(tx.status === 'pending') { %> <span class="badge-st st-wait"><i class="fa-solid fa-pause"></i> معلق</span>
                                 <% } else if(tx.status === 'processing') { %> <span class="badge-st st-proc"><i class="fa-solid fa-spinner fa-spin"></i> توجيه</span>
                                 <% } else if(tx.status === 'accepted') { %> <span class="badge-st st-work"><i class="fa-solid fa-user-gear"></i> قيد العمل</span>
@@ -398,140 +309,19 @@
                 </table>
             </div>
 
-            <!-- Mobile Cards -->
-            <div class="d-block d-lg-none p-3" id="mobileCardsContainer">
-                <!-- Mobile Search Bar -->
-                <div class="mb-3">
-                    <div class="input-group shadow-sm" style="border-radius: 14px; overflow: hidden; border: 1px solid var(--border-glass);">
-                        <span class="input-group-text border-0" style="background: var(--card-bg); color: var(--text-muted);"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" id="mobileSearchInput" class="form-control border-0 ps-0 fs-6 mono-num" placeholder="رقم عملية أو رقم هاتف..." oninput="searchMobileCards(this.value)" style="background: var(--card-bg); color: var(--text-main); font-weight: bold;">
-                    </div>
-                </div>
-
-                <!-- Mobile Tabs Bar -->
-                <div class="d-flex justify-content-center gap-2 mb-3 mobile-tabs-bar" style="background: var(--card-bg); padding: 8px; border-radius: 14px; border: 1px solid var(--border-glass);">
-                    <button type="button" class="btn btn-sm flex-fill fw-bold rounded-3 py-2 active mobile-tab-btn" onclick="filterMobileCards('pending', this)" style="transition: 0.2s;">⏳ المعلقة</button>
-                    <button type="button" class="btn btn-sm flex-fill fw-bold rounded-3 py-2 mobile-tab-btn" onclick="filterMobileCards('completed', this)" style="transition: 0.2s;">✅ المكتملة/الملغية</button>
-                    <button type="button" class="btn btn-sm flex-fill fw-bold rounded-3 py-2 mobile-tab-btn" onclick="filterMobileCards('deposit', this)" style="transition: 0.2s;">💰 الإيداعات</button>
-                </div>
-
-                <div id="mobileEmptyState" class="text-center py-5 text-muted fw-bold border-0 fs-5 data-card" style="display: none; background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-glass);">
-                    <i class="fa-solid fa-folder-open fs-1 d-block mb-3 opacity-25"></i> لا توجد عمليات في هذا التبويب.
-                </div>
-
-                <% if (transactions.length === 0) { %>
-                    <div class="text-center py-5 text-muted fw-bold border-0 fs-5 data-card"><i class="fa-solid fa-folder-open fs-1 d-block mb-3 opacity-25"></i> لا توجد عمليات مطابقة.</div>
-                <% } %>
-
-                <% transactions.forEach(tx => { 
-                    let isPendingGroup = ['pending', 'processing', 'accepted', 'deposit_pending'].includes(tx.status);
-                    let displayClass = isPendingGroup ? 'mobile-card-pending' : 'mobile-card-completed';
-                %>
-                    <div class="data-card mb-3 p-3 mobile-tx-card <%= displayClass %>" 
-                         data-status="<%= tx.status %>" 
-                         data-custom-id="<%= tx.customId || '' %>" 
-                         data-id="<%= tx._id.toString() %>" 
-                         data-number="<%= tx.vodafoneNumber || tx.accountNumber || '' %>"
-                         style="position: relative; border-right: 4px solid <%= isPendingGroup ? '#f59e0b' : (tx.status === 'completed' || tx.status === 'deposit' ? '#10b981' : '#ef4444') %>;">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <a class="clickable-id mono-num fs-6 fw-bold" data-tx='<%- JSON.stringify(tx).replace(/'/g, "&#39;") %>' onclick="viewTransactionDetails(this)">
-                                    #<%= tx.customId || tx._id.toString().slice(-6) %>
-                                </a>
-                                <div class="text-muted small mt-1"><i class="fa-regular fa-clock me-1"></i> <%= tx.createdAt.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) %></div>
-                            </div>
-                            <div class="text-end">
-                                <div class="fs-5 fw-bold mono-num" style="color: <%= isPendingGroup ? '#f59e0b' : (tx.status === 'rejected' || tx.status === 'cancelled_by_admin' || tx.status === 'deduction' ? '#ef4444' : '#10b981') %>;">
-                                    <%= tx.amount.toFixed(2) %> <small class="fs-6" style="color: var(--text-muted);">EGP</small>
-                                </div>
-                                <% if(tx.transferType === 'balance_transfer') { %> <span class="badge bg-success opacity-75 mt-1 rounded-pill"><i class="fa-solid fa-check"></i> مكتمل</span>
-                                <% } else if(tx.status === 'completed') { %> <span class="badge bg-success opacity-75 mt-1 rounded-pill"><i class="fa-solid fa-check"></i> مكتملة</span>
-                                <% } else if(tx.status === 'rejected' || tx.status === 'cancelled_by_admin') { %> <span class="badge bg-danger opacity-75 mt-1 rounded-pill"><i class="fa-solid fa-xmark"></i> ملغية</span>
-                                <% } else if(tx.status === 'pending') { %> <span class="badge bg-warning text-dark opacity-75 mt-1 rounded-pill"><i class="fa-solid fa-pause"></i> معلقة</span>
-                                <% } else if(tx.status === 'processing') { %> <span class="badge bg-info text-dark opacity-75 mt-1 rounded-pill"><i class="fa-solid fa-spinner fa-spin"></i> توجيه</span>
-                                <% } else if(tx.status === 'accepted') { %> <span class="badge bg-primary opacity-75 mt-1 rounded-pill"><i class="fa-solid fa-user-gear"></i> قيد العمل</span>
-                                <% } else { %> <span class="badge bg-secondary opacity-75 mt-1 rounded-pill"><%= tx.status %></span> <% } %>
-                            </div>
-                        </div>
-                        <hr style="border-color: var(--border-glass); margin: 10px 0;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="small fw-bold" style="color: var(--text-main);">
-                                <% if (tx.isSubAccountTx) { %>
-                                    <div><i class="fa-solid fa-briefcase text-muted me-1"></i> <%= tx.companyName %></div>
-                                    <div class="text-muted mt-1" style="font-size: 0.75rem;"><i class="fa-solid fa-user-tag opacity-50 me-1"></i> <%= tx.subAccountName || tx.employeeName %></div>
-                                <% } else if (tx.companyName && tx.companyName !== 'عميل فردي') { %>
-                                    <div><i class="fa-solid fa-building text-muted me-1"></i> <%= tx.companyName %></div>
-                                    <div class="text-muted mt-1" style="font-size: 0.75rem;"><i class="fa-solid fa-user-pen opacity-50 me-1"></i> <%= tx.employeeName %></div>
-                                <% } else { %>
-                                    <div><i class="fa-solid fa-user-check text-success me-1"></i> عميل مباشر</div>
-                                    <div class="text-muted mt-1" style="font-size: 0.75rem;"><i class="fa-solid fa-user opacity-50 me-1"></i> <%= tx.employeeName || 'غير معروف' %></div>
-                                <% } %>
-                            </div>
-                            <div class="mono-num small fw-bold" dir="ltr" style="color: var(--brand-primary);"><%= tx.vodafoneNumber || tx.accountNumber || '---' %></div>
-                        </div>
-
-                        <% 
-                        const hasApiLog = tx.notes && tx.notes.includes('--- سجل الـ API');
-                        const isPendingOrProcessing = ['pending', 'processing', 'accepted'].includes(tx.status);
-                        if (isPendingOrProcessing || hasApiLog) { 
-                        %>
-                            <div class="d-flex gap-2 mt-3 pt-2" style="border-top: 1px dashed var(--border-glass);">
-                                <% if(tx.status === 'pending') { %>
-                                    <div class="dropdown flex-fill">
-                                        <button class="btn btn-sm btn-primary fw-bold rounded-3 dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport"><i class="fa-solid fa-paper-plane me-1"></i> توجيه</button>
-                                        <ul class="dropdown-menu border-0 shadow-lg" style="border-radius: 12px; min-width: 200px; z-index: 9999;">
-                                            <li class="px-3 py-2 text-muted small fw-bold border-bottom mb-1">اختر البوت لتنفيذ العملية:</li>
-                                            <% if(typeof executorBots !== 'undefined' && executorBots.length > 0) { %>
-                                                <% executorBots.forEach(bot => { %>
-                                                    <li>
-                                                        <form action="/transaction/<%= tx._id %>/assign-executor" method="POST" class="m-0 p-0">
-                                                            <input type="hidden" name="executorBotId" value="<%= bot._id %>">
-                                                            <button type="submit" class="dropdown-item py-2 fw-bold text-dark d-flex align-items-center"><i class="fa-solid fa-robot text-primary me-2"></i> <%= bot.name %></button>
-                                                        </form>
-                                                    </li>
-                                                <% }) %>
-                                            <% } %>
-                                        </ul>
-                                    </div>
-                                <% } else if(tx.status === 'processing' || tx.status === 'accepted') { %>
-                                    <form action="/transaction/<%= tx._id %>/pull-task" method="POST" class="m-0 flex-fill" onsubmit="return confirm('تأكيد سحب المهمة؟')">
-                                        <button class="btn btn-sm btn-warning fw-bold rounded-3 text-dark w-100"><i class="fa-solid fa-hand me-1"></i> سحب</button>
-                                    </form>
-                                    <form action="/transaction/<%= tx._id %>/emergency-alert" method="POST" class="m-0 flex-fill" onsubmit="return confirmEmergencyAlert(this);">
-                                        <input type="hidden" name="alertMessage" class="alert-message-input">
-                                        <button type="submit" class="btn btn-sm btn-danger fw-bold rounded-3 w-100"><i class="fa-solid fa-bell me-1"></i> إنذار</button>
-                                    </form>
-                                <% } %>
-                                
-                                <% if(isPendingOrProcessing) { %>
-                                    <form action="/transaction/<%= tx._id %>/global-cancel" method="POST" class="m-0" onsubmit="return promptGlobalCancel(this)">
-                                        <input type="hidden" name="reason" class="cancel-reason-input">
-                                        <button type="submit" class="btn btn-sm fw-bold rounded-3 px-3" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);" title="إلغاء العملية"><i class="fa-solid fa-ban"></i></button>
-                                    </form>
-                                <% } %>
-
-                                <% if (hasApiLog) { %>
-                                     <button type="button" class="btn btn-sm fw-bold rounded-3 px-3 <%= !isPendingOrProcessing ? 'w-100' : '' %>" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);" data-log="<%= encodeURIComponent(tx.notes) %>" onclick="showApiLog(this)" title="سجل Terminal للـ API"><i class="fa-solid fa-terminal text-success <%= !isPendingOrProcessing ? 'me-1' : '' %>"></i><%= !isPendingOrProcessing ? ' سجل الـ API' : '' %></button>
-                                 <% } %>
-                            </div>
-                        <% } %>
-                    </div>
-                <% }); %>
-            </div>
-
             <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
                 <nav class="mt-4 pt-3 pb-3">
                     <ul class="pagination justify-content-center mb-0">
                         <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                            <a class="page-link shadow-sm" href="?page=<%= currentPage - 1 %>&search=<%= search %>&status=<%= statusFilter %>&fromDate=<%= fromDate %>&toDate=<%= toDate %>&filterType=<%= typeof filterType !== 'undefined' ? filterType : '' %>"><i class="fa-solid fa-angle-right"></i></a>
+                            <a class="page-link shadow-sm" href="?page=<%= currentPage - 1 %>&search=<%= search %>&status=<%= statusFilter %>&fromDate=<%= fromDate %>&toDate=<%= toDate %>"><i class="fa-solid fa-angle-right"></i></a>
                         </li>
                         <% let startPage = Math.max(1, currentPage - 2); let endPage = Math.min(totalPages, currentPage + 2); for(let i = startPage; i <= endPage; i++) { %>
                             <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                <a class="page-link shadow-sm" href="?page=<%= i %>&search=<%= search %>&status=<%= statusFilter %>&fromDate=<%= fromDate %>&toDate=<%= toDate %>&filterType=<%= typeof filterType !== 'undefined' ? filterType : '' %>"><%= i %></a>
+                                <a class="page-link shadow-sm" href="?page=<%= i %>&search=<%= search %>&status=<%= statusFilter %>&fromDate=<%= fromDate %>&toDate=<%= toDate %>"><%= i %></a>
                             </li>
                         <% } %>
                         <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                            <a class="page-link shadow-sm" href="?page=<%= currentPage + 1 %>&search=<%= search %>&status=<%= statusFilter %>&fromDate=<%= fromDate %>&toDate=<%= toDate %>&filterType=<%= typeof filterType !== 'undefined' ? filterType : '' %>"><i class="fa-solid fa-angle-left"></i></a>
+                            <a class="page-link shadow-sm" href="?page=<%= currentPage + 1 %>&search=<%= search %>&status=<%= statusFilter %>&fromDate=<%= fromDate %>&toDate=<%= toDate %>"><i class="fa-solid fa-angle-left"></i></a>
                         </li>
                     </ul>
                 </nav>
@@ -553,12 +343,56 @@
             </div>
             <div class="modal-body p-4">
                 <div class="row g-4">
-                    <div class="col-md-7" id="m_detail_container">
-                        <div class="info-panel" id="m_detail_panel">
-                            <!-- سيتم حقن المحتوى ديناميكياً بناءً على نوع العملية -->
+                    <div class="col-md-7">
+                        <div class="info-panel">
+                            <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar ms-2"></i> بيانات الطلب والجهة</div>
+                            
+                            <div class="data-line"><span class="data-val" id="m_entity"></span><span class="data-label">الجهة/الشركة:</span></div>
+                            <div class="data-line"><span class="data-val" id="m_requester"></span><span class="data-label">الموظف الطالب:</span></div>
+                            
+                            <div class="data-line">
+                                <span class="data-val text-primary d-flex flex-column align-items-end gap-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button id="m_bot_edit_btn" class="btn btn-sm btn-outline-warning py-0 px-2 fw-bold" style="display:none; font-size: 0.7rem; border-radius: 6px;" onclick="document.getElementById('m_bot_edit_form').style.display='block'; this.style.display='none';"><i class="fa-solid fa-right-left"></i> نقل</button>
+                                        <span id="m_bot_name_text" class="fw-bold"></span>
+                                    </div>
+                                    <div id="m_bot_edit_form" style="display:none; margin-top: 5px;">
+                                        <form id="changeBotForm" method="POST" onsubmit="return confirm('سيتم نقل العملية وتعديل أرصدة البوتات والوكلاء محاسبياً. هل أنت متأكد؟')">
+                                            <div class="input-group input-group-sm">
+                                                <button type="submit" class="btn btn-success border-0 px-2"><i class="fa-solid fa-check"></i></button>
+                                                <select name="newBotId" class="form-select border-0 fw-bold text-end" style="font-size: 0.75rem;" required>
+                                                    <option value="">- اختر بوت -</option>
+                                                    <% if(typeof executorBots !== 'undefined') { %>
+                                                        <% executorBots.forEach(bot => { %><option value="<%= bot._id %>"><%= bot.name %></option><% }) %>
+                                                    <% } %>
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </span>
+                                <span class="data-label">بوت التنفيذ:</span>
+                            </div>
+
+                            <div class="data-line"><span class="data-val fw-bold" id="m_type"></span><span class="data-label">نوع التحويل:</span></div>
+                            <div class="data-line"><span class="data-val mono-num fs-6" id="m_phone" style="direction: ltr;"></span><span class="data-label">الرقم/الحساب:</span></div>
+                            <div class="data-line"><span class="data-val text-success mono-num fs-5" id="m_egp"></span><span class="data-label">المبلغ (EGP):</span></div>
+                            <div class="data-line"><span class="data-val mono-num text-warning" id="m_rate"></span><span class="data-label">سعر الصرف:</span></div>
+                            <div class="data-line"><span class="data-val text-danger mono-num fs-5" id="m_lyd"></span><span class="data-label">الإجمالي (LYD):</span></div>
+                             
+                            <div class="col-12" id="m_account_name_box" style="display:none; margin-top: 15px;">
+                                <div class="p-3" style="background-color: rgba(245, 158, 11, 0.1); border-right: 4px solid #f59e0b; border-radius: 8px;">
+                                    <div class="fw-bold mb-2 text-warning"><i class="fa-solid fa-address-card me-2"></i> بيانات مستلم البريد:</div>
+                                    <div id="m_account_name" class="fw-bold" style="line-height: 1.8; font-size: 0.95rem;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-top">
+                                <span class="panel-title text-muted mb-2"><i class="fa-solid fa-comment-dots ms-2"></i> ملاحظات العملية:</span>
+                                <div id="m_note" class="fw-bold small" style="white-space: pre-line; line-height: 1.6;">لا توجد ملاحظات إضافية.</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-5" id="m_timeline_container">
+                    <div class="col-lg-5">
                         <div class="info-panel">
                             <div class="panel-title text-danger"><i class="fa-solid fa-microchip ms-2"></i> تتبع دورة حياة التنفيذ</div>
                             <div class="timeline-box">
@@ -658,9 +492,6 @@
 <script id="botsMapData" type="application/json">
     <%- JSON.stringify(typeof allBotsMap !== 'undefined' ? allBotsMap : {}) %>
 </script>
-<script id="executorBotsData" type="application/json">
-    <%- JSON.stringify(typeof executorBots !== 'undefined' ? executorBots : []) %>
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -712,261 +543,48 @@
         new bootstrap.Modal(document.getElementById('editRateModal')).show();
     }
 
-    async function viewTransactionDetails(el) {
-        const txData = JSON.parse(el.getAttribute('data-tx'));
-        
-        // Show loading state or modal loading before fetching
-        const m_detail_panel = document.getElementById('m_detail_panel');
-        m_detail_panel.innerHTML = `
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <div class="text-muted mt-2 fw-bold">جاري تحميل تفاصيل العملية...</div>
-            </div>
-        `;
-        
-        // Show the modal first so the user sees it's loading
-        const modalEl = document.getElementById('txModal');
-        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modalInstance.show();
-        
-        let tx = txData;
-        let ledgerInfo = null;
-        
-        try {
-            const response = await fetch(`/transactions/${txData._id}/details`);
-            const resData = await response.json();
-            if (resData.success) {
-                tx = resData.transaction;
-                ledgerInfo = resData.ledgerInfo;
-            }
-        } catch (err) {
-            console.error('Error fetching transaction details:', err);
-        }
-        
+    function viewTransactionDetails(el) {
+        const tx = JSON.parse(el.getAttribute('data-tx'));
         window.currentTxToPrint = tx; 
-        window.currentLedgerInfo = ledgerInfo;
         const f = (d) => d ? new Date(d).toLocaleString('en-GB').replace(',', '') : '---';
         const entityName = (tx.companyName && tx.companyName !== 'عميل فردي') ? tx.companyName : (tx.employeeName || 'عميل فردي');
         
-        const executorBotsElement = document.getElementById('executorBotsData');
-        const executorBots = executorBotsElement && executorBotsElement.textContent.trim() ? JSON.parse(executorBotsElement.textContent) : [];
-
-        let isCancelled = ['rejected', 'cancelled_by_admin'].includes(tx.status);
-        let isBalanceTransfer = tx.transferType === 'balance_transfer';
-        let isDepositOrDeduction = (tx.status === 'deposit' || tx.status === 'deduction' || tx.status === 'deposit_pending') && !isBalanceTransfer;
+        document.getElementById('m_entity').innerText = entityName;
+        document.getElementById('m_requester').innerText = tx.employeeName || '---';
+        document.getElementById('m_bot_name_text').innerText = tx.executorBotName || (tx.executorBotId ? allBotsMap[tx.executorBotId] : 'غير محدد');
         
-        // Dynamic column adjustments: Hide timeline for balance transfers and make details container full-width
-        const detailContainer = document.getElementById('m_detail_container');
-        const timelineContainer = document.getElementById('m_timeline_container');
-        if (detailContainer && timelineContainer) {
-            if (isBalanceTransfer) {
-                detailContainer.className = 'col-md-12';
-                timelineContainer.style.display = 'none';
-            } else {
-                detailContainer.className = 'col-md-7';
-                timelineContainer.style.display = 'block';
-            }
+        const editBtn = document.getElementById('m_bot_edit_btn');
+        const editForm = document.getElementById('m_bot_edit_form'); 
+        editForm.style.display = 'none'; 
+        if (tx.status === 'completed' && tx.executorBotId) { editBtn.style.display = 'inline-block';
+        document.getElementById('changeBotForm').action = '/transaction/' + tx._id + '/change-bot'; } else { editBtn.style.display = 'none';
         }
 
-        let htmlContent = '';
-        
-        // 🔴 التنبيه الخاص بالعمليات الملغية
-        if (isCancelled) {
-            htmlContent += `
-                <div class="alert alert-danger border-0 p-3 rounded-4 mb-4 d-flex align-items-center gap-3" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2) !important;">
-                    <div class="fs-2 text-danger"><i class="fa-solid fa-circle-xmark"></i></div>
-                    <div>
-                        <h6 class="fw-bold m-0 text-danger" style="font-size: 1rem;">هذه العملية ملغية / مرفوضة 🚨</h6>
-                        <div class="small fw-bold text-muted mt-1">تم إرجاع كافة الأرصدة والمديونيات المرتبطة بالعملية تلقائياً.</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        if (isBalanceTransfer) {
-            // 🔄 تصميم مخصص ومحسن لتحويل الرصيد بين العملاء
-            let senderName = tx.accountName || '---';
-            let senderCode = tx.accountNumber || tx.vodafoneNumber || '---';
-            let recipientName = '---';
-            let recipientCode = '---';
-            
-            // Find sender and receiver ledger entries to display balances
-            let senderLedger = ledgerInfo ? ledgerInfo.find(l => l.amount < 0) : null;
-            let receiverLedger = ledgerInfo ? ledgerInfo.find(l => l.amount > 0) : null;
-            
-            let senderBefore = senderLedger ? senderLedger.balanceBefore.toFixed(2) + ' LYD' : '---';
-            let senderAfter = senderLedger ? senderLedger.balanceAfter.toFixed(2) + ' LYD' : '---';
-            let receiverBefore = receiverLedger ? receiverLedger.balanceBefore.toFixed(2) + ' LYD' : '---';
-            let receiverAfter = receiverLedger ? receiverLedger.balanceAfter.toFixed(2) + ' LYD' : '---';
-            
-            // Parse recipient details from ledger description or tx notes
-            if (senderLedger && senderLedger.description) {
-                const match = /تحويل رصيد إلى\s+(.*?)\s*\((.*?)\)/.exec(senderLedger.description);
-                if (match) {
-                    recipientName = match[1].trim();
-                    recipientCode = match[2].trim();
-                }
-            }
-            if (recipientName === '---') {
-                const match = /إلى\s+(.*?)\s+-\s+ID:\s*(\w+)/.exec(tx.notes || '');
-                if (match) {
-                    recipientName = match[1].trim();
-                    recipientCode = match[2].trim();
-                }
-            }
-            
-            const baseId = tx.customId.replace(/-[CD]$/, '');
-            const transferIdD = `${baseId}-D`;
-            const transferIdC = `${baseId}-C`;
-            
-            htmlContent += `
-                <div class="panel-title text-primary mb-3"><i class="fa-solid fa-right-left ms-2"></i> تحويل رصيد داخلي بين العملاء</div>
-                
-                <div class="d-flex align-items-center justify-content-between p-3 rounded-4 mb-4" style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.15);">
-                    <div class="text-center flex-fill">
-                        <div class="small text-muted fw-bold mb-1">المرسل (خصم)</div>
-                        <div class="fw-bold text-primary" style="font-size: 1.1rem;">${senderName}</div>
-                        <div class="small text-muted mt-1">كود: <span class="mono-num fw-bold text-dark">${senderCode}</span></div>
-                    </div>
-                    <div class="fs-3 text-primary px-3"><i class="fa-solid fa-circle-arrow-left"></i></div>
-                    <div class="text-center flex-fill">
-                        <div class="small text-muted fw-bold mb-1">المستقبل (إضافة)</div>
-                        <div class="fw-bold text-success" style="font-size: 1.1rem;">${recipientName}</div>
-                        <div class="small text-muted mt-1">كود: <span class="mono-num fw-bold text-dark">${recipientCode}</span></div>
-                    </div>
-                </div>
-                
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.1);">
-                            <div class="fw-bold text-danger mb-2"><i class="fa-solid fa-wallet me-1"></i> رصيد المرسل:</div>
-                            <div class="d-flex justify-content-between small mb-1"><span>قبل التحويل:</span><strong class="mono-num">${senderBefore}</strong></div>
-                            <div class="d-flex justify-content-between small"><span>بعد التحويل:</span><strong class="mono-num text-danger">${senderAfter}</strong></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.1);">
-                            <div class="fw-bold text-success mb-2"><i class="fa-solid fa-wallet me-1"></i> رصيد المستقبل:</div>
-                            <div class="d-flex justify-content-between small mb-1"><span>قبل الاستلام:</span><strong class="mono-num">${receiverBefore}</strong></div>
-                            <div class="d-flex justify-content-between small"><span>بعد الاستلام:</span><strong class="mono-num text-success">${receiverAfter}</strong></div>
-                        </div>
-                    </div>
-                </div>
+        let typeHtml = '';
+        if(tx.transferType === 'post_account') typeHtml = '<span class="badge-st st-wait"><i class="fa-solid fa-envelope"></i> حساب بريد</span>';
+        else if(tx.transferType === 'post_card') typeHtml = '<span class="badge-st st-proc"><i class="fa-solid fa-id-card"></i> بطاقة عميل</span>';
+        else if(tx.status === 'deposit' || tx.status === 'deduction') typeHtml = '<span class="badge-st" style="background: rgba(100,116,139,0.1); color:#64748b;"><i class="fa-solid fa-money-bill-wave"></i> تسوية مالية</span>';
+        else typeHtml = '<span class="badge-st st-fail"><i class="fa-solid fa-mobile-screen"></i> فودافون كاش</span>';
+        document.getElementById('m_type').innerHTML = typeHtml;
 
-                <div class="p-4 rounded-4 text-center mb-4" style="background: var(--input-bg); border: 1px solid var(--border-glass);">
-                    <div class="text-muted fw-bold small mb-1">المبلغ المحول</div>
-                    <div class="fs-2 fw-bold text-danger mono-num">${tx.amount.toFixed(2)} LYD</div>
-                    <div class="small text-success mt-1 fw-bold"><i class="fa-solid fa-circle-check"></i> الحالة: مكتملة (تمت بنجاح)</div>
-                </div>
-                
-                <div class="data-line"><span class="data-val mono-num fw-bold text-dark">${transferIdD}</span><span class="data-label">رقم عملية التحويل (المرسل):</span></div>
-                <div class="data-line"><span class="data-val mono-num fw-bold text-dark">${transferIdC}</span><span class="data-label">رقم عملية الاستلام (المستقبل):</span></div>
-                <div class="data-line"><span class="data-val text-muted">${f(tx.createdAt)}</span><span class="data-label">تاريخ العملية:</span></div>
-            `;
-        } else if (isDepositOrDeduction) {
-            // 💵 تصميم مخصص للإيداعات والخصومات (تسويات مالية)
-            const typeLabel = tx.status === 'deposit' ? 'إيداع (سداد رصيد للعميل)' : tx.status === 'deposit_pending' ? 'طلب إيداع معلق' : 'خصم رصيد (تسوية)';
-            const typeClass = tx.status === 'deposit' ? 'text-success' : tx.status === 'deposit_pending' ? 'text-warning' : 'text-danger';
-            const badgeBg = tx.status === 'deposit' ? 'bg-success' : tx.status === 'deposit_pending' ? 'bg-warning text-dark' : 'bg-danger';
-            
-            htmlContent += `
-                <div class="panel-title text-success mb-3"><i class="fa-solid fa-scale-balanced ms-2"></i> تسوية مالية / إيداع وخصم</div>
-                
-                <div class="p-4 rounded-4 text-center mb-4" style="background: var(--input-bg); border: 1px solid var(--border-glass);">
-                    <div class="text-muted fw-bold small mb-1">المبلغ المالي المعتمد</div>
-                    <div class="fs-2 fw-bold ${typeClass} mono-num">${tx.amount.toFixed(2)} EGP</div>
-                    <div class="badge ${badgeBg} px-3 py-2 mt-2 fw-bold" style="font-size: 0.85rem;">
-                        ${typeLabel}
-                    </div>
-                </div>
-                
-                <div class="data-line"><span class="data-val fw-bold">${entityName}</span><span class="data-label">الجهة / العميل المستهدف:</span></div>
-                <div class="data-line"><span class="data-val">${tx.employeeName || 'الإدارة'}</span><span class="data-label">الموظف المنفذ:</span></div>
-                <div class="data-line"><span class="data-val mono-num">${tx.customId}</span><span class="data-label">رقم العملية المالي:</span></div>
-                <div class="data-line"><span class="data-val text-muted">${f(tx.createdAt)}</span><span class="data-label">تاريخ التسجيل:</span></div>
-            `;
-        } else {
-            // 📱 تصميم مخصص لتحويلات الكاش والبريد
-            let typeHtml = '';
-            if(tx.transferType === 'post_account') typeHtml = '<span class="badge bg-warning text-dark px-3 py-2 fw-bold"><i class="fa-solid fa-envelope me-1"></i> حساب بريد</span>';
-            else if(tx.transferType === 'post_card') typeHtml = '<span class="badge bg-info text-dark px-3 py-2 fw-bold"><i class="fa-solid fa-id-card me-1"></i> بطاقة عميل</span>';
-            else {
-                let numStr = tx.vodafoneNumber || tx.accountNumber || '';
-                let networkName = 'فودافون كاش';
-                let networkColor = '#dc3545';
-                if(numStr.startsWith('011')) { networkName = 'اتصالات كاش'; networkColor = '#198754'; }
-                else if(numStr.startsWith('012')) { networkName = 'اورانج كاش'; networkColor = '#fd7e14'; }
-                else if(numStr.startsWith('015')) { networkName = 'وي باي'; networkColor = '#0dcaf0'; }
-                typeHtml = `<span class="badge px-3 py-2 fw-bold text-white" style="background: ${networkColor};"><i class="fa-solid fa-mobile-screen me-1"></i> ${networkName}</span>`;
-            }
-            
-            const botOptions = executorBots.map(bot => `<option value="${bot._id}">${bot.name}</option>`).join('');
-            
-            htmlContent += `
-                <div class="panel-title text-primary mb-3"><i class="fa-solid fa-mobile-screen ms-2"></i> تفاصيل تحويل كاش / بريد</div>
-                
-                <div class="data-line"><span class="data-val fw-bold">${entityName}</span><span class="data-label">الجهة / الشركة:</span></div>
-                <div class="data-line"><span class="data-val">${tx.employeeName || '---'}</span><span class="data-label">الموظف الطالب:</span></div>
-                
-                <div class="data-line">
-                    <span class="data-val text-primary d-flex flex-column align-items-end gap-1">
-                        <div class="d-flex align-items-center gap-2">
-                            <button id="m_bot_edit_btn" class="btn btn-sm btn-outline-warning py-0 px-2 fw-bold" style="${tx.status === 'completed' && tx.executorBotId ? 'display: inline-block' : 'display: none'}; font-size: 0.7rem; border-radius: 6px;" onclick="document.getElementById('m_bot_edit_form').style.display='block'; this.style.display='none';"><i class="fa-solid fa-right-left"></i> نقل</button>
-                            <span id="m_bot_name_text" class="fw-bold">${tx.executorBotName || (tx.executorBotId ? (allBotsMap[tx.executorBotId] || 'غير معروف') : 'غير معروف')}</span>
-                        </div>
-                        <div id="m_bot_edit_form" style="display:none; margin-top: 5px;">
-                            <form id="changeBotForm" method="POST" action="/transaction/${tx._id}/change-bot" onsubmit="return confirm('سيتم نقل العملية وتعديل أرصدة البوتات والوكلاء محاسبياً. هل أنت متأكد؟')">
-                                <div class="input-group input-group-sm">
-                                    <button type="submit" class="btn btn-success border-0 px-2"><i class="fa-solid fa-check"></i></button>
-                                    <select name="newGroupId" class="form-select border-0 fw-bold text-end" style="font-size: 0.75rem;" required>
-                                        <option value="">- اختر بوت -</option>
-                                        ${botOptions}
-                                    </select>
-                                </div>
-                            </form>
-                        </div>
-                    </span>
-                    <span class="data-label">بوت التنفيذ:</span>
-                </div>
-                
-                <div class="data-line"><span class="data-val">${typeHtml}</span><span class="data-label">نوع التحويل:</span></div>
-                <div class="data-line"><span class="data-val mono-num fs-6" style="direction: ltr;">${tx.vodafoneNumber || tx.accountNumber || '---'}</span><span class="data-label">الرقم/الحساب:</span></div>
-                <div class="data-line"><span class="data-val text-success mono-num fs-5 fw-bold">${tx.amount.toFixed(2)} EGP</span><span class="data-label">المبلغ المحول:</span></div>
-                <div class="data-line"><span class="data-val mono-num text-warning fw-bold">${tx.exchangeRate ? Number(tx.exchangeRate).toFixed(2) : (tx.costLYD ? (tx.amount / tx.costLYD).toFixed(2) : '---')}</span><span class="data-label">سعر الصرف:</span></div>
-                <div class="data-line"><span class="data-val text-danger mono-num fs-5 fw-bold">${tx.costLYD ? tx.costLYD.toFixed(2) : '---'} LYD</span><span class="data-label">إجمالي التكلفة:</span></div>
-            `;
-            
-            if (tx.accountName && tx.transferType !== 'vodafone') {
-                htmlContent += `
-                    <div class="col-12 mt-3">
-                        <div class="p-3" style="background-color: rgba(245, 158, 11, 0.1); border-right: 4px solid #f59e0b; border-radius: 8px;">
-                            <div class="fw-bold mb-2 text-warning"><i class="fa-solid fa-address-card me-2"></i> بيانات مستلم البريد:</div>
-                            <div class="fw-bold" style="line-height: 1.8; font-size: 0.95rem;">${tx.accountName.replace(/\n/g, '<br>')}</div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
+        document.getElementById('m_phone').innerText = tx.vodafoneNumber || tx.accountNumber || '---';
+        const accBox = document.getElementById('m_account_name_box');
+        if(tx.accountName && tx.transferType !== 'vodafone') { document.getElementById('m_account_name').innerHTML = tx.accountName.replace(/\n/g, '<br>'); accBox.style.display = 'block';
+        } else { accBox.style.display = 'none'; }
+
+        document.getElementById('m_egp').innerText = tx.amount.toFixed(2) + ' EGP';
+        document.getElementById('m_rate').innerText = tx.exchangeRate ? Number(tx.exchangeRate).toFixed(2) : (tx.costLYD ? (tx.amount / tx.costLYD).toFixed(2) : '---');
+        document.getElementById('m_lyd').innerText = (tx.costLYD ? tx.costLYD.toFixed(2) : '---') + ' LYD';
         
-        // الملاحظات
+        // 🟢 تنظيف الملاحظات من لوج الـ API 
         let displayNote = tx.notes || 'لا توجد ملاحظات إضافية.';
         if (displayNote.includes('--- سجل الـ API')) {
             displayNote = displayNote.split('--- سجل الـ API')[0].trim();
         }
+        document.getElementById('m_note').innerText = displayNote;
         
-        htmlContent += `
-            <div class="mt-4 pt-3 border-top">
-                <span class="panel-title text-muted mb-2" style="font-size: 0.85rem;"><i class="fa-solid fa-comment-dots ms-2"></i> ملاحظات العملية:</span>
-                <div class="fw-bold small" style="white-space: pre-line; line-height: 1.6;">${displayNote}</div>
-            </div>
-        `;
-        
-        // حقن المحتوى
-        document.getElementById('m_detail_panel').innerHTML = htmlContent;
-        
-        // تحديث معلومات التتبع على اليسار
         document.getElementById('m_t_created').innerText = f(tx.createdAt);
-        document.getElementById('m_t_executor').innerText = isBalanceTransfer ? 'النظام (تلقائي)' : (tx.executorName || 'قيد الانتظار');
+        document.getElementById('m_t_executor').innerText = tx.executorName || 'قيد الانتظار';
         document.getElementById('m_t_accepted').innerText = tx.status !== 'pending' ? f(tx.updatedAt) : '---';
         document.getElementById('m_t_completed').innerText = tx.status === 'completed' ? f(tx.updatedAt) : '---';
         
@@ -983,367 +601,39 @@
 
         const container = document.getElementById('m_proof_container');
         if(container) {
-            if (isBalanceTransfer) {
-                container.innerHTML = '<div class="text-muted text-center py-4"><i class="fa-solid fa-circle-info fs-1 d-block mb-2 opacity-25"></i> تحويل رصيد داخلي لا يتطلب إثبات صور</div>';
-            } else {
-                let proofs = [];
-                if (tx.proofImages && tx.proofImages.length > 0) proofs = tx.proofImages;
-                else if (tx.proofImage && tx.proofImage.trim() !== '') proofs = [tx.proofImage];
-                
-                if (proofs.length > 0) {
-                    if (proofs.length === 1) {
-                        container.innerHTML = `<img src="/proxy/image/${tx._id}/0" style="display:block; border-radius: 12px; max-height: 500px; max-width: 100%; margin: 0 auto; object-fit: contain;">`;
-                    } else {
-                        let indicators = '';
-                        let items = '';
-                        proofs.forEach((p, i) => {
-                            indicators += `<button type="button" data-bs-target="#proofCarousel" data-bs-slide-to="${i}" class="${i===0?'active':''}" style="background-color: var(--brand-primary);"></button>`;
-                            items += `<div class="carousel-item ${i===0?'active':''}"><img src="/proxy/image/${tx._id}/${i}" class="d-block w-100" style="border-radius: 12px; max-height: 500px; object-fit: contain; margin: 0 auto;"></div>`;
-                        });
-                        container.innerHTML = `
-                            <div id="proofCarousel" class="carousel slide" data-bs-ride="carousel" style="width: 100%; background: rgba(0,0,0,0.5); border-radius: 12px; overflow:hidden;">
-                                <div class="carousel-indicators" style="bottom: 10px;">${indicators}</div>
-                                <div class="carousel-inner">${items}</div>
-                                <button class="carousel-control-prev" type="button" data-bs-target="#proofCarousel" data-bs-slide="prev" style="width: 10%; background: rgba(0,0,0,0.3);"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#proofCarousel" data-bs-slide="next" style="width: 10%; background: rgba(0,0,0,0.3);"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
-                            </div>`;
-                    }
+            let proofs = [];
+            if (tx.proofImages && tx.proofImages.length > 0) proofs = tx.proofImages;
+            else if (tx.proofImage && tx.proofImage.trim() !== '') proofs = [tx.proofImage];
+            
+            if (proofs.length > 0) {
+                if (proofs.length === 1) {
+                    container.innerHTML = `<img src="/proxy/image/${tx._id}/0" style="display:block; border-radius: 12px; max-height: 500px; max-width: 100%; margin: 0 auto; object-fit: contain;">`;
                 } else {
-                    container.innerHTML = '<div class="text-muted text-center"><i class="fa-solid fa-image fs-1 d-block mb-2 opacity-25"></i> لم يتم إرفاق إثبات تنفيذ بعد</div>';
+                    let indicators = '';
+                    let items = '';
+                    proofs.forEach((p, i) => {
+                        indicators += `<button type="button" data-bs-target="#proofCarousel" data-bs-slide-to="${i}" class="${i===0?'active':''}" style="background-color: var(--brand-primary);"></button>`;
+                        items += `<div class="carousel-item ${i===0?'active':''}"><img src="/proxy/image/${tx._id}/${i}" class="d-block w-100" style="border-radius: 12px; max-height: 500px; object-fit: contain; margin: 0 auto;"></div>`;
+                    });
+                    container.innerHTML = `
+                        <div id="proofCarousel" class="carousel slide" data-bs-ride="carousel" style="width: 100%; background: rgba(0,0,0,0.5); border-radius: 12px; overflow:hidden;">
+                            <div class="carousel-indicators" style="bottom: 10px;">${indicators}</div>
+                            <div class="carousel-inner">${items}</div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#proofCarousel" data-bs-slide="prev" style="width: 10%; background: rgba(0,0,0,0.3);"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#proofCarousel" data-bs-slide="next" style="width: 10%; background: rgba(0,0,0,0.3);"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
+                        </div>`;
                 }
+            } else {
+                container.innerHTML = '<div class="text-muted text-center"><i class="fa-solid fa-image fs-1 d-block mb-2 opacity-25"></i> لم يتم إرفاق إثبات تنفيذ بعد</div>';
             }
         }
+        new bootstrap.Modal(document.getElementById('txModal')).show();
     }
 
     function printInvoice() {
         if (!window.currentTxToPrint) return;
         const tx = window.currentTxToPrint;
         const f = (d) => d ? new Date(d).toLocaleString('ar-EG', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '---';
-        
-        if (tx.transferType === 'balance_transfer') {
-            // Show alert box to ask whether to include client balances
-            Swal.fire({
-                title: 'خيارات طباعة الإيصال 🧾',
-                text: 'هل تريد إظهار رصيد المرسل والمستلم (قبل وبعد العملية) في إيصال الطباعة؟',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'نعم، إظهار الأرصدة',
-                cancelButtonText: 'لا، إخفاء الأرصدة',
-                confirmButtonColor: '#3b82f6',
-                cancelButtonColor: '#64748b',
-                background: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#fff',
-                color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#000',
-            }).then((result) => {
-                const showBalances = result.isConfirmed;
-                
-                // Get sender and receiver information
-                let senderName = tx.accountName || '---';
-                let senderCode = tx.accountNumber || tx.vodafoneNumber || '---';
-                let recipientName = '---';
-                let recipientCode = '---';
-                
-                // Find sender and receiver ledger entries from global variable
-                let ledgerInfo = window.currentLedgerInfo || null;
-                let senderLedger = ledgerInfo ? ledgerInfo.find(l => l.amount < 0) : null;
-                let receiverLedger = ledgerInfo ? ledgerInfo.find(l => l.amount > 0) : null;
-                
-                let senderBefore = senderLedger ? senderLedger.balanceBefore.toFixed(2) + ' LYD' : '---';
-                let senderAfter = senderLedger ? senderLedger.balanceAfter.toFixed(2) + ' LYD' : '---';
-                let receiverBefore = receiverLedger ? receiverLedger.balanceBefore.toFixed(2) + ' LYD' : '---';
-                let receiverAfter = receiverLedger ? receiverLedger.balanceAfter.toFixed(2) + ' LYD' : '---';
-                
-                if (senderLedger && senderLedger.description) {
-                    const match = /تحويل رصيد إلى\s+(.*?)\s*\((.*?)\)/.exec(senderLedger.description);
-                    if (match) {
-                        recipientName = match[1].trim();
-                        recipientCode = match[2].trim();
-                    }
-                }
-                if (recipientName === '---') {
-                    const match = /إلى\s+(.*?)\s+-\s+ID:\s*(\w+)/.exec(tx.notes || '');
-                    if (match) {
-                        recipientName = match[1].trim();
-                        recipientCode = match[2].trim();
-                    }
-                }
-                
-                const baseId = tx.customId.replace(/-[CD]$/, '');
-                const transferIdD = `${baseId}-D`;
-                const transferIdC = `${baseId}-C`;
-                
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
-                    <html lang="ar" dir="rtl">
-                    <head>
-                        <title>إيصال تحويل رصيد - ${baseId}</title>
-                        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
-                        <style>
-                            * { box-sizing: border-box; }
-                            @page { size: A5 landscape; margin: 0; }
-                            body { 
-                                font-family: 'Tajawal', sans-serif; 
-                                background: #fff; 
-                                color: #333; 
-                                margin: 0; 
-                                padding: 0; 
-                                -webkit-print-color-adjust: exact; 
-                                print-color-adjust: exact; 
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                width: 210mm;
-                                height: 148mm;
-                            }
-                            .receipt-box { 
-                                width: 210mm; 
-                                height: 148mm;
-                                padding: 10mm 15mm; 
-                                border: none;
-                                background: #fff;
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: space-between;
-                                box-sizing: border-box;
-                            }
-                            .brand-header {
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                border-bottom: 2px solid #f1f5f9;
-                                padding-bottom: 8px;
-                                margin-bottom: 12px;
-                            }
-                            .brand-name {
-                                font-size: 32px;
-                                font-weight: 900;
-                                color: #0f172a;
-                                margin: 0;
-                                letter-spacing: 0.5px;
-                            }
-                            .receipt-title {
-                                font-size: 16px;
-                                color: #64748b;
-                                font-weight: 700;
-                                background: #f8fafc;
-                                padding: 6px 16px;
-                                border-radius: 20px;
-                                border: 1px solid #e2e8f0;
-                            }
-                            .flow-container {
-                                display: flex;
-                                align-items: center;
-                                justify-content: space-between;
-                                background: #f8fafc;
-                                border: 1px solid #e2e8f0;
-                                padding: 10px 20px;
-                                border-radius: 12px;
-                                margin-bottom: 15px;
-                            }
-                            .flow-node {
-                                text-align: center;
-                                flex: 1;
-                            }
-                            .flow-node-title {
-                                font-size: 12px;
-                                color: #64748b;
-                                font-weight: bold;
-                                margin-bottom: 4px;
-                            }
-                            .flow-node-name {
-                                font-size: 18px;
-                                font-weight: 800;
-                                color: #0f172a;
-                            }
-                            .flow-node-code {
-                                font-size: 13px;
-                                color: #475569;
-                                font-family: monospace;
-                            }
-                            .flow-arrow {
-                                font-size: 24px;
-                                color: #3b82f6;
-                                padding: 0 15px;
-                            }
-                            .content-row {
-                                display: flex;
-                                gap: 20px;
-                                flex: 1;
-                                align-items: center;
-                            }
-                            .content-col {
-                                flex: 1;
-                            }
-                            .col-left {
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: center;
-                                align-items: center;
-                                border-left: 2px dashed #e2e8f0;
-                                padding-left: 20px;
-                            }
-                            .amount-card {
-                                background: #eff6ff;
-                                border: 1px solid #bfdbfe;
-                                border-radius: 12px;
-                                padding: 20px;
-                                text-align: center;
-                                width: 100%;
-                            }
-                            .amount-label {
-                                font-size: 14px;
-                                color: #1e3a8a;
-                                font-weight: bold;
-                            }
-                            .amount-val {
-                                font-size: 32px;
-                                font-weight: 900;
-                                color: #1d4ed8;
-                                margin-top: 4px;
-                            }
-                            .details-table {
-                                width: 100%;
-                                border-collapse: collapse;
-                            }
-                            .details-table th, .details-table td {
-                                padding: 8px 6px;
-                                text-align: right;
-                                border-bottom: 1px solid #f1f5f9;
-                                font-size: 13px;
-                            }
-                            .details-table th {
-                                color: #64748b;
-                                font-weight: 700;
-                                width: 40%;
-                            }
-                            .details-table td {
-                                color: #0f172a;
-                                font-weight: 800;
-                            }
-                            .balance-block {
-                                display: flex;
-                                justify-content: space-between;
-                                font-size: 12px;
-                                color: #475569;
-                                background: #fafafa;
-                                padding: 6px 10px;
-                                border-radius: 6px;
-                                margin-top: 4px;
-                                border: 1px solid #e2e8f0;
-                            }
-                            .footer {
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                border-top: 2px dashed #e2e8f0;
-                                padding-top: 10px;
-                                margin-top: 10px;
-                                width: 100%;
-                            }
-                            .footer-thanks {
-                                font-weight: 800;
-                                color: #0f172a;
-                                font-size: 14px;
-                            }
-                            .footer-note {
-                                color: #64748b;
-                                font-size: 12px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="receipt-box">
-                            <div>
-                                <div class="brand-header">
-                                    <h1 class="brand-name">Ahram Pay</h1>
-                                    <div class="receipt-title">إيصال تحويل رصيد داخلي</div>
-                                </div>
-                                
-                                <div class="flow-container">
-                                    <div class="flow-node">
-                                        <div class="flow-node-title">المرسل (خصم)</div>
-                                        <div class="flow-node-name">${senderName}</div>
-                                        <div class="flow-node-code">ID: ${senderCode}</div>
-                                    </div>
-                                    <div class="flow-arrow">➔</div>
-                                    <div class="flow-node">
-                                        <div class="flow-node-title">المستقبل (إضافة)</div>
-                                        <div class="flow-node-name">${recipientName}</div>
-                                        <div class="flow-node-code">ID: ${recipientCode}</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="content-row">
-                                    <div class="content-col col-left">
-                                        <div class="amount-card">
-                                            <div class="amount-label">المبلغ المحول</div>
-                                            <div class="amount-val">${tx.amount.toFixed(2)} LYD</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="content-col col-right">
-                                        <table class="details-table">
-                                            <tr>
-                                                <th>رقم عملية التحويل:</th>
-                                                <td style="font-family: monospace;">${transferIdD}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>رقم عملية الاستلام:</th>
-                                                <td style="font-family: monospace;">${transferIdC}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>تاريخ العملية:</th>
-                                                <td>${f(tx.createdAt)}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>حالة العملية:</th>
-                                                <td style="color: #10b981;">مكتمل ✅</td>
-                                            </tr>
-                                            ${showBalances ? `
-                                            <tr>
-                                                <th>رصيد المرسل:</th>
-                                                <td>
-                                                    <div class="balance-block">
-                                                        <span>قبل: ${senderBefore}</span>
-                                                        <span>بعد: ${senderAfter}</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>رصيد المستقبل:</th>
-                                                <td>
-                                                    <div class="balance-block">
-                                                        <span>قبل: ${receiverBefore}</span>
-                                                        <span>بعد: ${receiverAfter}</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            ` : ''}
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="footer">
-                                <div class="footer-thanks">شكرًا لاستخدامكم Ahram Pay 🚀</div>
-                                <div class="footer-note">تم إصدار هذا الإيصال إلكترونياً وبشكل تلقائي.</div>
-                            </div>
-                        </div>
-                        <script>
-                            window.onload = function() {
-                                setTimeout(function() {
-                                    window.print();
-                                    window.close();
-                                }, 500);
-                            }
-                        <\/script>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
-            });
-            return;
-        }
-
         const entityName = (tx.companyName && tx.companyName !== 'عميل فردي') ? tx.companyName : (tx.employeeName || 'عميل فردي');
         let typeLabel = 'محفظة كاش'; 
         let numStrP = tx.vodafoneNumber || tx.accountNumber || '';
@@ -1374,8 +664,7 @@
         const toD = document.getElementById('toDateInput').value || ''; 
         const status = document.getElementById('statusFilter').value || ''; 
         const search = document.getElementById('searchInput').value || '';
-        const filterType = '<%= typeof filterType !== "undefined" ? filterType : "" %>';
-        window.open(`/transactions/print?` + new URLSearchParams({ fromDate: fromD, toDate: toD, status: status, search: search, filterType: filterType }).toString(), '_blank');
+        window.open(`/transactions/print?` + new URLSearchParams({ fromDate: fromD, toDate: toD, status: status, search: search }).toString(), '_blank');
     }
 
     function confirmEmergencyAlert(form) {
@@ -1418,100 +707,15 @@
         reader.readAsDataURL(file);
     };
 
-    let currentMobileTabGroup = 'pending';
-
     setInterval(() => {
         const isModalOpen = document.querySelector('.modal.show'); const isDropdownOpen = document.querySelector('.dropdown-menu.show'); 
         if (isModalOpen || isDropdownOpen) return;
         fetch(window.location.href).then(res => res.text()).then(htmlText => {
             const doc = new DOMParser().parseFromString(htmlText, 'text/html');
             const newTbody = doc.querySelector('tbody'); if (newTbody) document.querySelector('tbody').innerHTML = newTbody.innerHTML;
-            
-            const newMobile = doc.querySelector('#mobileCardsContainer');
-            const currentContainer = document.querySelector('#mobileCardsContainer');
-            if (newMobile && currentContainer) {
-                // 1. Remove all old cards
-                currentContainer.querySelectorAll('.mobile-tx-card').forEach(card => card.remove());
-                
-                // 2. Append all new cards
-                newMobile.querySelectorAll('.mobile-tx-card').forEach(newCard => {
-                    currentContainer.appendChild(newCard.cloneNode(true));
-                });
-                
-                // 3. Re-apply current tab & search filters
-                applyMobileFilters();
-            }
-            
             const newPagination = doc.querySelector('.pagination'); const currentPagination = document.querySelector('.pagination'); if (newPagination && currentPagination) currentPagination.innerHTML = newPagination.innerHTML;
         }).catch(()=>{});
     }, 5000);
-
-    function filterMobileCards(group, btn) {
-        if (btn) {
-            document.querySelectorAll('.mobile-tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        currentMobileTabGroup = group;
-        applyMobileFilters();
-    }
-
-    function searchMobileCards(query) {
-        applyMobileFilters();
-    }
-
-    function applyMobileFilters() {
-        const query = (document.getElementById('mobileSearchInput')?.value || '').trim().toLowerCase();
-        let count = 0;
-
-        document.querySelectorAll('.mobile-tx-card').forEach(card => {
-            const status = card.getAttribute('data-status');
-            const customId = (card.getAttribute('data-custom-id') || '').toLowerCase();
-            const id = (card.getAttribute('data-id') || '').toLowerCase();
-            const last6Id = id.slice(-6);
-            const number = (card.getAttribute('data-number') || '').toLowerCase();
-
-            // 1. Check tab group match
-            let groupMatch = false;
-            if (currentMobileTabGroup === 'pending') {
-                groupMatch = ['pending', 'processing', 'accepted'].includes(status);
-            } else if (currentMobileTabGroup === 'completed') {
-                groupMatch = ['completed', 'rejected', 'cancelled_by_admin', 'deduction'].includes(status);
-            } else if (currentMobileTabGroup === 'deposit') {
-                groupMatch = ['deposit', 'deposit_pending'].includes(status);
-            }
-
-            // 2. Check search query match (if query is not empty)
-            let queryMatch = true;
-            if (query) {
-                queryMatch = customId.includes(query) || id.includes(query) || last6Id.includes(query) || number.includes(query);
-            }
-
-            if (groupMatch && queryMatch) {
-                card.style.setProperty('display', 'block', 'important');
-                count++;
-            } else {
-                card.style.setProperty('display', 'none', 'important');
-            }
-        });
-
-        const emptyState = document.getElementById('mobileEmptyState');
-        if (emptyState) {
-            if (count === 0) {
-                emptyState.style.setProperty('display', 'block', 'important');
-            } else {
-                emptyState.style.setProperty('display', 'none', 'important');
-            }
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const activeTab = document.querySelector('.mobile-tab-btn.active');
-        if (activeTab) {
-            filterMobileCards('pending', activeTab);
-        } else {
-            applyMobileFilters();
-        }
-    });
 </script>
 </body>
 </html>

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Employee = require('../models/Employee');
 const ClientEmployee = require('../models/ClientEmployee');
-const ExecutorBot = require('../models/ExecutorGroup');
+const ExecutorBot = require('../models/ExecutorBot');
 const ClientBot = require('../models/ClientBot');
 const { requireAuth } = require('../middlewares/auth');
 

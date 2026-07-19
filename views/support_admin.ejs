@@ -42,14 +42,6 @@
             .chat-area { width: 100%; height: 65vh; }
         }
     </style>
-
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
-    <!-- End PWA Setup -->
 </head>
 <body>
 
@@ -89,7 +81,6 @@
 
     const entityTypeLabels = {
         'client_user': '<span class="badge bg-primary px-2 py-1"><i class="fa-solid fa-user me-1"></i> عميل فردي</span>',
-        'sub_client': '<span class="badge bg-info text-dark px-2 py-1"><i class="fa-solid fa-store me-1"></i> عميل تابع</span>',
         'client_company': '<span class="badge" style="background:#6f42c1;"><i class="fa-solid fa-building me-1"></i> شركة/وكيل</span>',
         'executor': '<span class="badge bg-dark"><i class="fa-solid fa-robot me-1"></i> طاقم التنفيذ</span>'
     };
@@ -144,7 +135,6 @@
                     ${status !== 'closed' ? `<button class="btn btn-danger fw-bold shadow-sm rounded-3" onclick="closeTicket('${id}')"><i class="fa-solid fa-lock me-1"></i> إغلاق التذكرة</button>` : `<span class="badge bg-secondary fs-6 rounded-pill"><i class="fa-solid fa-lock me-1"></i> تذكرة مغلقة</span>`}
                 </div>
             </div>
-            <div id="passwordResetActions"></div>
             <div class="chat-messages" id="chatMessages">
                 <div class="text-center w-100 mt-4"><i class="fa-solid fa-spinner fa-spin fa-2x text-muted"></i></div>
             </div>
@@ -191,7 +181,6 @@
             if(data.success) {
                 const box = document.getElementById('chatMessages');
                 if(!box) return;
-                renderPasswordResetActions(data.ticket);
                 
                 let html = '';
                 data.ticket.messages.forEach(msg => {
@@ -222,80 +211,6 @@
                 if (isScrolledToBottom) box.scrollTop = box.scrollHeight;
             }
         } catch(e) {}
-    }
-
-    function renderPasswordResetActions(ticket) {
-        const target = document.getElementById('passwordResetActions');
-        if (!target) return;
-
-        const meta = ticket.metadata || {};
-        if (meta.type !== 'password_reset') {
-            target.innerHTML = '';
-            return;
-        }
-
-        const resetStatus = meta.passwordResetStatus || 'pending_admin';
-        if (resetStatus === 'pending_admin' && ticket.status !== 'closed') {
-            target.innerHTML = `
-                <div class="m-3 p-3 rounded-4 border shadow-sm" style="background: rgba(255, 193, 7, 0.12); border-color: rgba(255, 193, 7, 0.35) !important;">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                        <div class="fw-bold text-dark">
-                            <i class="fa-solid fa-key text-warning me-1"></i>
-                            طلب استعادة كلمة مرور بانتظار قرار الإدارة
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-success fw-bold rounded-3" onclick="handlePasswordReset('${ticket._id}', 'approve')">
-                                <i class="fa-solid fa-check me-1"></i> تأكيد كلمة المرور وتفعيل الحساب
-                            </button>
-                            <button class="btn btn-outline-danger fw-bold rounded-3" onclick="handlePasswordReset('${ticket._id}', 'reject')">
-                                <i class="fa-solid fa-xmark me-1"></i> إلغاء
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-
-        const label = resetStatus === 'approved'
-            ? '<span class="badge bg-success fs-6 rounded-pill"><i class="fa-solid fa-check me-1"></i> تم تأكيد كلمة المرور</span>'
-            : '<span class="badge bg-danger fs-6 rounded-pill"><i class="fa-solid fa-xmark me-1"></i> تم إلغاء الطلب</span>';
-        target.innerHTML = `<div class="m-3">${label}</div>`;
-    }
-
-    async function handlePasswordReset(ticketId, action) {
-        const isApprove = action === 'approve';
-        const result = await Swal.fire({
-            title: isApprove ? 'تأكيد كلمة المرور الجديدة؟' : 'إلغاء طلب الاستعادة؟',
-            text: isApprove ? 'سيتم تغيير كلمة المرور وتفعيل الحساب فوراً.' : 'ستبقى كلمة المرور القديمة كما هي.',
-            icon: isApprove ? 'question' : 'warning',
-            showCancelButton: true,
-            confirmButtonColor: isApprove ? '#198754' : '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: isApprove ? 'نعم، أكد' : 'نعم، إلغاء',
-            cancelButtonText: 'تراجع',
-            customClass: { popup: 'rounded-4' }
-        });
-
-        if (!result.isConfirmed) return;
-
-        try {
-            const res = await fetch(`/api/support/tickets/${ticketId}/password-reset/${action}`, { method: 'POST' });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error || 'فشل تنفيذ الطلب');
-
-            await Swal.fire({
-                icon: 'success',
-                title: isApprove ? 'تم تفعيل كلمة المرور' : 'تم إلغاء الطلب',
-                timer: 1500,
-                showConfirmButton: false,
-                customClass: { popup: 'rounded-4' }
-            });
-            fetchMessages();
-            loadTickets();
-        } catch (error) {
-            Swal.fire({ icon: 'error', title: 'تعذر تنفيذ الطلب', text: error.message, customClass: { popup: 'rounded-4' } });
-        }
     }
 
     async function closeTicket(id) {

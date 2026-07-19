@@ -55,8 +55,7 @@ const metricsMiddleware = (req, res, next) => {
  * تطبيع المسار (إزالة IDs الديناميكية)
  */
 const _normalizePath = (path) => {
-    const pathText = Array.isArray(path) ? path[0] : String(path || '/');
-    return pathText
+    return path
         .replace(/\/[a-f0-9]{24}/g, '/:id')  // MongoDB ObjectId
         .replace(/\/\d+/g, '/:num')           // أرقام
         .replace(/\?.+$/, '')                  // Query string
@@ -143,16 +142,6 @@ const metricsEndpoint = (req, res) => {
     output += '\n# HELP process_uptime_seconds Process uptime in seconds\n';
     output += '# TYPE process_uptime_seconds gauge\n';
     output += `process_uptime_seconds ${Math.floor(process.uptime())}\n`;
-
-    // Process CPU Metrics
-    const cpu = process.cpuUsage();
-    output += '\n# HELP process_cpu_user_seconds_total Total user CPU time spent in seconds\n';
-    output += '# TYPE process_cpu_user_seconds_total counter\n';
-    output += `process_cpu_user_seconds_total ${cpu.user / 1_000_000}\n`;
-
-    output += '\n# HELP process_cpu_system_seconds_total Total system CPU time spent in seconds\n';
-    output += '# TYPE process_cpu_system_seconds_total counter\n';
-    output += `process_cpu_system_seconds_total ${cpu.system / 1_000_000}\n`;
 
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.send(output);

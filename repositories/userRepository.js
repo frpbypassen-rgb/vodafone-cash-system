@@ -16,29 +16,25 @@ const bcrypt = require('bcryptjs');
  * @param {string} password
  * @returns {Promise<{account, accountType, balance, telegramId, executorBotId}|null>}
  */
-const findByCredentials = async (username, password, tenantId) => {
+const findByCredentials = async (username, password) => {
     const searchUser = username.trim().toLowerCase();
     const searchPass = password.trim();
 
     // 1. فحص المنفذ (Employee)
-    const execQuery = {
+    const execDoc = await Employee.findOne({
         $or: [{ webUsername: searchUser }, { phone: username }]
-    };
-    if (tenantId) execQuery.tenantId = tenantId;
-    const execDoc = await Employee.findOne(execQuery).populate('groupId');
+    }).populate('botId');
 
     if (execDoc) {
         const isMatch = await _comparePassword(searchPass, execDoc.webPassword, Employee, execDoc._id);
         if (isMatch) {
             if (execDoc.status !== 'active') return { error: 'ACCOUNT_BANNED', accountType: 'executor' };
-            const executorGroupId = execDoc.groupId ? execDoc.groupId._id : (execDoc.botId ? execDoc.botId._id : null);
-            const balance = execDoc.groupId ? execDoc.groupId.balance : (execDoc.botId ? execDoc.botId.balance : 0);
             return {
                 account: execDoc,
                 accountType: 'executor',
                 telegramId: execDoc.telegramId,
-                executorGroupId,
-                balance
+                executorBotId: execDoc.botId ? execDoc.botId._id : null,
+                balance: execDoc.botId ? execDoc.botId.balance : 0
             };
         }
     }
@@ -52,7 +48,7 @@ const findByCredentials = async (username, password, tenantId) => {
         const isMatch = await _comparePassword(searchPass, empDoc.webPassword, ClientEmployee, empDoc._id);
         if (isMatch) {
             if (empDoc.status !== 'active') return { error: 'ACCOUNT_BANNED', accountType: 'client_company' };
-            const company = await ClientBot.findById(empDoc.companyId);
+            const company = await ClientBot.findById(empDoc.clientBotId);
             return {
                 account: empDoc,
                 accountType: 'client_company',
@@ -64,11 +60,9 @@ const findByCredentials = async (username, password, tenantId) => {
     }
 
     // 3. فحص العميل الفردي (User)
-    const userQuery = {
+    const userDoc = await User.findOne({
         $or: [{ webUsername: searchUser }, { phone: username }]
-    };
-    if (tenantId) userQuery.tenantId = tenantId;
-    const userDoc = await User.findOne(userQuery);
+    });
 
     if (userDoc) {
         const isMatch = await _comparePassword(searchPass, userDoc.webPassword, User, userDoc._id);
@@ -108,21 +102,13 @@ const _comparePassword = async (inputPass, storedPass, Model, docId) => {
 /**
  * جلب حساب بالمعرف والنوع
  */
-const findById = async (userId, accountType, tenantId) => {
+const findById = async (userId, accountType) => {
     const Model = _getModel(accountType);
-    if (tenantId && (accountType === 'executor' || accountType === 'client_user')) {
-        const account = await Model.findOne({ _id: userId, tenantId });
-        if (accountType === 'executor' && account) {
-            return Model.findOne({ _id: userId, tenantId }).populate('groupId');
-        }
-        return account;
-    } else {
-        const account = await Model.findById(userId);
-        if (accountType === 'executor' && account) {
-            return Model.findById(userId).populate('groupId');
-        }
-        return account;
+    const account = await Model.findById(userId);
+    if (accountType === 'executor' && account) {
+        return Model.findById(userId).populate('botId');
     }
+    return account;
 };
 
 /**

@@ -15,8 +15,6 @@
 
 'use strict';
 
-jest.setTimeout(30000);
-
 // ── محاكاة Mongoose ─────────────────────────────────────────────────
 jest.mock('mongoose', () => {
     const session = {
@@ -25,31 +23,29 @@ jest.mock('mongoose', () => {
         abortTransaction: jest.fn().mockResolvedValue(undefined),
         endSession: jest.fn(),
     };
-    const SchemaMock = jest.fn().mockImplementation(function() { return { index: jest.fn(), pre: jest.fn(), post: jest.fn() }; });
-    SchemaMock.Types = { ObjectId: String, Mixed: Object };
     return {
         startSession: jest.fn().mockResolvedValue(session),
-        model: jest.fn().mockReturnValue({}),
-        Schema: SchemaMock,
+        model: jest.fn(),
+        Schema: { Types: { ObjectId: String, Mixed: Object } },
         _session: session,
     };
 });
 
 // ── محاكاة express-validator ───────────────────────────────────────
-jest.mock('express-validator', () => {
-    const mockFn = jest.fn((req, res, next) => next());
-    const methods = [
-        'trim', 'notEmpty', 'isLength', 'isFloat', 'isIn', 'isString',
-        'optional', 'escape', 'custom', 'isNumeric', 'isEmail', 'withMessage'
-    ];
-    methods.forEach(m => {
-        mockFn[m] = jest.fn().mockReturnValue(mockFn);
-    });
-    return {
-        body: jest.fn(() => mockFn),
-        validationResult: jest.fn(() => ({ isEmpty: () => true, array: () => [] })),
-    };
-});
+jest.mock('express-validator', () => ({
+    body: jest.fn(() => ({
+        trim:       jest.fn().mockReturnThis(),
+        notEmpty:   jest.fn().mockReturnThis(),
+        isLength:   jest.fn().mockReturnThis(),
+        isFloat:    jest.fn().mockReturnThis(),
+        isIn:       jest.fn().mockReturnThis(),
+        isString:   jest.fn().mockReturnThis(),
+        optional:   jest.fn().mockReturnThis(),
+        escape:     jest.fn().mockReturnThis(),
+        withMessage:jest.fn().mockReturnThis(),
+    })),
+    validationResult: jest.fn(() => ({ isEmpty: () => true, array: () => [] })),
+}));
 
 // ── محاكاة AuditLog ────────────────────────────────────────────────
 jest.mock('../models/AuditLog', () => function() {
@@ -102,7 +98,6 @@ const MOCK_USER = {
     name: 'أحمد محمد',
     phone: '01012345678',
     balance: 5000,
-    balances: { EGP: 5000, LYD: 5000, USD: 5000, EUR: 5000, SAR: 5000 },
     status: 'active',
     tier: 2,
     webPassword: '$2b$12$hashed',
@@ -150,8 +145,8 @@ jest.mock('../models/User', () => {
         session: jest.fn().mockReturnValue(MOCK_USER),
     }));
     // findOneAndUpdate يُستخدم في خصم الرصيد الذري — يدعم .session() كـ option
-    MockUser.findOneAndUpdate = jest.fn().mockResolvedValue({ ...MOCK_USER, balance: 4750, balances: { EGP: 4750, LYD: 4750, USD: 4750, EUR: 4750, SAR: 4750 } });
-    MockUser.findByIdAndUpdate = jest.fn().mockResolvedValue({ ...MOCK_USER, balance: 4750, balances: { EGP: 4750, LYD: 4750, USD: 4750, EUR: 4750, SAR: 4750 } });
+    MockUser.findOneAndUpdate = jest.fn().mockResolvedValue({ ...MOCK_USER, balance: 4750 });
+    MockUser.findByIdAndUpdate = jest.fn().mockResolvedValue({ ...MOCK_USER, balance: 4750 });
     MockUser.updateOne = jest.fn().mockResolvedValue({ modifiedCount: 1 });
     MockUser.modelName = 'User';
     return MockUser;
@@ -160,7 +155,6 @@ jest.mock('../models/Settings', () => ({
     findOne: jest.fn().mockImplementation(() => ({
         ...MOCK_SETTINGS,
         session: jest.fn().mockReturnValue(MOCK_SETTINGS),
-        lean: jest.fn().mockResolvedValue(MOCK_SETTINGS),
         then: function(resolve) { return Promise.resolve(MOCK_SETTINGS).then(resolve); },
     })),
 }));
@@ -189,18 +183,6 @@ jest.mock('../models/Ledger', () => {
         save: jest.fn().mockResolvedValue(true),
     }));
     return MockLedger;
-});
-jest.mock('../models/JournalEvent', () => {
-    const MockJournalEvent = jest.fn().mockImplementation((data) => ({
-        ...data,
-        save: jest.fn().mockResolvedValue(true)
-    }));
-    MockJournalEvent.findOne = jest.fn().mockImplementation(() => ({
-        sort: jest.fn().mockImplementation(() => ({
-            session: jest.fn().mockResolvedValue(null)
-        }))
-    }));
-    return MockJournalEvent;
 });
 jest.mock('../models/ClientEmployee', () => {
     const M = jest.fn();
@@ -240,7 +222,10 @@ jest.mock('../models/Counter', () => ({
         session: jest.fn().mockReturnValue({ value: 1 }),
     })),
 }));
-// jest.mock('telegraf') removed after Telegram purge
+jest.mock('telegraf', () => ({ Telegram: jest.fn().mockImplementation(() => ({
+    sendMessage: jest.fn().mockResolvedValue({}),
+    sendPhoto:   jest.fn().mockResolvedValue({ photo: [{ file_id: 'photo123' }] }),
+})) }));
 
 // ── الأدوات المساعدة ────────────────────────────────────────────────
 const request  = require('supertest');
@@ -274,25 +259,26 @@ describe('🔐 المرحلة 1: تسجيل الدخول (POST /login)', () => {
         expect(res.body.success).toBe(true);
     });
 
-    test('✅ يعيد token', () => {
-        expect(res.body.token).toBeDefined();
-        expect(typeof res.body.token).toBe('string');
-        expect(res.body.token.length).toBeGreaterThan(10);
+    test('✅ يعيد accessToken', () => {
+        expect(res.body.accessToken).toBeDefined();
+        expect(typeof res.body.accessToken).toBe('string');
+        expect(res.body.accessToken.length).toBeGreaterThan(10);
     });
 
     test('✅ يعيد refreshToken', () => {
         expect(res.body.refreshToken).toBeDefined();
     });
 
-    test('✅ يعيد بيانات المستخدم (name, balance, accountType)', () => {
-        expect(res.body.name).toBe('أحمد محمد');
-        expect(res.body.balance).toBeGreaterThanOrEqual(0);
-        expect(res.body.accountType).toBeDefined();
+    test('✅ يعيد بيانات المستخدم (name, balance, tier)', () => {
+        expect(res.body.user).toBeDefined();
+        expect(res.body.user.name).toBe('أحمد محمد');
+        expect(res.body.user.balance).toBeGreaterThanOrEqual(0);
+        expect(res.body.user.tier).toBeDefined();
     });
 
     test('✅ يعيد سعر الصرف الحالي', () => {
-        expect(res.body.exchangeRate).toBeDefined();
-        expect(typeof res.body.exchangeRate).toBe('number');
+        expect(res.body.rate).toBeDefined();
+        expect(typeof res.body.rate).toBe('number');
     });
 });
 
@@ -347,10 +333,9 @@ describe('🏠 المرحلة 3: جلب الشاشة الرئيسية (GET /clie
         expect(typeof res.body.balance).toBe('number');
     });
 
-    test('✅ يعيد سعر الصرف الرسمي للموبايل (exchangeRate)', () => {
-        expect(res.body.exchangeRate).toBeDefined();
-        expect(typeof res.body.exchangeRate).toBe('number');
-        expect(res.body.rate).toBeUndefined();
+    test('✅ يعيد سعر الصرف (rate)', () => {
+        expect(res.body.rate).toBeDefined();
+        expect(typeof res.body.rate).toBe('number');
     });
 
     test('✅ النظام مفتوح (isOpen: true)', () => {
@@ -377,7 +362,6 @@ describe('💸 المرحلة 4: إنشاء تحويل جديد (POST /client/ne
         res = await request(app)
             .post('/client/new-transfer')
             .set('Authorization', `Bearer ${FAKE_ACCESS_TOKEN}`)
-            .set('Idempotency-Key', '550e8400-e29b-41d4-a716-446655440100')
             .send(transferPayload);
     });
 
@@ -407,17 +391,14 @@ describe('❌ المرحلة 5: رفض التحويل — رصيد غير كاف
     let app, res;
 
     beforeAll(async () => {
+        // المستخدم رصيده 0
         const User = require('../models/User');
-        User.findById.mockImplementationOnce(() => ({
-            session: jest.fn().mockReturnValue({ ...MOCK_USER, balance: 0, save: jest.fn() }),
-        }));
-        User.findOneAndUpdate.mockResolvedValueOnce(null);
+        User.findOne.mockResolvedValueOnce({ ...MOCK_USER, balance: 0, save: jest.fn() });
 
         app = buildApp();
         res = await request(app)
             .post('/client/new-transfer')
             .set('Authorization', `Bearer ${FAKE_ACCESS_TOKEN}`)
-            .set('Idempotency-Key', '550e8400-e29b-41d4-a716-446655440101')
             .send({ amount: 100, number: '01098765432', transferType: 'vodafone' });
     });
 

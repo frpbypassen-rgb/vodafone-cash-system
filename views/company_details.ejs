@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>تفاصيل الشركة | شركة الأهرام</title>
-
+    
     <script>
         const savedTheme = localStorage.getItem('ahram_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -59,7 +59,7 @@
             border: 1px solid var(--glass-border); margin-bottom: 15px; position: relative; z-index: 1;
             display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
         }
-
+        
         .control-card-3d {
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             transform-style: preserve-3d; border-radius: 16px !important;
@@ -70,7 +70,7 @@
             box-shadow: 0 15px 25px rgba(0,0,0,0.08) !important;
         }
         [data-theme="dark"] .control-card-3d:hover { box-shadow: 0 15px 25px rgba(0,0,0,0.4) !important; }
-
+        
         .btn-3d-hover { transition: all 0.2s; }
         .btn-3d-hover:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
         .btn-3d-hover:active { transform: translateY(1px); }
@@ -78,18 +78,10 @@
         .mono-num { font-family: 'JetBrains Mono', monospace; font-weight: 800;}
         .form-control, .form-select { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--glass-border); font-weight: bold; border-radius: 10px; }
         .form-control:focus, .form-select:focus { background: transparent; border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2); color: var(--text-main); }
-
+        
         /* توحيد الارتفاعات */
         .unified-height { min-height: 42px; display: flex; align-items: center; }
     </style>
-
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
-    <!-- End PWA Setup -->
 </head>
 <body>
 
@@ -101,11 +93,6 @@
             <h3 class="fw-bold m-0" style="color: var(--text-main);"><i class="fa-solid fa-building text-primary me-2"></i> بيانات الشركة (الوكيل)</h3>
             <a href="/clients" class="btn btn-secondary fw-bold rounded-pill shadow-sm px-4 btn-3d-hover"><i class="fa-solid fa-arrow-right me-2"></i> عودة للقائمة</a>
         </div>
-        <% if (query && query.codeSaved) { %>
-            <div class="alert alert-success fw-bold rounded-4 shadow-sm"><i class="fa-solid fa-check-circle me-1"></i> تم حفظ ID الشركة بنجاح.</div>
-        <% } else if (query && query.codeError) { %>
-            <div class="alert alert-danger fw-bold rounded-4 shadow-sm"><i class="fa-solid fa-triangle-exclamation me-1"></i> لم يتم حفظ ID الشركة. تأكد من 5 أرقام وعدم تكرار الرقم.</div>
-        <% } %>
 
         <div class="row g-4 mb-4">
             <div class="col-xl-4 col-lg-5">
@@ -127,11 +114,6 @@
                     </div>
 
                     <div class="info-box py-2 px-3">
-                        <span class="small text-muted fw-bold"><i class="fa-solid fa-id-badge me-1"></i> ID الشركة</span>
-                        <span class="fw-bold text-dark mono-num" dir="ltr"><%= company.accountCode || 'غير محدد' %></span>
-                    </div>
-
-                    <div class="info-box py-2 px-3">
                         <span class="small text-muted fw-bold"><i class="fa-solid fa-key me-1"></i> توكن البوت</span>
                         <span class="fw-bold text-dark mono-num small" dir="ltr" style="filter: blur(3px); transition: 0.3s; cursor: pointer;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='blur(3px)'"><%= company.token %></span>
                     </div>
@@ -144,22 +126,8 @@
                         <i class="fa-solid fa-gears text-warning fs-4 me-2"></i>
                         <h5 class="fw-bold m-0" style="color: var(--text-main);">التحكم المحاسبي والإداري</h5>
                     </div>
-
+                    
                     <div class="row g-3">
-                        <div class="col-12">
-                            <div class="info-box border-0 m-0 shadow-sm control-card-3d d-block" style="background: rgba(139, 92, 246, 0.05); border-right: 4px solid var(--brand-primary) !important;">
-                                <label class="form-label fw-bold text-dark small mb-2"><i class="fa-solid fa-id-badge me-1" style="color: var(--brand-primary);"></i> ID الشركة للتحويل الداخلي (<%= accountCodeLength %> أرقام)</label>
-                                <form action="/company/<%= company._id %>/update-account-code" method="POST" class="row g-2 align-items-center">
-                                    <div class="col-md-8">
-                                        <input type="text" name="accountCode" class="form-control text-center fw-bold mono-num unified-height border-0 shadow-sm" value="<%= company.accountCode || '' %>" placeholder="<%= '0'.repeat(accountCodeLength) %>" pattern="\d{<%= accountCodeLength %>}" maxlength="<%= accountCodeLength %>" inputmode="numeric">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button type="submit" class="btn text-white w-100 fw-bold btn-3d-hover unified-height justify-content-center shadow-sm" style="background: var(--brand-primary);">حفظ ID</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
                         <div class="col-12">
                             <div class="info-box border-0 m-0 shadow-sm control-card-3d d-block" style="background: rgba(245, 158, 11, 0.05); border-right: 4px solid #f59e0b !important;">
                                 <label class="form-label fw-bold text-dark small mb-2"><i class="fa-solid fa-money-bill-transfer text-warning me-1"></i> تسوية الرصيد (موجب للإيداع / سالب للخصم)</label>
@@ -196,7 +164,7 @@
                                 </form>
                             </div>
                         </div>
-
+                        
                         <div class="col-md-6">
                             <div class="info-box border-0 m-0 shadow-sm d-block control-card-3d" style="background: rgba(14, 165, 233, 0.05); border-right: 4px solid #0ea5e9 !important;">
                                 <label class="form-label fw-bold text-dark small mb-2"><i class="fa-solid fa-layer-group text-info me-1"></i> مستوى التسعير</label>
@@ -234,14 +202,6 @@
                             <form action="/company/<%= company._id %>/toggle-status" method="POST" class="m-0" onsubmit="return confirm('تأكيد تعديل حالة الشركة؟');">
                                 <button type="submit" class="btn btn-<%= company.status === 'active' ? 'danger' : 'success' %> w-100 fw-bold unified-height justify-content-center rounded-3 shadow-sm btn-3d-hover d-flex align-items-center gap-2">
                                     <i class="fa-solid fa-power-off"></i> <span><%= company.status === 'active' ? 'إيقاف وحظر الشركة نهائياً' : 'تنشيط وإعادة تشغيل البوت' %></span>
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="col-12 mt-1">
-                            <form action="/company/<%= company._id %>/delete" method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذه الشركة؟ سيتم إيقاف دخول موظفيها والعملاء التابعين لها مع حفظ العمليات السابقة.');">
-                                <button type="submit" class="btn btn-outline-danger w-100 fw-bold unified-height justify-content-center rounded-3 shadow-sm btn-3d-hover d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-trash-can"></i> <span>حذف الحساب</span>
                                 </button>
                             </form>
                         </div>
@@ -287,9 +247,9 @@
 </div>
 
 <script>
-    function toggleSidebar() {
+    function toggleSidebar() { 
         document.querySelector('.sidebar').classList.toggle('active');
-        document.querySelector('.sidebar-overlay').classList.toggle('active');
+        document.querySelector('.sidebar-overlay').classList.toggle('active'); 
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

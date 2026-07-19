@@ -18,8 +18,6 @@
         --brand-gold: #d4af37;
         --brand-gold-dark: #b5952f;
         --sidebar-width: 260px;
-        --mobile-topbar-height: 65px;
-        --mobile-bottombar-height: 64px;
 
         /* ☀️ المتغيرات (الوضع النهاري - Light Mode) */
         --bg-body: #f4f7fa;
@@ -110,20 +108,6 @@
     .sidebar-user { text-align: center; padding: 25px 15px; border-bottom: 1px solid rgba(212, 175, 55, 0.15); }
     .sidebar-user .avatar { width: 60px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; border: 2px solid var(--brand-gold); color: var(--brand-gold); font-size: 1.5rem; box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
     .sidebar-user h5 { color: #ffffff !important; } /* حماية اسم المدير دائماً باللون الأبيض */
-    .sidebar-mobile-close {
-        display: none;
-        position: absolute;
-        top: 14px;
-        left: 14px;
-        width: 38px;
-        height: 38px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        align-items: center;
-        justify-content: center;
-    }
     
     .sidebar-menu { display: flex; flex-direction: column; padding: 10px 15px; max-height: calc(100vh - 160px); overflow-y: auto; }
     .sidebar-menu::-webkit-scrollbar { width: 4px; }
@@ -136,50 +120,6 @@
     .sidebar-menu a.active { background: linear-gradient(90deg, var(--brand-gold), var(--brand-gold-dark)); color: white !important; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); border: none; }
     .sidebar-menu a.active i { color: #fff; }
 
-    .menu-category-header {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.35);
-        font-weight: 800;
-        margin: 18px 14px 6px;
-        letter-spacing: 0.8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding-bottom: 4px;
-        font-family: sans-serif;
-    }
-    [data-theme="light"] .menu-category-header {
-        color: var(--text-muted);
-        border-bottom-color: rgba(0, 0, 0, 0.06);
-    }
-    .menu-link-content {
-        display: flex;
-        align-items: center;
-    }
-    .menu-chevron {
-        font-size: 0.8rem;
-        opacity: 0.4;
-        transition: transform 0.2s ease, opacity 0.2s;
-    }
-    .sidebar-menu a:hover .menu-chevron {
-        transform: translateX(-3px);
-        opacity: 0.85;
-    }
-    .sidebar-menu a.active .menu-chevron {
-        opacity: 1;
-        color: #fff;
-    }
-    .sidebar-mobile-close {
-        transition: background 0.2s, transform 0.2s;
-        cursor: pointer;
-    }
-    .sidebar-mobile-close:hover {
-        background: rgba(255, 255, 255, 0.15) !important;
-        transform: scale(1.05);
-    }
-    .sidebar-mobile-close:active {
-        transform: scale(0.95);
-    }
-
     /* 📱 زر الهامبرغر العائم للهواتف والتابلت */
     .mobile-nav-toggle { 
         display: none; position: fixed; top: 15px; right: 15px; z-index: 1060; 
@@ -190,430 +130,30 @@
     [data-theme="dark"] .mobile-nav-toggle { background: #1e293b; color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
 
     .sidebar-overlay { 
-        display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh;
+        display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
         background: rgba(0, 0, 0, 0.5); z-index: 1040; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease;
     }
     .sidebar-overlay.active { opacity: 1; display: block; }
 
     .main-content { margin-right: var(--sidebar-width) !important; padding: 30px; transition: margin 0.3s ease-in-out; }
 
-    /* =======================================================
-       📱 شريط التنقل السفلي للهواتف (Bottom Navigation Bar)
-       ======================================================= */
-    .bottom-nav-admin-mobile {
-        position: fixed;
-        bottom: 15px;
-        left: 15px;
-        right: 15px;
-        height: 70px;
-        background: rgba(0, 26, 77, 0.9);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid rgba(212, 175, 55, 0.25);
-        border-radius: 22px;
-        display: none; /* مخفي على الشاشات الكبيرة */
-        justify-content: space-around;
-        align-items: center;
-        z-index: 1045;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        padding: 0 10px;
-    }
-
-    [data-theme="dark"] .bottom-nav-admin-mobile {
-        background: rgba(15, 23, 42, 0.85) !important;
-        border-color: rgba(255, 255, 255, 0.08) !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-    }
-
-    [data-theme="light"] .bottom-nav-admin-mobile {
-        background: rgba(255, 255, 255, 0.85) !important;
-        border-color: rgba(0, 26, 77, 0.1) !important;
-        box-shadow: 0 8px 32px rgba(0, 26, 77, 0.08) !important;
-    }
-
-    .bottom-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: rgba(255, 255, 255, 0.55);
-        text-decoration: none !important;
-        font-size: 0.72rem;
-        font-weight: 700;
-        transition: all 0.2s ease;
-        position: relative;
-        padding: 6px 0;
-        width: 20%;
-        height: 100%;
-    }
-
-    .bottom-nav-item span:last-child {
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .bottom-nav-item i {
-        font-size: 1.35rem;
-        margin-bottom: 4px;
-        transition: transform 0.2s ease, color 0.2s;
-    }
-
-    [data-theme="light"] .bottom-nav-item {
-        color: var(--text-muted);
-    }
-
-    .bottom-nav-item.active {
-        color: var(--brand-gold) !important;
-    }
-    .bottom-nav-item.active i {
-        transform: translateY(-2px) scale(1.1);
-        color: var(--brand-gold) !important;
-    }
-
-    [data-theme="light"] .bottom-nav-item.active {
-        color: var(--brand-primary) !important;
-    }
-    [data-theme="light"] .bottom-nav-item.active i {
-        color: var(--brand-primary) !important;
-    }
-
-    .bottom-nav-item:active i {
-        transform: scale(0.9);
-    }
-    
-    /* =======================================================
-       📱 شريط التنقل العلوي للهواتف (Mobile Top Bar)
-       ======================================================= */
-    .top-nav-admin-mobile { display: none; }
-    .mobile-menu-trigger {
-        position: relative;
-        width: 42px;
-        height: 42px;
-        border: 0;
-        border-radius: 14px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
-        box-shadow: 0 10px 24px rgba(0, 26, 77, 0.25);
-        margin-left: 10px;
-        flex: 0 0 42px;
-    }
-    [data-theme="dark"] .mobile-menu-trigger {
-        background: linear-gradient(135deg, #1e293b, #020617);
-        color: var(--brand-gold);
-        border: 1px solid rgba(251, 191, 36, 0.2);
-    }
-
     @media (max-width: 991px) {
-        .sidebar {
-            transform: translateX(calc(100% + 24px));
-            width: min(88vw, 320px);
-            max-width: calc(100vw - 16px);
-            min-height: auto;
-            height: calc(100dvh - 16px);
-            top: 8px;
-            bottom: 8px;
-            right: 8px;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            box-shadow: -15px 0 30px rgba(0, 0, 0, 0.25);
-            background: rgba(0, 12, 36, 0.95) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        [data-theme="light"] .sidebar {
-            background: rgba(255, 255, 255, 0.95) !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-        }
-        .sidebar.active {
-            transform: translateX(0);
-            box-shadow: -15px 0 35px rgba(0, 0, 0, 0.35);
-        }
-        .sidebar-user {
-            background: rgba(255, 255, 255, 0.03) !important;
-            margin: 15px 15px 5px 15px !important;
-            padding: 20px 15px !important;
-            border-radius: 16px !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.02) !important;
-            text-align: center;
-            border-bottom: none !important;
-        }
-        [data-theme="light"] .sidebar-user {
-            background: rgba(0, 0, 0, 0.02) !important;
-            border-color: rgba(0, 0, 0, 0.04) !important;
-        }
-        .sidebar-menu {
-            max-height: calc(100dvh - 175px);
-            padding-bottom: 26px;
-        }
-        .sidebar-menu a {
-            padding: 13px 18px;
-            margin: 6px 0;
-            font-size: 1rem;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        [data-theme="light"] .sidebar-menu a {
-            background: rgba(0, 0, 0, 0.02);
-            border-color: rgba(0, 0, 0, 0.04);
-            color: #475569;
-        }
-        .sidebar-menu a:hover, .sidebar-menu a:active {
-            background: rgba(212, 175, 55, 0.15);
-            color: var(--brand-gold) !important;
-            transform: scale(0.98);
-        }
-        .sidebar-menu a.active {
-            background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-dark)) !important;
-            color: #000 !important;
-            font-weight: 800;
-            border: none;
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
-        }
-        [data-theme="light"] .sidebar-mobile-close {
-            border-color: rgba(0, 0, 0, 0.08);
-            background: rgba(0, 0, 0, 0.04);
-            color: var(--text-main);
-        }
-        .sidebar-mobile-close {
-            display: inline-flex;
-        }
-        .sidebar-overlay.active {
-            display: block;
-            opacity: 1;
-            background: rgba(2, 6, 23, 0.52);
-        }
-        .mobile-nav-toggle { display: none !important; }
-        .bottom-nav-admin-mobile {
-            display: flex !important;
-            left: 10px;
-            right: 10px;
-            bottom: max(10px, env(safe-area-inset-bottom, 0px));
-            height: var(--mobile-bottombar-height);
-            border-radius: 18px;
-            padding: 0 6px;
-            gap: 2px;
-        }
-        .bottom-nav-item {
-            min-width: 0;
-            font-size: 0.66rem;
-            line-height: 1.15;
-            padding-inline: 2px;
-        }
-        .bottom-nav-item i {
-            font-size: 1.18rem;
-            margin-bottom: 3px;
-        }
-        .sidebar-menu-hide-mobile { display: none !important; }
-        
-        .top-nav-admin-mobile {
-            display: flex; position: fixed; top: 0; left: 0; right: 0;
-            height: calc(var(--mobile-topbar-height) + env(safe-area-inset-top, 0px));
-            background: rgba(255, 255, 255, 0.8) !important;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-glass);
-            z-index: 1045;
-            padding: env(safe-area-inset-top, 0px) 12px 0;
-            justify-content: space-between; align-items: center;
-            box-shadow: var(--shadow-soft);
-            box-sizing: border-box;
-            gap: 8px;
-            overflow: hidden;
-        }
-        [data-theme="dark"] .top-nav-admin-mobile {
-            background: rgba(30, 41, 59, 0.8) !important;
-        }
-        .top-nav-admin-mobile > .d-flex:first-child {
-            min-width: 0;
-            flex: 1 1 auto;
-            overflow: hidden;
-        }
-        .top-nav-admin-mobile > .d-flex:last-child {
-            flex: 0 0 auto;
-        }
-        .top-nav-admin-mobile .d-flex.flex-column {
-            min-width: 0;
-        }
-        .top-nav-admin-mobile .d-flex.flex-column span {
-            max-width: min(170px, calc(100vw - 214px));
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        body.sidebar-open-mobile {
-            overflow: hidden;
-            touch-action: none;
-        }
-        .main-content {
-            margin-right: 0 !important;
-            width: 100% !important;
-            max-width: 100vw !important;
-            min-width: 0 !important;
-            padding: calc(var(--mobile-topbar-height) + env(safe-area-inset-top, 0px) + 20px) 14px calc(var(--mobile-bottombar-height) + env(safe-area-inset-bottom, 0px) + 34px) 14px !important;
-            overflow-x: hidden !important;
-            box-sizing: border-box;
-        }
-        .main-content > .container,
-        .main-content > .container-fluid {
-            width: 100%;
-            max-width: 100%;
-            min-width: 0;
-            padding-inline: 0 !important;
-        }
-        .data-card,
-        .stat-card,
-        .card,
-        .summary-box,
-        .info-panel,
-        .top-header,
-        .support-container {
-            max-width: 100%;
-        }
-        .table-responsive {
-            max-width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .modal-dialog {
-            width: auto;
-            max-width: calc(100vw - 20px);
-            margin: 10px;
-        }
-        .dropdown-menu {
-            max-width: calc(100vw - 20px);
-        }
-        .btn,
-        button,
-        .form-control,
-        .form-select {
-            min-height: 42px;
-        }
-
-        .avatar-sm { width: 38px; height: 38px; background: rgba(212, 175, 55, 0.1); color: var(--brand-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid rgba(212, 175, 55, 0.3); }
-        .btn-theme-mobile, .btn-logout-mobile { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: none; transition: 0.2s; text-decoration: none; }
-        .btn-theme-mobile { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-glass); }
-        .btn-logout-mobile { background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); }
-        .btn-theme-mobile:active, .btn-logout-mobile:active { transform: scale(0.9); }
-    }
-
-    @media (max-width: 380px) {
-        .mobile-menu-trigger,
-        .btn-theme-mobile,
-        .btn-logout-mobile {
-            width: 36px;
-            height: 36px;
-            border-radius: 12px;
-        }
-        .mobile-menu-trigger {
-            flex-basis: 36px;
-            margin-left: 7px;
-        }
-        .avatar-sm {
-            width: 34px;
-            height: 34px;
-            font-size: 1rem;
-        }
-        .top-nav-admin-mobile {
-            padding-inline: 10px;
-        }
-        .top-nav-admin-mobile .d-flex.flex-column span {
-            max-width: calc(100vw - 198px);
-        }
-        .bottom-nav-admin-mobile {
-            left: 8px;
-            right: 8px;
-            height: 62px;
-        }
-        .bottom-nav-item {
-            font-size: 0.6rem;
-        }
+        .sidebar { transform: translateX(100%); width: 270px; }
+        .sidebar.active { transform: translateX(0); box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+        .mobile-nav-toggle { display: block; }
+        .main-content { margin-right: 0 !important; padding: 80px 15px 25px 15px !important; }
     }
 
     @media print {
-        .sidebar, .mobile-nav-toggle, .sidebar-overlay, .bottom-nav-admin-mobile { display: none !important; }
+        .sidebar, .mobile-nav-toggle, .sidebar-overlay { display: none !important; }
         .main-content { margin-right: 0 !important; padding: 0 !important; }
     }
 </style>
 
-<button class="mobile-nav-toggle no-print" data-sidebar-toggle onclick="toggleSidebar()" aria-label="فتح القائمة" aria-controls="sidebarMenu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
-<div class="sidebar-overlay no-print" id="sidebarOverlay" data-sidebar-close onclick="toggleSidebar()"></div>
-
-<div class="top-nav-admin-mobile no-print">
-    <div class="d-flex align-items-center">
-        <button class="mobile-menu-trigger" type="button" data-sidebar-toggle onclick="toggleSidebar()" aria-label="فتح القائمة" aria-controls="sidebarMenu" aria-expanded="false">
-            <i class="fa-solid fa-bars-staggered"></i>
-            <span id="mobileMenuBadge" class="position-absolute bg-danger rounded-circle" style="display: none; top: 12px; right: 14px; width: 9px; height: 9px; border: 2px solid var(--card-bg);"></span>
-        </button>
-        <div class="avatar-sm me-2"><i class="fa-solid fa-user-shield"></i></div>
-        <div class="d-flex flex-column">
-            <span class="fw-bold" style="font-size: 0.85rem; color: var(--text-main);"><%= typeof adminName !== 'undefined' ? adminName : 'مدير النظام' %></span>
-            <span style="font-size: 0.65rem; color: var(--brand-gold);">القيادة المركزية</span>
-        </div>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-        <div class="dropdown">
-            <button class="btn-theme-mobile position-relative" type="button" id="notifDropdownMobile" data-bs-toggle="dropdown" style="background: transparent; border: none; padding: 0;">
-                <i class="fa-solid fa-bell" style="color: var(--text-main); font-size: 1.2rem;"></i>
-                <span id="notifBadgeMobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none shadow-sm" style="font-size: 0.6rem; border: 2px solid var(--card-bg);">0</span>
-            </button>
-            <ul class="dropdown-menu shadow-lg p-0" aria-labelledby="notifDropdownMobile" style="width: 320px; max-width: 90vw; right: auto; left: 0;">
-                <li class="p-3 fw-bold d-flex justify-content-between align-items-center border-bottom" style="background: var(--input-bg);">
-                    <span style="color: var(--brand-primary);"><i class="fa-solid fa-bell me-2"></i> الإشعارات</span>
-                    <button class="btn btn-sm btn-light py-1 px-3 fw-bold rounded-pill" onclick="markAllRead()" style="font-size: 0.75rem;">تحديد كمقروء</button>
-                </li>
-                <div id="notifListMobile" style="max-height: 350px; overflow-y: auto; background: var(--card-bg);">
-                    <li class="p-4 text-center text-muted fw-bold">لا توجد إشعارات</li>
-                </div>
-            </ul>
-        </div>
-        <button class="btn-theme-mobile" onclick="toggleGlobalTheme()" title="تغيير المظهر">
-            <i id="mobileTopThemeIcon" class="fa-solid fa-moon"></i>
-        </button>
-        <a href="/logout" class="btn-logout-mobile" title="تسجيل الخروج">
-            <i class="fa-solid fa-power-off"></i>
-        </a>
-    </div>
-</div>
-
-<div class="bottom-nav-admin-mobile no-print">
-    <a href="/" class="bottom-nav-item <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
-        <i class="fa-solid fa-chart-pie"></i>
-        <span>الرئيسية</span>
-    </a>
-    <a href="/transactions" class="bottom-nav-item position-relative <%= typeof activePage !== 'undefined' && activePage === 'transactions' ? 'active' : '' %>">
-        <i class="fa-solid fa-list-check"></i>
-        <span class="badge bg-danger text-white rounded-pill position-absolute" id="mobileTransactionsBadge" style="display: none; top: 6px; right: 25%; font-size: 0.65rem; padding: 2px 5px;">0</span>
-        <span>العمليات</span>
-    </a>
-    <a href="/complaints" class="bottom-nav-item <%= typeof activePage !== 'undefined' && activePage === 'complaints' ? 'active' : '' %>">
-        <i class="fa-solid fa-flag"></i>
-        <span class="badge bg-warning text-dark rounded-pill position-absolute" id="mobileComplaintsBadge" style="display: none; top: 6px; right: 15%; font-size: 0.65rem; padding: 2px 5px;">0</span>
-        <span>الشكاوى</span>
-    </a>
-    <a href="/clients" class="bottom-nav-item <%= typeof activePage !== 'undefined' && activePage === 'clients' ? 'active' : '' %>">
-        <i class="fa-solid fa-users"></i>
-        <span>العملاء</span>
-    </a>
-    <a href="/settings" class="bottom-nav-item <%= typeof activePage !== 'undefined' && activePage === 'settings' ? 'active' : '' %>">
-        <i class="fa-solid fa-gear"></i>
-        <span>الإعدادات</span>
-    </a>
-</div>
+<button class="mobile-nav-toggle no-print" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay no-print" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <div class="sidebar" id="sidebarMenu">
-    <button class="sidebar-mobile-close" onclick="toggleSidebar()" aria-label="إغلاق القائمة">
-        <i class="fa-solid fa-xmark"></i>
-    </button>
-
     <div class="sidebar-user">
         <div class="avatar"><i class="fa-solid fa-user-shield"></i></div>
         <h5 class="fw-bold mb-1"><%= typeof adminName !== 'undefined' ? adminName : 'مدير النظام' %></h5>
@@ -621,138 +161,58 @@
     </div>
     
     <div class="sidebar-menu mt-3">
-        <div class="menu-category-header">الرصد والمتابعة</div>
-        
-        <a href="/" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %> sidebar-menu-hide-mobile">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-chart-pie"></i> لوحة القيادة
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
+        <a href="/" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
+            <i class="fa-solid fa-chart-pie"></i> لوحة القيادة
         </a>
-        <a href="/transactions" class="<%= typeof activePage !== 'undefined' && activePage === 'transactions' ? 'active' : '' %> sidebar-menu-hide-mobile">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-list-check"></i> سجل العمليات المباشر
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
+        <a href="/transactions" class="<%= typeof activePage !== 'undefined' && activePage === 'transactions' ? 'active' : '' %>">
+            <i class="fa-solid fa-list-check"></i> سجل العمليات المباشر
         </a>
+        <a href="/support" class="<%= typeof activePage !== 'undefined' && activePage === 'support' ? 'active' : '' %> d-flex justify-content-between align-items-center">
+            <span><i class="fa-solid fa-headset"></i> الدعم الفني</span>
+            <span class="badge bg-danger rounded-pill shadow-sm" id="sidebarSupportBadge" style="display: none;">0</span>
+        </a>
+
         <a href="/audit-log" class="<%= typeof activePage !== 'undefined' && activePage === 'audit_log' ? 'active' : '' %>">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-shield-halved"></i> سجل التدقيق
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
-        </a>
-        <a href="/reports" class="<%= typeof activePage !== 'undefined' && activePage === 'reports' ? 'active' : '' %>" style="color: var(--brand-gold);">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-chart-line"></i> التقارير الشاملة
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
+            <i class="fa-solid fa-shield-halved"></i> سجل التدقيق
         </a>
 
-        <div class="menu-category-header">إدارة الحسابات</div>
-
-        <a href="/clients" class="<%= typeof activePage !== 'undefined' && activePage === 'clients' ? 'active' : '' %> sidebar-menu-hide-mobile">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-users"></i> العملاء والشركات
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
-        </a>
         <a href="/executors" class="<%= typeof activePage !== 'undefined' && activePage === 'executors' ? 'active' : '' %>">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-robot"></i> وكلاء وبوتات التنفيذ
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
+            <i class="fa-solid fa-robot"></i> وكلاء وبوتات التنفيذ
+        </a>
+        <a href="/clients" class="<%= typeof activePage !== 'undefined' && activePage === 'clients' ? 'active' : '' %>">
+            <i class="fa-solid fa-users"></i> العملاء والشركات
         </a>
         <a href="/employees" class="<%= typeof activePage !== 'undefined' && activePage === 'employees' ? 'active' : '' %>">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-id-badge"></i> إدارة الموظفين
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
-        </a>
-        <a href="/registration-requests" class="<%= typeof activePage !== 'undefined' && activePage === 'registration_requests' ? 'active' : '' %>">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-user-plus"></i> طلبات التسجيل
-            </span>
-            <span class="d-flex align-items-center gap-2">
-                <span class="badge bg-warning text-dark rounded-pill shadow-sm" id="sidebarRegBadge" style="display: none;">0</span>
-                <i class="fa-solid fa-angle-left menu-chevron"></i>
-            </span>
-        </a>
-
-        <div class="menu-category-header">التواصل والدعم</div>
-
-        <a href="/support" class="<%= typeof activePage !== 'undefined' && activePage === 'support' ? 'active' : '' %>">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-headset"></i> الدعم الفني
-            </span>
-            <span class="d-flex align-items-center gap-2">
-                <span class="badge bg-danger rounded-pill shadow-sm" id="sidebarSupportBadge" style="display: none;">0</span>
-                <i class="fa-solid fa-angle-left menu-chevron"></i>
-            </span>
-        </a>
-        <a href="/complaints" class="<%= typeof activePage !== 'undefined' && activePage === 'complaints' ? 'active' : '' %> sidebar-menu-hide-mobile">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-flag"></i> قسم الشكاوي
-            </span>
-            <span class="d-flex align-items-center gap-2">
-                <span class="badge bg-warning text-dark rounded-pill shadow-sm" id="sidebarComplaintsBadge" style="display: none;">0</span>
-                <i class="fa-solid fa-angle-left menu-chevron"></i>
-            </span>
+            <i class="fa-solid fa-id-badge"></i> إدارة الموظفين
         </a>
         <a href="/broadcast" class="<%= typeof activePage !== 'undefined' && activePage === 'broadcast' ? 'active' : '' %>">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-bullhorn"></i> الإشعارات والبث
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
+            <i class="fa-solid fa-bullhorn"></i> الإشعارات والبث
         </a>
 
-        <div class="menu-category-header sidebar-menu-hide-mobile">النظام والإعدادات</div>
-
-        <a href="/settings" class="<%= typeof activePage !== 'undefined' && activePage === 'settings' ? 'active' : '' %> sidebar-menu-hide-mobile">
-            <span class="menu-link-content">
-                <i class="fa-solid fa-gear"></i> إعدادات المنظومة
-            </span>
-            <i class="fa-solid fa-angle-left menu-chevron"></i>
+        <a href="/settings" class="<%= typeof activePage !== 'undefined' && activePage === 'settings' ? 'active' : '' %>">
+            <i class="fa-solid fa-gear"></i> إعدادات المنظومة
         </a>
         
-        <div class="mt-4 pt-3 border-top px-2 sidebar-menu-hide-mobile" style="border-color: rgba(255,255,255,0.1) !important;">
+        <div class="mt-4 pt-3 border-top px-2" style="border-color: rgba(255,255,255,0.1) !important;">
             <a href="javascript:void(0)" onclick="toggleGlobalTheme()" style="background: rgba(212, 175, 55, 0.1); border: 1px dashed #d4af37; color: #d4af37;">
-                <span class="menu-link-content">
-                    <i id="sidebarThemeIcon" class="fa-solid fa-moon"></i> <span id="sidebarThemeText">التبديل للوضع الليلي</span>
-                </span>
-                <i class="fa-solid fa-angle-left menu-chevron"></i>
+                <i id="sidebarThemeIcon" class="fa-solid fa-moon"></i> <span id="sidebarThemeText">التبديل للوضع الليلي</span>
             </a>
             <a href="/logout" class="fw-bold mt-2" style="color: #ff6b6b; background: rgba(220,53,69,0.05); border: 1px dashed rgba(220,53,69,0.3);">
-                <span class="menu-link-content">
-                    <i class="fa-solid fa-power-off me-2"></i> تسجيل الخروج
-                </span>
-                <i class="fa-solid fa-angle-left menu-chevron"></i>
+                <i class="fa-solid fa-power-off me-2"></i> تسجيل الخروج
             </a>
         </div>
     </div>
 </div>
 
 <script>
-    function setAdminSidebarState(forceOpen) {
-        const primarySidebar = document.getElementById('sidebarMenu') || document.querySelector('.sidebar');
-        if (!primarySidebar) return false;
-
-        const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !primarySidebar.classList.contains('active');
-        document.querySelectorAll('.sidebar').forEach(sidebar => sidebar.classList.toggle('active', shouldOpen));
-        document.querySelectorAll('.sidebar-overlay').forEach(overlay => overlay.classList.toggle('active', shouldOpen));
-        document.body.classList.toggle('sidebar-open-mobile', shouldOpen);
-        document.querySelectorAll('[data-sidebar-toggle], .mobile-nav-toggle, .mobile-menu-trigger').forEach(button => {
-            button.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
-        });
-
-        return shouldOpen;
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebarMenu');
+        const overlay = document.getElementById('sidebarOverlay');
+        if(sidebar && overlay) {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
     }
-
-    function toggleSidebar(forceOpen) {
-        return setAdminSidebarState(forceOpen);
-    }
-
-    window.__toggleAdminSidebar = toggleSidebar;
-    window.closeAdminSidebar = () => setAdminSidebarState(false);
 
     function toggleGlobalTheme() {
         const html = document.documentElement;
@@ -778,137 +238,10 @@
             icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             text.innerText = theme === 'dark' ? ' التبديل للوضع النهاري' : ' التبديل للوضع الليلي';
         }
-        
-        const topIcon = document.getElementById('mobileTopThemeIcon');
-        if (topIcon) {
-            topIcon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-        }
     }
-
-    async function updateSidebarStats() {
-        try {
-            const res = await fetch('/api/sidebar-stats');
-            const data = await res.json();
-            if (data.success) {
-                // 1. الدعم الفني
-                const supportBadge = document.getElementById('sidebarSupportBadge');
-                if (supportBadge) {
-                    if (data.supportCount > 0) {
-                        supportBadge.innerText = data.supportCount;
-                        supportBadge.style.display = 'inline-block';
-                    } else {
-                        supportBadge.style.display = 'none';
-                    }
-                }
-
-                // 2. الشكاوى (القائمة الجانبية والشريط السفلي للهاتف)
-                const complaintsBadge = document.getElementById('sidebarComplaintsBadge');
-                if (complaintsBadge) {
-                    if (data.complaintsCount > 0) {
-                        complaintsBadge.innerText = data.complaintsCount;
-                        complaintsBadge.style.display = 'inline-block';
-                    } else {
-                        complaintsBadge.style.display = 'none';
-                    }
-                }
-                
-                const mobileTransactionsBadge = document.getElementById('mobileTransactionsBadge');
-                if (mobileTransactionsBadge) {
-                    if (data.pendingCount > 0) {
-                        mobileTransactionsBadge.innerText = data.pendingCount;
-                        mobileTransactionsBadge.style.display = 'inline-block';
-                    } else {
-                        mobileTransactionsBadge.style.display = 'none';
-                    }
-                }
-
-                const mobileComplaintsBadge = document.getElementById('mobileComplaintsBadge');
-                if (mobileComplaintsBadge) {
-                    if (data.complaintsCount > 0) {
-                        mobileComplaintsBadge.innerText = data.complaintsCount;
-                        mobileComplaintsBadge.style.display = 'inline-block';
-                    } else {
-                        mobileComplaintsBadge.style.display = 'none';
-                    }
-                }
-
-                // 3. طلبات التسجيل
-                const regBadge = document.getElementById('sidebarRegBadge');
-                if (regBadge) {
-                    if (data.regRequestsCount > 0) {
-                        regBadge.innerText = data.regRequestsCount;
-                        regBadge.style.display = 'inline-block';
-                    } else {
-                        regBadge.style.display = 'none';
-                    }
-                }
-
-                // 4. نقطة إشعار القائمة للموبايل (إذا كان هناك دعم أو طلبات تسجيل جديدة)
-                const mobileMenuBadge = document.getElementById('mobileMenuBadge');
-                if (mobileMenuBadge) {
-                    if (data.supportCount > 0 || data.regRequestsCount > 0) {
-                        mobileMenuBadge.style.display = 'block';
-                    } else {
-                        mobileMenuBadge.style.display = 'none';
-                    }
-                }
-            }
-        } catch (e) {
-            console.error('Error fetching sidebar stats:', e);
-        }
-    }
-
-    async function fetchNotifications() {
-        try {
-            const res = await fetch('/api/notifications/unread'); const data = await res.json();
-            
-            // Desktop IDs
-            const badge = document.getElementById('notifBadge'); const list = document.getElementById('notifList');
-            // Mobile IDs
-            const badgeMobile = document.getElementById('notifBadgeMobile'); const listMobile = document.getElementById('notifListMobile');
-            
-            if (data.count > 0) {
-                let html = ''; data.notifications.forEach(n => { html += `<li class="dropdown-item border-bottom p-3" style="cursor:pointer; border-color: var(--border-glass) !important;" onclick="markRead('${n._id}')"><div class="fw-bold small mb-1" style="color: var(--text-main);"><i class="fa-solid fa-circle-info text-primary me-1"></i> ${n.title}</div><div class="text-muted" style="font-size: 0.85rem;">${n.message}</div><div class="text-end text-muted mt-2 mono-num opacity-50" style="font-size: 0.75rem;">${new Date(n.createdAt).toLocaleTimeString('en-US')}</div></li>`; });
-                
-                if(badge && list) { badge.innerText = data.count; badge.classList.remove('d-none'); list.innerHTML = html; }
-                if(badgeMobile && listMobile) { badgeMobile.innerText = data.count; badgeMobile.classList.remove('d-none'); listMobile.innerHTML = html; }
-            } else {
-                const emptyHtml = '<li class="p-4 text-center text-muted fw-bold"><i class="fa-solid fa-check-circle fs-1 opacity-25 d-block mb-2"></i> لا توجد إشعارات جديدة</li>';
-                if(badge && list) { badge.classList.add('d-none'); list.innerHTML = emptyHtml; }
-                if(badgeMobile && listMobile) { badgeMobile.classList.add('d-none'); listMobile.innerHTML = emptyHtml; }
-            }
-        } catch (e) {}
-    }
-    async function markRead(id) { await fetch(`/api/notifications/${id}/read`, { method: 'POST' }); fetchNotifications(); }
-    async function markAllRead() { await fetch(`/api/notifications/read-all`, { method: 'POST' }); fetchNotifications(); }
 
     document.addEventListener('DOMContentLoaded', () => {
-        window.toggleSidebar = window.__toggleAdminSidebar || toggleSidebar;
-
-        document.querySelectorAll('.sidebar-menu a[href]:not([href^="javascript"])').forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 991) setAdminSidebarState(false);
-            });
-        });
-
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') setAdminSidebarState(false);
-        });
-
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 991) setAdminSidebarState(false);
-        });
-
         const savedTheme = localStorage.getItem('ahram_theme') || 'light';
         updateSidebarThemeIcon(savedTheme);
-        updateSidebarStats();
-        setInterval(updateSidebarStats, 10000);
-        
-        fetchNotifications();
-        setInterval(fetchNotifications, 5000);
-        
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
-        }
     });
 </script>

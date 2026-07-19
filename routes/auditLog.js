@@ -6,10 +6,6 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middlewares/auth');
 const AuditLog = require('../models/AuditLog');
-const User = require('../models/User');
-const ClientEmployee = require('../models/ClientEmployee');
-const Employee = require('../models/Employee');
-const Admin = require('../models/Admin');
 
 // ── عرض صفحة Audit Log ──────────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
@@ -47,29 +43,11 @@ router.get('/', requireAuth, async (req, res) => {
         // إحصائيات سريعة للكروت العلوية
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
-        // عدد مستخدمين التطبيق
-        const appUsers = await Promise.all([
-            User.countDocuments({ refreshToken: { $exists: true, $ne: null } }),
-            ClientEmployee.countDocuments({ refreshToken: { $exists: true, $ne: null } }),
-            Employee.countDocuments({ refreshToken: { $exists: true, $ne: null } })
-        ]).then(counts => counts.reduce((a, b) => a + b, 0));
-
-        // عدد مستخدمين الموقع
-        const webUsers = await Promise.all([
-            User.countDocuments({ $or: [{ refreshToken: null }, { refreshToken: { $exists: false } }] }),
-            ClientEmployee.countDocuments({ $or: [{ refreshToken: null }, { refreshToken: { $exists: false } }] }),
-            Employee.countDocuments({ $or: [{ refreshToken: null }, { refreshToken: { $exists: false } }] }),
-            Admin.countDocuments({})
-        ]).then(counts => counts.reduce((a, b) => a + b, 0));
-
-        // عدد المستخدمين المتاحين الان
-        const onlineUsers = req.app.get('io') ? req.app.get('io').sockets.sockets.size : 0;
-
-        const [todayTotal, loginsSuccessToday, loginsFailedToday] = await Promise.all([
+        const [todayTotal, todayFailed, loginsFailed, transfersToday] = await Promise.all([
             AuditLog.countDocuments({ createdAt: { $gte: today } }),
-            AuditLog.countDocuments({ createdAt: { $gte: today }, action: 'LOGIN_SUCCESS' }),
+            AuditLog.countDocuments({ createdAt: { $gte: today }, success: false }),
             AuditLog.countDocuments({ createdAt: { $gte: today }, action: 'LOGIN_FAILED' }),
+            AuditLog.countDocuments({ createdAt: { $gte: today }, action: 'TRANSFER_CREATED' }),
         ]);
 
         res.render('audit_log', {
@@ -81,7 +59,7 @@ router.get('/', requireAuth, async (req, res) => {
             limit,
             totalPages: Math.ceil(total / limit),
             filters: { action, dateFrom, dateTo, performedBy, success: success || '' },
-            stats: { todayTotal, appUsers, webUsers, onlineUsers, loginsSuccessToday, loginsFailedToday }
+            stats: { todayTotal, todayFailed, loginsFailed, transfersToday }
         });
     } catch (err) {
         console.error('[AuditLog Route]', err.message);

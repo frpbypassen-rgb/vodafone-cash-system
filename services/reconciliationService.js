@@ -10,7 +10,7 @@ const Ledger = require('../models/Ledger');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const ClientBot = require('../models/ClientBot');
-const ExecutorGroup = require('../models/ExecutorGroup');
+const ExecutorBot = require('../models/ExecutorBot');
 const SubAccount = require('../models/SubAccount');
 const logger = require('../utils/logger');
 
@@ -63,7 +63,7 @@ const reconcileDaily = async (date = new Date()) => {
         }
 
         // 3. مطابقة عُهد المنفذين
-        const executors = await ExecutorGroup.find({ status: { $in: ['active', 'paused'] } }).lean();
+        const executors = await ExecutorBot.find({ status: { $in: ['active', 'paused'] } }).lean();
         for (const executor of executors) {
             const result = await _reconcileEntity(executor._id, 'ExecutorBot', executor.balance || 0, executor.name);
             totalEntities++;

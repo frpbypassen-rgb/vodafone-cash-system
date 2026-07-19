@@ -9,7 +9,7 @@ const Transaction = require('../models/Transaction');
 const Ledger = require('../models/Ledger');
 const User = require('../models/User');
 const ClientBot = require('../models/ClientBot');
-const ExecutorGroup = require('../models/ExecutorGroup');
+const ExecutorBot = require('../models/ExecutorBot');
 const logger = require('../utils/logger');
 
 /**
@@ -97,7 +97,7 @@ const generateDailySettlement = async (date = new Date()) => {
  */
 const generateExecutorSettlement = async (executorBotId, startDate, endDate) => {
     try {
-        const executorBot = await ExecutorGroup.findById(executorBotId);
+        const executorBot = await ExecutorBot.findById(executorBotId);
         if (!executorBot) throw new Error('EXECUTOR_NOT_FOUND');
 
         const transactions = await Transaction.find({

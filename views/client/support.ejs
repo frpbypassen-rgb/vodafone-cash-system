@@ -2,18 +2,17 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الدعم الفني | الأهرام</title>
     
     <script>
         const savedTheme = localStorage.getItem('ahram_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
-        document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -46,8 +45,6 @@
         .nav-btn { background: rgba(0,0,0,0.03); border: 1px solid var(--border-glass); color: var(--text-main); padding: 8px 20px; border-radius: 50px; font-weight: 800; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
         .nav-btn:hover { background: var(--brand-primary); color: white; border-color: var(--brand-primary); transform: translateY(-2px);}
         [data-theme="dark"] .nav-btn { background: rgba(255,255,255,0.03); }
-        .nav-logout { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
-        .nav-logout:hover { background: #ef4444 !important; color: white !important; border-color: #ef4444 !important;}
 
         .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-glass); border-radius: 24px; overflow: hidden; margin: 20px auto; width: 100%; max-width: 800px; box-shadow: var(--shadow-lg); max-height: 85vh; transition: 0.3s;}
         .chat-header { background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-glass); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
@@ -84,148 +81,13 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
         [data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-
-        /* Mobile Layout Modifications */
-        .mobile-header { display: none; }
-        .bottom-nav-mobile { display: none; }
-
-        @media (max-width: 768px) {
-            body {
-                padding-bottom: 85px !important;
-            }
-            .glass-nav {
-                display: none !important;
-            }
-            .chat-container {
-                margin: 10px auto !important;
-                border-radius: 16px !important;
-                max-height: calc(100vh - 150px) !important;
-            }
-            .mobile-header {
-                display: flex !important;
-                justify-content: space-between;
-                align-items: center;
-                background: var(--bg-card);
-                border-bottom: 1px solid var(--border-glass);
-                padding: 10px 16px;
-                position: sticky;
-                top: 0;
-                z-index: 999;
-                box-shadow: var(--shadow-lg);
-            }
-            .mobile-logo-wrapper {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .mobile-logo-wrapper img {
-                height: 32px;
-                border-radius: 6px;
-            }
-            .mobile-logo-wrapper h1 {
-                font-size: 1.15rem;
-                font-weight: 900;
-                margin: 0;
-                color: var(--brand-primary);
-            }
-            [data-theme="dark"] .mobile-logo-wrapper h1 {
-                color: var(--brand-gold);
-            }
-
-            /* Bottom Navigation */
-            .bottom-nav-mobile {
-                display: flex !important;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 65px;
-                background: var(--bg-card);
-                border-top: 1px solid var(--border-glass);
-                justify-content: space-around;
-                align-items: center;
-                z-index: 1000;
-                box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-            .bottom-nav-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 4px;
-                color: var(--text-muted);
-                text-decoration: none;
-                flex: 1;
-                height: 100%;
-                font-size: 0.72rem;
-                font-weight: bold;
-                transition: 0.2s;
-            }
-            .bottom-nav-item i {
-                font-size: 1.25rem;
-                transition: transform 0.2s;
-            }
-            .bottom-nav-item:hover {
-                color: var(--text-main);
-            }
-            .bottom-nav-item.active {
-                color: var(--brand-primary);
-            }
-            [data-theme="dark"] .bottom-nav-item.active {
-                color: var(--brand-gold);
-            }
-            .bottom-nav-item.active i {
-                transform: translateY(-2px);
-            }
-        }
     </style>
-
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
-    <!-- End PWA Setup -->
 </head>
 <body>
-    <!-- Mobile Header -->
-    <header class="mobile-header no-print">
-        <div class="mobile-logo-wrapper">
-            <img src="/images/logo.jpeg" alt="Logo" onerror="this.onerror=null; this.src='/images/logo.jpg';">
-            <h1>Al-Ahram Pay</h1>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <!-- Balance badge -->
-            <div class="pe-none" style="
-                background: <%= account.balance >= 0 ? 'linear-gradient(45deg, #10b981, #059669)' : 'linear-gradient(45deg, #ef4444, #dc2626)' %>;
-                color: white;
-                padding: 6px 12px;
-                border-radius: 10px;
-                font-weight: 800;
-                box-shadow: 0 4px 10px <%= account.balance >= 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' %>;
-                font-size: 0.82rem;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            ">
-                <span dir="ltr" style="font-family: 'JetBrains Mono', monospace;"><%= account.balance.toFixed(2) %> LYD</span>
-                <i class="fa-solid fa-wallet"></i>
-            </div>
-            
-            <button class="nav-btn btn-theme" onclick="toggleTheme()" style="padding: 6px; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-moon" id="mobileThemeIcon"></i></button>
-            <a href="/client/logout" class="nav-btn nav-logout" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); padding: 6px; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-power-off"></i></a>
-        </div>
-    </header>
-
-    <nav class="glass-nav no-print">
+    <nav class="glass-nav">
         <div class="container d-flex justify-content-between align-items-center">
             <h4 class="m-0 fw-bold" style="color: var(--text-main);"><i class="fa-solid fa-headset me-2" style="color: var(--brand-gold);"></i> الدعم الفني</h4>
-            <div class="d-flex align-items-center gap-2">
-                <button class="nav-btn btn-theme" onclick="toggleTheme()" title="الوضع الليلي/النهاري"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
-                <a href="/client/dashboard" class="nav-btn"><i class="fa-solid fa-arrow-left me-1"></i> رجوع للوحة</a>
-            </div>
+            <a href="/client/dashboard" class="nav-btn"><i class="fa-solid fa-arrow-left me-1"></i> رجوع للوحة</a>
         </div>
     </nav>
 
@@ -260,30 +122,6 @@
                 <button type="submit" class="send-btn" id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
             </form>
         </div>
-    </div>
-
-    <!-- Mobile Bottom Navigation -->
-    <div class="bottom-nav-mobile no-print">
-        <a href="/client/dashboard?tab=account" class="bottom-nav-item" data-tab="account">
-            <i class="fa-solid fa-user-circle"></i>
-            <span>الحساب</span>
-        </a>
-        <a href="/client/dashboard?tab=transfers" class="bottom-nav-item" data-tab="transfers">
-            <i class="fa-solid fa-paper-plane"></i>
-            <span>التحويلات</span>
-        </a>
-        <a href="/client/dashboard?tab=rates" class="bottom-nav-item" data-tab="rates">
-            <i class="fa-solid fa-chart-line"></i>
-            <span>اسعار الصرف</span>
-        </a>
-        <a href="/client/reports" class="bottom-nav-item" data-tab="reports">
-            <i class="fa-solid fa-chart-pie"></i>
-            <span>التقارير</span>
-        </a>
-        <a href="/client/support" class="bottom-nav-item active" data-tab="support">
-            <i class="fa-solid fa-headset"></i>
-            <span>الدعم الفني</span>
-        </a>
     </div>
 
     <script>
@@ -358,27 +196,6 @@
             try { await fetch('/client/api/support/messages', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ text, imageBase64: b64 }) }); await loadMessages(); } catch(e) {}
             sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
         };
-
-        // Theme Toggle
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            document.documentElement.setAttribute('data-bs-theme', next);
-            localStorage.setItem('ahram_theme', next);
-            const icon = document.getElementById('themeIcon');
-            if (icon) icon.className = next === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            const mIcon = document.getElementById('mobileThemeIcon');
-            if (mIcon) mIcon.className = next === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-        }
-        // Set initial icon
-        (function() {
-            const theme = document.documentElement.getAttribute('data-theme') || 'dark';
-            const icon = document.getElementById('themeIcon');
-            if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            const mIcon = document.getElementById('mobileThemeIcon');
-            if (mIcon) mIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-        })();
 
         setInterval(loadMessages, 3000); loadMessages();
     </script>

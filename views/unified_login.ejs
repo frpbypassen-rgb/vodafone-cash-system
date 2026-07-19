@@ -2,19 +2,19 @@
 <html lang="ar" dir="rtl">
 <head>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="<%= tenant && tenant.branding && tenant.branding.secondaryColor ? tenant.branding.secondaryColor : '#001a4d' %>">
+    <meta name="theme-color" content="#001a4d">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ahram Pay | البوابة الموحدة</title>
+    <title>البوابة الموحدة | الأهرام للخدمات الرقمية</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --theme-gold: <%= tenant && tenant.branding && tenant.branding.primaryColor ? tenant.branding.primaryColor : '#d4af37' %>; 
+            --theme-gold: #d4af37; 
             --bg-dark: #000c24;
-            --bg-navy: <%= tenant && tenant.branding && tenant.branding.secondaryColor ? tenant.branding.secondaryColor : '#001a4d' %>;
+            --bg-navy: #001a4d;
             --text-main: #1e293b;
         }
 
@@ -47,38 +47,13 @@
             border-bottom: 6px solid var(--theme-gold);
         }
 
-        .logo-box { text-align: center; margin-bottom: 32px; }
-        .brand-wordmark {
-            display: inline-flex; align-items: baseline; justify-content: center; gap: 9px;
-            direction: ltr; unicode-bidi: isolate; color: var(--bg-navy); text-decoration: none;
-            font-family: 'Montserrat', 'Tajawal', sans-serif;
-            font-size: clamp(2.4rem, 12vw, 3.3rem); font-weight: 900; line-height: 0.95; letter-spacing: 0;
-            padding: 0; border-radius: 0; background: transparent; box-shadow: none;
-            transform: perspective(520px) rotateX(10deg);
-            transform-origin: center bottom;
-            text-shadow:
-                0 1px 0 #f8fafc,
-                0 2px 0 #dbe3ee,
-                0 3px 0 #c7d0de,
-                0 4px 0 #aeb9ca,
-                0 11px 20px rgba(0, 26, 77, 0.22),
-                0 22px 34px rgba(0, 0, 0, 0.16);
+        .logo-box { text-align: center; margin-bottom: 30px; }
+        .logo-box img { 
+            width: 95px; height: 95px; border-radius: 22px; object-fit: contain;
+            border: 2px solid #eee; padding: 5px; background: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 15px;
         }
-        .brand-wordmark .brand-pay {
-            color: var(--theme-gold);
-            text-shadow:
-                0 1px 0 #fff7dc,
-                0 2px 0 #d9b53f,
-                0 3px 0 #b6932d,
-                0 4px 0 #91731f,
-                0 11px 20px rgba(212, 175, 55, 0.3),
-                0 22px 34px rgba(0, 0, 0, 0.16);
-        }
-        .brand-accent {
-            width: 118px; height: 3px; border-radius: 999px; margin: 15px auto 12px;
-            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.95), transparent);
-            box-shadow: 0 8px 18px rgba(212, 175, 55, 0.18);
-        }
+        .logo-box h3 { font-weight: 900; color: #001a4d; margin: 0 0 5px 0; font-size: 1.6rem; letter-spacing: -0.5px;}
         .logo-box p { color: #6c757d; font-weight: 700; font-size: 0.9rem; margin: 0; }
 
         .form-floating > .form-control {
@@ -97,24 +72,6 @@
         .pass-toggle { position: absolute; top: 50%; left: 1.2rem; right: auto !important; transform: translateY(-50%); color: #94a3b8; cursor: pointer; z-index: 10; transition: 0.3s; font-size: 1.1rem; }
         .pass-toggle:hover { color: var(--theme-gold); }
 
-        .login-links { display: flex; justify-content: flex-start; margin: -8px 2px 14px; }
-        .btn-forgot-password {
-            border: none; background: transparent; padding: 0; color: #64748b;
-            font-size: 0.92rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;
-            transition: color 0.25s ease, transform 0.25s ease;
-        }
-        .btn-forgot-password:hover { color: var(--theme-gold); transform: translateY(-1px); }
-        .reset-step { display: none; }
-        .reset-step.active { display: block; }
-        .reset-status {
-            border-radius: 14px; padding: 11px 13px; font-size: 0.9rem; font-weight: 800;
-            margin-bottom: 14px; display: none;
-        }
-        .reset-status.show { display: block; }
-        .reset-status.success { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
-        .reset-status.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-        .reset-status.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-
         .btn-submit {
             width: 100%; padding: 16px; border: none; border-radius: 16px;
             background: linear-gradient(45deg, var(--theme-gold), #b5952f); color: white;
@@ -122,84 +79,9 @@
             box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3); transition: all 0.3s ease; margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         .btn-submit:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(212, 175, 55, 0.4); filter: brightness(1.05); }
-        .btn-create-account {
-            width: 100%; padding: 14px; border-radius: 16px; margin-top: 14px;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            color: var(--bg-navy); background: #fff; border: 2px solid #e2e8f0;
-            font-weight: 800; font-size: 1rem; text-decoration: none; transition: all 0.25s ease;
-        }
-        .btn-create-account:hover {
-            color: var(--bg-navy); border-color: var(--theme-gold); background: #fffdf7;
-            transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0, 26, 77, 0.1);
-        }
 
         .custom-alert { background: #fef2f2; border-right: 4px solid #ef4444; color: #b91c1c; border-radius: 12px; padding: 12px 15px; font-weight: 800; font-size: 0.9rem; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; border-left: 0; border-top: 0; border-bottom: 0;}
         .footer-text { text-align: center; margin-top: 25px; font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 600; }
-
-        /* Biometric switch checked color */
-        .form-check-input:checked {
-            background-color: var(--theme-gold) !important;
-            border-color: var(--theme-gold) !important;
-        }
-        .form-check-input:focus {
-            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15) !important;
-            border-color: var(--theme-gold) !important;
-        }
-
-        /* Biometric Login Button */
-        .btn-biometric {
-            width: 100%; padding: 14px; border-radius: 16px;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            color: var(--bg-navy); background: rgba(212, 175, 55, 0.08); border: 2px dashed var(--theme-gold);
-            font-weight: 800; font-size: 1rem; cursor: pointer; transition: all 0.25s ease;
-            margin-top: 15px;
-        }
-        .btn-biometric:hover {
-            background: var(--theme-gold); color: #000;
-            transform: translateY(-2px); box-shadow: 0 10px 22px rgba(212, 175, 55, 0.25);
-        }
-
-        /* Responsive Mobile Layout Formatting */
-        @media (max-width: 480px) {
-            body {
-                padding: 12px;
-                background: linear-gradient(135deg, var(--bg-navy) 0%, var(--bg-dark) 100%);
-            }
-            .login-wrapper {
-                padding: 0;
-            }
-            .login-card {
-                padding: 30px 18px;
-                border-radius: 24px;
-            }
-            .brand-wordmark {
-                font-size: 2.3rem;
-            }
-            .form-floating > .form-control {
-                padding-right: 3.2rem;
-                font-size: 1rem;
-            }
-            .form-floating > label {
-                padding-right: 3.2rem;
-                font-size: 0.85rem;
-            }
-            .input-icon {
-                right: 1rem;
-                font-size: 1.1rem;
-            }
-            .pass-toggle {
-                left: 1rem;
-                font-size: 1rem;
-            }
-            .btn-submit {
-                padding: 14px;
-                font-size: 1.05rem;
-            }
-            .btn-create-account, .btn-biometric {
-                padding: 12px;
-                font-size: 0.95rem;
-            }
-        }
     </style>
 </head>
 <body>
@@ -209,10 +91,8 @@
     <div class="login-wrapper">
         <div class="login-card">
             <div class="logo-box">
-                <a href="/login" class="brand-wordmark" dir="ltr" aria-label="Ahram Pay">
-                    <span>Ahram</span><span class="brand-pay">Pay</span>
-                </a>
-                <div class="brand-accent"></div>
+                <img src="/images/logo.jpeg" alt="الأهرام" onerror="this.onerror=null; this.src='/images/logo.jpg'; this.onerror=null; this.src='https://ui-avatars.com/api/?name=Ahram&background=001a4d&color=fff';">
+                <h3>الأهرام للخدمات الرقمية</h3>
                 <p><i class="fa-solid fa-fingerprint text-warning me-1"></i> بوابة الدخول الذكية الموحدة</p>
             </div>
 
@@ -223,9 +103,7 @@
                 </div>
             <% } %>
 
-            <form action="/login" method="POST" id="loginForm" onsubmit="handleFormSubmit(event)">
-                <input type="hidden" name="latitude" id="latitudeInput">
-                <input type="hidden" name="longitude" id="longitudeInput">
+            <form action="/login" method="POST" onsubmit="showLoading()">
                 <div class="position-relative mb-3">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="usernameInput" name="username" placeholder="اسم المستخدم" required autocomplete="off" dir="ltr">
@@ -243,111 +121,19 @@
                     <i class="fa-regular fa-eye pass-toggle" id="eyeIcon" onclick="togglePassword()"></i>
                 </div>
 
-                <div class="login-links">
-                    <button type="button" class="btn-forgot-password" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
-                        نسيت كلمة المرور؟ <i class="fa-solid fa-key"></i>
-                    </button>
-                </div>
-
-                <div class="form-check form-switch text-end mb-3 mt-2" dir="rtl" id="biometricSwitchContainer" style="display: none;">
-                    <input class="form-check-input float-end ms-2" type="checkbox" id="saveBiometricSwitch">
-                    <label class="form-check-label fw-bold text-muted small" for="saveBiometricSwitch">حفظ بيانات الدخول ببصمة الهاتف</label>
-                </div>
-
                 <button type="submit" class="btn-submit" id="submitBtn">
                     تسجيل الدخول <i class="fa-solid fa-arrow-left"></i>
                 </button>
-
-                <button type="button" class="btn-biometric" id="btnBiometricLogin" onclick="triggerBiometricLogin()" style="display: none;">
-                    الدخول ببصمة الهاتف <i class="fa-solid fa-fingerprint"></i>
-                </button>
             </form>
-            <a href="/client/register" class="btn-create-account">
-                إنشاء حساب جديد <i class="fa-solid fa-user-plus"></i>
-            </a>
         </div>
         
         <div class="footer-text">
-            نظام الدخول الموحد والآمن &copy; 2026 <%= tenant && tenant.branding && tenant.branding.displayName ? tenant.branding.displayName : 'شركة الأهرام' %>
-        </div>
-    </div>
-
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-dark" id="forgotPasswordModalLabel">
-                        <i class="fa-solid fa-key text-warning ms-2"></i> استعادة كلمة المرور
-                    </h5>
-                    <button type="button" class="btn-close ms-0 me-auto" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body pt-3">
-                    <div id="resetStatus" class="reset-status"></div>
-
-                    <div class="reset-step active" id="resetStepAccount">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">اسم المستخدم</label>
-                            <input type="text" class="form-control form-control-lg fw-bold" id="resetUsername" dir="ltr" autocomplete="off" placeholder="username@ahram.com">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">رقم الهاتف المسجل</label>
-                            <input type="text" class="form-control form-control-lg fw-bold" id="resetPhone" dir="ltr" autocomplete="off" placeholder="09xxxxxxxx أو 01xxxxxxxxx">
-                        </div>
-                        <button type="button" class="btn btn-warning fw-bold rounded-3 w-100 py-3" id="resetStartBtn" onclick="startPasswordReset()">
-                            تحقق <i class="fa-solid fa-shield-halved ms-1"></i>
-                        </button>
-                    </div>
-
-                    <div class="reset-step" id="resetStepOtp">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">رمز التحقق OTP</label>
-                            <input type="text" class="form-control form-control-lg fw-bold text-center" id="resetOtp" dir="ltr" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="000000">
-                        </div>
-                        <button type="button" class="btn btn-warning fw-bold rounded-3 w-100 py-3" id="resetOtpBtn" onclick="verifyPasswordResetOtp()">
-                            تحقق من الرمز <i class="fa-solid fa-check ms-1"></i>
-                        </button>
-                    </div>
-
-                    <div class="reset-step" id="resetStepPassword">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">كلمة المرور الجديدة</label>
-                            <input type="password" class="form-control form-control-lg fw-bold" id="resetNewPassword" dir="ltr" autocomplete="new-password">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">إعادة كتابة كلمة المرور</label>
-                            <input type="password" class="form-control form-control-lg fw-bold" id="resetConfirmPassword" dir="ltr" autocomplete="new-password">
-                        </div>
-                        <button type="button" class="btn btn-success fw-bold rounded-3 w-100 py-3" id="resetSubmitBtn" onclick="submitPasswordResetRequest()">
-                            إرسال الطلب للإدارة <i class="fa-solid fa-paper-plane ms-1"></i>
-                        </button>
-                        <div class="small text-muted fw-bold mt-3">
-                            لن يتم تغيير كلمة المرور إلا بعد موافقة الإدارة من قسم الشكاوي.
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light fw-bold rounded-3 px-4" data-bs-dismiss="modal">إغلاق</button>
-                </div>
-            </div>
+            نظام الدخول الموحد والآمن &copy; 2026 شركة الأهرام
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Request GPS coordinates immediately
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    document.getElementById('latitudeInput').value = position.coords.latitude;
-                    document.getElementById('longitudeInput').value = position.coords.longitude;
-                },
-                (error) => {
-                    console.warn("GPS request warning:", error.message);
-                },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-            );
-        }
-
         function togglePassword() {
             const pwd = document.getElementById("passwordInput");
             const icon = document.getElementById("eyeIcon");
@@ -358,230 +144,6 @@
             const btn = document.getElementById('submitBtn');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> جاري التعرف والتحقق...';
             btn.style.opacity = '0.8'; btn.style.pointerEvents = 'none';
-        }
-
-        const resetFlow = { requestId: null };
-
-        function setResetStatus(message, type = 'info') {
-            const box = document.getElementById('resetStatus');
-            box.className = `reset-status show ${type}`;
-            box.textContent = message;
-        }
-
-        function clearResetStatus() {
-            const box = document.getElementById('resetStatus');
-            box.className = 'reset-status';
-            box.textContent = '';
-        }
-
-        function showResetStep(stepName) {
-            document.querySelectorAll('.reset-step').forEach(step => step.classList.remove('active'));
-            document.getElementById(stepName).classList.add('active');
-        }
-
-        async function resetFetch(url, payload) {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json().catch(() => ({ success: false, error: 'استجابة غير صالحة من الخادم.' }));
-            if (!data.success) throw new Error(data.error || 'تعذر تنفيذ الطلب.');
-            return data;
-        }
-
-        async function withButtonLoading(buttonId, loadingText, fn) {
-            const btn = document.getElementById(buttonId);
-            const oldHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin ms-1"></i> ${loadingText}`;
-            try {
-                await fn();
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = oldHtml;
-            }
-        }
-
-        async function startPasswordReset() {
-            clearResetStatus();
-            await withButtonLoading('resetStartBtn', 'جاري التحقق...', async () => {
-                try {
-                    const username = document.getElementById('resetUsername').value.trim();
-                    const phone = document.getElementById('resetPhone').value.trim();
-                    const data = await resetFetch('/api/password-reset/start', { username, phone });
-                    resetFlow.requestId = data.requestId;
-                    setResetStatus(data.message || 'تم إرسال رمز التحقق على واتساب.', 'success');
-                    showResetStep('resetStepOtp');
-                    document.getElementById('resetOtp').focus();
-                } catch (error) {
-                    setResetStatus(error.message, 'error');
-                }
-            });
-        }
-
-        async function verifyPasswordResetOtp() {
-            clearResetStatus();
-            await withButtonLoading('resetOtpBtn', 'جاري التحقق...', async () => {
-                try {
-                    const otp = document.getElementById('resetOtp').value.trim();
-                    const data = await resetFetch('/api/password-reset/verify-otp', { requestId: resetFlow.requestId, otp });
-                    setResetStatus(data.message || 'تم التحقق من الرمز.', 'success');
-                    showResetStep('resetStepPassword');
-                    document.getElementById('resetNewPassword').focus();
-                } catch (error) {
-                    setResetStatus(error.message, 'error');
-                }
-            });
-        }
-
-        async function submitPasswordResetRequest() {
-            clearResetStatus();
-            await withButtonLoading('resetSubmitBtn', 'جاري الإرسال...', async () => {
-                try {
-                    const newPassword = document.getElementById('resetNewPassword').value.trim();
-                    const confirmPassword = document.getElementById('resetConfirmPassword').value.trim();
-                    const data = await resetFetch('/api/password-reset/submit', {
-                        requestId: resetFlow.requestId,
-                        newPassword,
-                        confirmPassword
-                    });
-                    setResetStatus(data.message || 'تم إرسال الطلب إلى الإدارة.', 'success');
-                    showResetStep('resetStepAccount');
-                    document.getElementById('resetUsername').value = '';
-                    document.getElementById('resetPhone').value = '';
-                    document.getElementById('resetOtp').value = '';
-                    document.getElementById('resetNewPassword').value = '';
-                    document.getElementById('resetConfirmPassword').value = '';
-                    resetFlow.requestId = null;
-                } catch (error) {
-                    setResetStatus(error.message, 'error');
-                }
-            });
-        }
-
-        document.getElementById('forgotPasswordModal').addEventListener('hidden.bs.modal', () => {
-            resetFlow.requestId = null;
-            clearResetStatus();
-            showResetStep('resetStepAccount');
-            ['resetUsername', 'resetPhone', 'resetOtp', 'resetNewPassword', 'resetConfirmPassword'].forEach((id) => {
-                document.getElementById(id).value = '';
-            });
-        });
-
-        // ─── Biometric Authentication (WebAuthn) Logic ───
-
-        document.addEventListener("DOMContentLoaded", () => {
-            let saved = null;
-            try {
-                saved = localStorage.getItem('biometric_creds');
-            } catch (e) {
-                console.warn("localStorage read failed:", e.message);
-            }
-            const biometricLoginBtn = document.getElementById('btnBiometricLogin');
-            const biometricSwitchContainer = document.getElementById('biometricSwitchContainer');
-
-            // WebAuthn check
-            if (window.PublicKeyCredential) {
-                if (biometricSwitchContainer) {
-                    biometricSwitchContainer.style.display = 'block';
-                }
-                if (saved && biometricLoginBtn) {
-                    biometricLoginBtn.style.display = 'flex';
-                }
-            }
-        });
-
-        function handleFormSubmit(event) {
-            const biometricSwitch = document.getElementById('saveBiometricSwitch');
-            const hasWebAuthn = typeof window !== 'undefined' && window.PublicKeyCredential;
-
-            if (biometricSwitch && biometricSwitch.checked && hasWebAuthn) {
-                event.preventDefault(); // Only prevent default if biometric enrollment is requested
-                showLoading();
-
-                const usernameInput = document.getElementById('usernameInput');
-                const passwordInput = document.getElementById('passwordInput');
-                const form = document.getElementById('loginForm');
-
-                // Perform async biometric enrollment
-                const userBytes = new TextEncoder().encode(usernameInput.value || "user");
-                const opt = {
-                    publicKey: {
-                        challenge: new Uint8Array([1, 2, 3, 4, 5]),
-                        rp: { name: "Ahram Pay" },
-                        user: {
-                            id: userBytes,
-                            name: usernameInput.value || "user",
-                            displayName: usernameInput.value || "user"
-                        },
-                        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-                        authenticatorSelection: { userVerification: "required" },
-                        timeout: 10000
-                    }
-                };
-
-                navigator.credentials.create(opt)
-                    .then((credential) => {
-                        if (credential) {
-                            try {
-                                const creds = {
-                                    u: btoa(encodeURIComponent(usernameInput.value)),
-                                    p: btoa(encodeURIComponent(passwordInput.value))
-                                };
-                                localStorage.setItem('biometric_creds', JSON.stringify(creds));
-                            } catch (e) {
-                                console.warn("localStorage write failed:", e.message);
-                            }
-                        }
-                        form.submit();
-                    })
-                    .catch((err) => {
-                        console.warn("Biometrics enrollment skipped/failed:", err.message);
-                        form.submit();
-                    });
-            } else {
-                // Let the browser submit the form natively and directly
-                showLoading();
-            }
-        }
-
-        async function triggerBiometricLogin() {
-            let saved = null;
-            try {
-                saved = localStorage.getItem('biometric_creds');
-            } catch (e) {
-                console.warn("localStorage read failed:", e.message);
-            }
-            if (!saved) return;
-
-            try {
-                const creds = JSON.parse(saved);
-                if (!creds.u || !creds.p) return;
-
-                // Prompt user verification (Fingerprint/PIN)
-                const options = {
-                    publicKey: {
-                        challenge: new Uint8Array([1, 2, 3, 4, 5]),
-                        userVerification: "required"
-                    }
-                };
-
-                const assertion = await navigator.credentials.get(options);
-                if (assertion) {
-                    const username = decodeURIComponent(atob(creds.u));
-                    const password = decodeURIComponent(atob(creds.p));
-
-                    document.getElementById('usernameInput').value = username;
-                    document.getElementById('passwordInput').value = password;
-
-                    showLoading();
-                    document.getElementById('loginForm').submit();
-                }
-            } catch (err) {
-                console.error("Biometric authentication failed:", err);
-                alert("❌ فشل التحقق من البصمة. يرجى إدخال البيانات يدوياً.");
-            }
         }
     </script>
 </body>

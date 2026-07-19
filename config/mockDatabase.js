@@ -37,7 +37,7 @@ const seedDemoData = async () => {
     const User = require('../models/User');
     const ClientBot = require('../models/ClientBot');
     const ClientEmployee = require('../models/ClientEmployee');
-    const ExecutorBot = require('../models/ExecutorGroup');
+    const ExecutorBot = require('../models/ExecutorBot');
     const Employee = require('../models/Employee');
     const Transaction = require('../models/Transaction');
     const Settings = require('../models/Settings');
@@ -122,7 +122,7 @@ const seedDemoData = async () => {
     const empPass = await bcrypt.hash('test123', 12);
     const compEmp1 = await ClientEmployee.create({
         telegramId: 'comp_emp_tg_001',
-        companyId: company1._id,
+        clientBotId: company1._id,
         name: 'خالد المحمودي',
         phone: '091-9876543',
         status: 'active',
@@ -132,7 +132,7 @@ const seedDemoData = async () => {
 
     const compEmp2 = await ClientEmployee.create({
         telegramId: 'comp_emp_tg_002',
-        companyId: company2._id,
+        clientBotId: company2._id,
         name: 'أميرة الزناتي',
         phone: '092-1122334',
         status: 'active',
@@ -169,20 +169,8 @@ const seedDemoData = async () => {
         isApiBot: false
     });
 
-    const zaynApiBot = await ExecutorBot.create({
-        name: 'بوابة ZaynPay الآلية',
-        token: 'ZAYNPAY_API_GROUP_TOKEN',
-        status: 'active',
-        balance: 50000,
-        isManagerBot: false,
-        isApiBot: true,
-        isApiGroup: true
-    });
-
     // ── 7. موظفو التنفيذ ──
     const execEmpPass = await bcrypt.hash('test123', 12);
-    const zaynApiPass = await bcrypt.hash('MyKids0124', 12);
-
     const execEmp1 = await Employee.create({
         telegramId: 'exec_emp_tg_001',
         name: 'يوسف منفذ',
@@ -190,21 +178,8 @@ const seedDemoData = async () => {
         role: 'manager',
         status: 'active',
         botId: execBot1._id,
-        groupId: execBot1._id,
         webUsername: 'exec_mgr1',
         webPassword: execEmpPass
-    });
-
-    await Employee.create({
-        telegramId: 'zayn_api_tg',
-        name: 'Zayn Api',
-        phone: '01096580417',
-        role: 'operator',
-        status: 'active',
-        botId: zaynApiBot._id,
-        groupId: zaynApiBot._id,
-        webUsername: 'zaynapi@ahram.com',
-        webPassword: zaynApiPass
     });
 
     const execEmp2 = await Employee.create({
@@ -214,7 +189,6 @@ const seedDemoData = async () => {
         role: 'operator',
         status: 'active',
         botId: execBot1._id,
-        groupId: execBot1._id,
         webUsername: 'exec_op1',
         webPassword: execEmpPass
     });
@@ -226,7 +200,6 @@ const seedDemoData = async () => {
         role: 'manager',
         status: 'active',
         botId: execBot2._id,
-        groupId: execBot2._id,
         webUsername: 'exec_mgr2',
         webPassword: execEmpPass
     });
@@ -267,18 +240,18 @@ const seedDemoData = async () => {
         };
 
         if (status === 'processing' || status === 'accepted' || status === 'completed') {
-            txData.executorGroupId = execBot1._id;
-            txData.executorGroupName = execBot1.name;
+            txData.executorBotId = execBot1._id;
+            txData.executorBotName = execBot1.name;
         }
         if (status === 'accepted' || status === 'completed') {
             txData.executorName = execEmp2.name;
-            txData.operatorId = execEmp2._id.toString();
+            txData.operatorId = execEmp2.telegramId;
         }
         if (status === 'completed') {
             txData.proofImage = 'demo_proof.jpg';
         }
         if (status === 'deposit') {
-            txData.executorGroupId = execBot1._id;
+            txData.executorBotId = execBot1._id;
             txData.amount = Math.floor(Math.random() * 3000) + 1000;
             txData.costLYD = 0;
         }
@@ -292,7 +265,7 @@ const seedDemoData = async () => {
         await Transaction.create({
             customId: `ATT-DEMO-${String(i).padStart(4, '0')}`,
             userId: compEmp1.telegramId,
-            companyId: company1._id,
+            clientBotId: company1._id,
             companyName: company1.name,
             employeeName: compEmp1.name,
             transferType: 'vodafone',
@@ -301,8 +274,8 @@ const seedDemoData = async () => {
             costLYD: parseFloat((amount / 6.35).toFixed(2)),
             exchangeRate: 6.35,
             status: i <= 18 ? 'completed' : 'pending',
-            executorGroupId: i <= 18 ? execBot1._id : undefined,
-            executorGroupName: i <= 18 ? execBot1.name : undefined,
+            executorBotId: i <= 18 ? execBot1._id : undefined,
+            executorBotName: i <= 18 ? execBot1.name : undefined,
             executorName: i <= 18 ? execEmp2.name : undefined,
             createdAt: now,
             updatedAt: now

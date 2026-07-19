@@ -3,7 +3,6 @@
 'use strict';
 
 const { body, validationResult } = require('express-validator');
-const { sendMobileError } = require('../mappers/mobileErrorMapper');
 
 /**
  * Middleware للتحقق من نتائج الـ validation وإرجاع خطأ موحد
@@ -12,7 +11,12 @@ const validate = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const first = errors.array()[0];
-        return sendMobileError(res, 400, 'VALIDATION_ERROR', first.msg, req.correlationId);
+        return res.status(400).json({
+            success: false,
+            code: 'VALIDATION_ERROR',
+            message: first.msg,
+            field: first.path
+        });
     }
     next();
 };
@@ -43,8 +47,8 @@ const transferValidator = [
     body('transferType')
         .trim()
         .notEmpty().withMessage('نوع التحويل مطلوب')
-        .isIn(['vodafone', 'post_account', 'post_card'])
-        .withMessage('نوع التحويل غير صالح. المسموح فقط: vodafone, post_account, post_card'),
+        .isIn(['vodafone', 'post_account', 'post_card', 'بريد حساب', 'بريد بطاقة'])
+        .withMessage('نوع التحويل غير صالح'),
     body('name')
         .optional()
         .trim()
@@ -55,62 +59,6 @@ const transferValidator = [
         .trim()
         .isLength({ max: 500 }).withMessage('الملاحظات لا تتجاوز 500 حرف')
         .escape(),
-    body().custom((body) => {
-        const { transferType, name, number, idCardImage, oldReceiptImage } = body;
-        
-        if (transferType === 'post_card') {
-            if (!name) {
-                throw new Error('الاسم رباعي مطلوب لهذا النوع من التحويل');
-            }
-            if (name.trim().split(/\s+/).filter(Boolean).length < 4) {
-                throw new Error('الاسم المستلم يجب أن يكون رباعياً (4 كلمات على الأقل)');
-            }
-            if (!number || !/^\d{14}$/.test(number)) {
-                throw new Error('الرقم القومي للمستلم مطلوب ويجب أن يكون 14 رقماً');
-            }
-            if (!idCardImage) {
-                throw new Error('صورة وجه البطاقة الشخصية للمستلم مطلوبة');
-            }
-            const base64Data = idCardImage.replace(/^data:image\/\w+;base64,/, '');
-            if (base64Data.length % 4 !== 0 || /[^A-Za-z0-9+/=]/.test(base64Data)) {
-                throw new Error('صورة البطاقة الشخصية يجب أن تكون نص Base64 صالح');
-            }
-            const sizeInBytes = Buffer.from(base64Data, 'base64').length;
-            if (sizeInBytes > 5 * 1024 * 1024) {
-                throw new Error('حجم صورة البطاقة الشخصية يجب ألا يتجاوز 5 ميجابايت');
-            }
-        }
-        
-        if (transferType === 'post_account') {
-            if (!name) {
-                throw new Error('الاسم رباعي مطلوب لهذا النوع من التحويل');
-            }
-            if (name.trim().split(/\s+/).filter(Boolean).length < 4) {
-                throw new Error('الاسم المستلم يجب أن يكون رباعياً (4 كلمات على الأقل)');
-            }
-            if (!number) {
-                throw new Error('رقم الحساب مطلوب');
-            }
-            if (oldReceiptImage) {
-                const base64Data = oldReceiptImage.replace(/^data:image\/\w+;base64,/, '');
-                if (base64Data.length % 4 !== 0 || /[^A-Za-z0-9+/=]/.test(base64Data)) {
-                    throw new Error('صورة الإيصال القديم يجب أن تكون نص Base64 صالح');
-                }
-                const sizeInBytes = Buffer.from(base64Data, 'base64').length;
-                if (sizeInBytes > 5 * 1024 * 1024) {
-                    throw new Error('حجم صورة الإيصال القديم يجب ألا يتجاوز 5 ميجابايت');
-                }
-            }
-        }
-        
-        if (transferType === 'vodafone') {
-            if (!number || !/^\d{10,15}$/.test(number)) {
-                throw new Error('رقم مستلم الكاش يجب أن يكون بين 10 و 15 رقماً');
-            }
-        }
-        
-        return true;
-    }),
     validate
 ];
 

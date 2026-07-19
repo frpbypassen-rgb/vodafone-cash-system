@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const https = require('https');
+const { Telegram } = require('telegraf');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+
 const Transaction = require('../models/Transaction');
-const Ledger = require('../models/Ledger');
-const ExecutorGroup = require('../models/ExecutorGroup');
-const ClientCompany = require('../models/ClientCompany');
+const ExecutorBot = require('../models/ExecutorBot');
+const ClientBot = require('../models/ClientBot');
 const User = require('../models/User');
 const Employee = require('../models/Employee');
 const ClientEmployee = require('../models/ClientEmployee');
@@ -17,7 +20,6 @@ const { escapeRegex } = require('../middlewares/sanitize');
 
 // 🚀 استدعاء محرك الـ API 
 const { executeTransferViaApi } = require('../services/externalApiService');
-const { reversalService } = require('../src/Application/Services/ReversalService');
 
 router.use(requireAuth);
 
@@ -29,65 +31,25 @@ router.get('/transactions', async (req, res) => {
         const limit = 25;
         const search = req.query.search || '';
         const statusFilter = req.query.status || '';
-        let fromDate = req.query.fromDate;
-        let toDate = req.query.toDate;
-        const filterType = req.query.filterType || '';
+        const fromDate = req.query.fromDate || '';
+        const toDate = req.query.toDate || '';
 
-        // Default to today if fromDate and toDate are not specified
-        if (fromDate === undefined && toDate === undefined) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
-            fromDate = todayStr;
-            toDate = todayStr;
-        } else {
-            fromDate = fromDate || '';
-            toDate = toDate || '';
-        }
-
-        let query = {
-            $and: [
-                {
-                    $or: [
-                        { transferType: { $ne: 'balance_transfer' } },
-                        { customId: { $not: /-C$/ } }
-                    ]
-                }
-            ]
-        };
-
-        // ✅ NoSQL Regex Injection — تعقيم مصطلح البحث
+        let query = {};
+        // ✅ إصلاح NoSQL Regex Injection — تعقيم مصطلح البحث
         if (search) {
             const safeSearch = escapeRegex(search);
-            query.$and.push({
-                $or: [
-                    { customId: { $regex: safeSearch, $options: 'i' } },
-                    { vodafoneNumber: { $regex: safeSearch, $options: 'i' } },
-                    { companyName: { $regex: safeSearch, $options: 'i' } },
-                    { employeeName: { $regex: safeSearch, $options: 'i' } }
-                ]
-            });
+            query.$or = [
+                { customId: { $regex: safeSearch, $options: 'i' } },
+                { vodafoneNumber: { $regex: safeSearch, $options: 'i' } },
+                { companyName: { $regex: safeSearch, $options: 'i' } },
+                { employeeName: { $regex: safeSearch, $options: 'i' } }
+            ];
         }
         if (statusFilter) query.status = statusFilter;
         if (fromDate || toDate) {
             query.createdAt = {};
             if (fromDate) query.createdAt.$gte = new Date(`${fromDate}T00:00:00.000Z`);
             if (toDate) query.createdAt.$lte = new Date(`${toDate}T23:59:59.999Z`);
-        }
-
-        // Apply quick category filters
-        if (filterType === 'deposit_deduction') {
-            query.transferType = { $ne: 'balance_transfer' };
-            query.status = { $in: ['deposit', 'deduction', 'deposit_pending'] };
-        } else if (filterType === 'balance_transfer') {
-            query.transferType = 'balance_transfer';
-        } else if (filterType === 'cash_transfer') {
-            query.transferType = { $in: ['vodafone', 'post_account', 'post_card'] };
-            query.status = { $nin: ['deposit', 'deduction', 'deposit_pending'] };
-        } else if (filterType === 'cancelled') {
-            query.status = { $in: ['cancelled_by_admin', 'rejected'] };
         }
 
         const totalTxs = await Transaction.countDocuments(query);
@@ -110,27 +72,12 @@ router.get('/transactions', async (req, res) => {
             else if (row._id === 'deduction') { totals.deductionsEGP = row.totalAmount; }
         });
 
-        const executorGroups = await ExecutorGroup.find({ status: 'active', isManagerBot: { $ne: true } });
-        console.log('DEBUG: executorGroups fetched:', executorGroups.map(g => ({ name: g.name, id: g._id, status: g.status })));
-        const allGroups = await ExecutorGroup.find({});
-        const allGroupsMap = {};
-        allGroups.forEach(b => { allGroupsMap[b._id.toString()] = b.name; });
+        const executorBots = await ExecutorBot.find({ status: 'active', isManagerBot: false });
+        const allBots = await ExecutorBot.find({});
+        const allBotsMap = {};
+        allBots.forEach(b => { allBotsMap[b._id.toString()] = b.name; });
 
-        res.render('transactions', { 
-            transactions, 
-            executorGroups, 
-            executorBots: executorGroups, 
-            allGroupsMap, 
-            allBotsMap: allGroupsMap, 
-            currentPage: page, 
-            totalPages, 
-            search, 
-            statusFilter, 
-            fromDate, 
-            toDate, 
-            filterType,
-            totals 
-        });
+        res.render('transactions', { transactions, executorBots, allBotsMap, currentPage: page, totalPages, search, statusFilter, fromDate, toDate, totals });
     } catch (e) {
         console.error('[adminTransactions/GET transactions] خطأ:', e.message);
         res.status(500).send('خطأ داخلي');
@@ -141,65 +88,24 @@ router.get('/transactions/print', async (req, res) => {
     try {
         const search = req.query.search || '';
         const statusFilter = req.query.status || '';
-        let fromDate = req.query.fromDate;
-        let toDate = req.query.toDate;
-        const filterType = req.query.filterType || '';
-
-        // Default to today if fromDate and toDate are not specified
-        if (fromDate === undefined && toDate === undefined) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
-            fromDate = todayStr;
-            toDate = todayStr;
-        } else {
-            fromDate = fromDate || '';
-            toDate = toDate || '';
-        }
-
-        let query = {
-            $and: [
-                {
-                    $or: [
-                        { transferType: { $ne: 'balance_transfer' } },
-                        { customId: { $not: /-C$/ } }
-                    ]
-                }
-            ]
-        };
-
-        // ✅ NoSQL Regex Injection
+        const fromDate = req.query.fromDate || '';
+        const toDate = req.query.toDate || '';
+        let query = {};
+        // ✅ إصلاح NoSQL Regex Injection
         if (search) {
             const safeSearch = escapeRegex(search);
-            query.$and.push({
-                $or: [
-                    { customId: { $regex: safeSearch, $options: 'i' } },
-                    { vodafoneNumber: { $regex: safeSearch, $options: 'i' } },
-                    { companyName: { $regex: safeSearch, $options: 'i' } },
-                    { employeeName: { $regex: safeSearch, $options: 'i' } }
-                ]
-            });
+            query.$or = [
+                { customId: { $regex: safeSearch, $options: 'i' } },
+                { vodafoneNumber: { $regex: safeSearch, $options: 'i' } },
+                { companyName: { $regex: safeSearch, $options: 'i' } },
+                { employeeName: { $regex: safeSearch, $options: 'i' } }
+            ];
         }
         if (statusFilter) query.status = statusFilter;
         if (fromDate || toDate) {
             query.createdAt = {};
             if (fromDate) query.createdAt.$gte = new Date(`${fromDate}T00:00:00.000Z`);
             if (toDate) query.createdAt.$lte = new Date(`${toDate}T23:59:59.999Z`);
-        }
-
-        // Apply quick category filters
-        if (filterType === 'deposit_deduction') {
-            query.transferType = { $ne: 'balance_transfer' };
-            query.status = { $in: ['deposit', 'deduction', 'deposit_pending'] };
-        } else if (filterType === 'balance_transfer') {
-            query.transferType = 'balance_transfer';
-        } else if (filterType === 'cash_transfer') {
-            query.transferType = { $in: ['vodafone', 'post_account', 'post_card'] };
-            query.status = { $nin: ['deposit', 'deduction', 'deposit_pending'] };
-        } else if (filterType === 'cancelled') {
-            query.status = { $in: ['cancelled_by_admin', 'rejected'] };
         }
 
         const transactions = await Transaction.find(query).sort({ createdAt: -1 });
@@ -210,7 +116,7 @@ router.get('/transactions/print', async (req, res) => {
             else if (tx.status === 'deduction') { totals.deductionsEGP += (tx.amount || 0); }
         });
 
-        res.render('print_report', { transactions, fromDate, toDate, filterType, totals });
+        res.render('print_report', { transactions, fromDate, toDate, totals });
     } catch (e) {
         console.error('[adminTransactions/print] خطأ:', e.message);
         res.status(500).send('حدث خطأ أثناء إعداد التقرير.');
@@ -219,147 +125,97 @@ router.get('/transactions/print', async (req, res) => {
 
 router.post('/transaction/:id/assign-executor', async (req, res) => {
     try {
-        const txId = req.params.id; const executorGroupId = req.body.executorGroupId || req.body.executorBotId; const tx = await Transaction.findById(txId);
+        const txId = req.params.id; const executorBotId = req.body.executorBotId; const tx = await Transaction.findById(txId);
         if (!tx || tx.status !== 'pending') return res.redirect('/transactions');
 
-        const executorGroup = await ExecutorGroup.findById(executorGroupId);
+        const executorBot = await ExecutorBot.findById(executorBotId);
 
-        if (executorGroup && !executorGroup.isManagerBot) { 
+        if (executorBot && !executorBot.isManagerBot) { 
             
             // 🤖====================================================🤖
             // 🚀 المسار الذكي: إذا كان هذا البوت آلياً (API Integration)
             // 🤖====================================================🤖
-            if (executorGroup.isApiBot) {
+            if (executorBot.isApiBot) {
                 tx.status = 'processing';
-                tx.executorGroupId = executorGroup._id;
-                tx.executorName = executorGroup.name;
+                tx.executorBotId = executorBot._id;
+                tx.executorBotName = executorBot.name;
                 await tx.save();
 
                 // التخاطب مع سيرفر الشركة الخارجية
-                const apiResult = await executeTransferViaApi(tx, executorGroup);
+                const apiResult = await executeTransferViaApi(tx, executorBot);
 
-                if (apiResult.success === true) {
-                    const exactRefNumber = apiResult.sender_number || '';
-                    const hasAsterisk = exactRefNumber.includes('*');
+                if (apiResult.success) {
+                    // 1. إكمال العملية بنجاح
+                    tx.status = 'completed';
+                    tx.executorName = 'تنفيذ آلي (API)';
+                    tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[مرجع الشركة الآلي: ${apiResult.external_transaction_id}]`;
+                    await tx.save();
 
-                    if (hasAsterisk) {
-                        // 1. إكمال العملية بنجاح (رقم مرجعي مقنع بـ نجوم)
-                        tx.status = 'completed';
-                        tx.executorName = 'تنفيذ آلي (API)';
-                        tx.executorSenderPhone = exactRefNumber;
-                        tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[مرجع الشركة الآلي: ${apiResult.external_transaction_id}]`;
-                        
-                        // 🧾 توليد صورة إثبات العملية بنجاح
+                    executorBot.balance -= tx.amount;
+                    await executorBot.save();
+
+                    // 2. إشعار العميل
+                    const clientMsg = `✅ <b>تـم تـنـفـيـذ طـلـبـك بـنـجـاح! (تحويل آلي)</b> ⚡\n\n🧾 <b>رقم الطلب:</b> <code>${tx.customId}</code>\n📞 <b>الرقم/الحساب:</b> <code>${tx.vodafoneNumber || tx.accountNumber}</code>\n💵 <b>المبلغ:</b> ${tx.amount} EGP\n💸 <b>التكلفة:</b> ${tx.costLYD.toFixed(2)} LYD`;
+                    let clientAPI = new Telegram(process.env.CLIENT_BOT_TOKEN);
+                    if (tx.clientBotId) {
+                        const comp = await ClientBot.findById(tx.clientBotId);
+                        if (comp) clientAPI = new Telegram(comp.token);
+                    }
+                    await clientAPI.sendMessage(tx.userId, clientMsg, { parse_mode: 'HTML' }).catch(()=>{});
+
+                    // 3. 🟢 إرسال Log النجاح لـ "بوت المراقبة البشري" (إن وجد)
+                    if (executorBot.parentBotId) {
                         try {
-                            const { generateReceiptBase64 } = require('../utils/receiptGenerator');
-                            const fs = require('fs');
-                            const path = require('path');
-                            
-                            let walletNumber = tx.vodafoneNumber || tx.accountNumber || '---';
-                            let maskedPhone = walletNumber.trim();
-                            if (maskedPhone.length === 11) {
-                                maskedPhone = maskedPhone.substring(0, 4) + '****' + maskedPhone.substring(8);
-                            } else if (maskedPhone.length > 0 && maskedPhone.length <= 4) {
-                                maskedPhone = '01******' + maskedPhone;
-                            } else if (maskedPhone.length > 4) {
-                                const firstPart = Math.floor(maskedPhone.length / 3);
-                                const lastPart = Math.floor(maskedPhone.length / 3);
-                                const middlePart = maskedPhone.length - firstPart - lastPart;
-                                maskedPhone = maskedPhone.substring(0, firstPart) + '*'.repeat(middlePart) + maskedPhone.substring(maskedPhone.length - lastPart);
-                            } else {
-                                maskedPhone = '---';
-                            }
-
-                            const receiptBase64 = await generateReceiptBase64({
-                                amount: tx.amount,
-                                walletNumber: walletNumber,
-                                senderPhone: maskedPhone,
-                                customId: tx.customId || tx._id.toString().slice(-6),
-                                accountName: tx.companyName || tx.employeeName || 'غير حدد',
-                                date: new Date().toLocaleDateString('en-GB')
-                            });
-
-                            const buffer = Buffer.from(receiptBase64.replace(/^data:image\/\w+;base64,/, ""), 'base64');
-                            const proofsDir = path.join(process.cwd(), 'uploads', 'proofs');
-                            if (!fs.existsSync(proofsDir)) { fs.mkdirSync(proofsDir, { recursive: true }); }
-                            
-                            const safeId = (tx.customId || tx._id.toString().slice(-6)).toString().replace(/[^a-zA-Z0-9_-]/g, '');
-                            const fileName = `${safeId}_api.jpg`;
-                            fs.writeFileSync(path.join(proofsDir, fileName), buffer);
-                            
-                            tx.proofImage = fileName;
-                            tx.proofImages = [fileName];
-                        } catch (err) {
-                            console.error('[adminTransactions/assign-executor] خطأ في إنشاء إيصال الـ API:', err.message);
-                        }
-
-                        if (apiResult.processLog) {
-                            tx.notes = (tx.notes ? tx.notes + '\n' : '') + `--- سجل الـ API\n${apiResult.processLog}`;
-                        }
-                        await tx.save();
-
-                        executorGroup.balance -= tx.amount;
-                        await executorGroup.save();
-
-                        // 2. إشعار العميل عبر النظام 
-                        // 🟢 تم استبدال التيليجرام بـ Socket.IO لاحقاً
-
-                        // 3. 🟢 إرسال Log النجاح لـ "بوت المراقبة البشري" (إن وجد)
-                        if (executorGroup.parentGroupId) {
-                            try {
-                                const monitorGroup = await ExecutorGroup.findById(executorGroup.parentGroupId);
-                                if (monitorGroup) {
-                                    // 🟢 تم استبدال التيليجرام بـ Socket.IO لاحقاً
+                            const monitorBot = await ExecutorBot.findById(executorBot.parentBotId);
+                            if (monitorBot && monitorBot.token) {
+                                const monitorAPI = new Telegram(monitorBot.token);
+                                const monitorStaff = await Employee.find({ botId: monitorBot._id, status: 'active' });
+                                const monitorMsg = `🟢 <b>سجل API (عملية ناجحة)</b>\n\n🤖 <b>عبر:</b> ${executorBot.name}\n🧾 <b>الطلب:</b> <code>${tx.customId}</code>\n📞 <b>الرقم:</b> <code>${tx.vodafoneNumber}</code>\n💵 <b>المبلغ:</b> ${tx.amount} EGP\n📝 <b>المرجع:</b> <code>${apiResult.external_transaction_id}</code>`;
+                                for (const staff of monitorStaff) {
+                                    if(staff.telegramId) await monitorAPI.sendMessage(staff.telegramId, monitorMsg, { parse_mode: 'HTML' }).catch(()=>{});
                                 }
-                            } catch(e){}
-                        }
-                    } else {
-                        // 2. عملية معلقة (رقم مرجعي غير مقنع بالنجوم، مثل 01274587351)
-                        tx.status = 'pending';
-                        tx.executorGroupId = executorGroup._id;
-                        tx.executorName = 'في انتظار تحديث (API)';
-                        tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[معلقة - بانتظار التحقق من الرقم المرجعي: ${exactRefNumber}]`;
-                        if (apiResult.processLog) {
-                            tx.notes = tx.notes + `\n--- سجل الـ API\n${apiResult.processLog}`;
-                        }
-                        await tx.save();
-
-                        // إرسال رسالة إلى مجموعة الواتساب
-                        try {
-                            const { sendWhatsAppAlert } = require('../services/whatsappService');
-                            await sendWhatsAppAlert(tx, apiResult);
-                        } catch (waErr) {
-                            console.error('[adminTransactions/assign-executor] خطأ في إرسال تنبيه الواتساب:', waErr.message);
-                        }
+                            }
+                        } catch(e){}
                     }
 
                 } else {
                     // 🔴 فشل الـ API -> تحويل الطلب فوراً للبشر (Human Fallback)
-                    if (executorGroup.parentGroupId) {
-                        const monitorGroup = await ExecutorGroup.findById(executorGroup.parentGroupId);
-                        if (monitorGroup) {
+                    if (executorBot.parentBotId) {
+                        const monitorBot = await ExecutorBot.findById(executorBot.parentBotId);
+                        if (monitorBot) {
                             // تغيير مسؤولية الطلب ليكون من نصيب الفريق البشري
-                            tx.executorGroupId = monitorGroup._id;
-                            tx.managerGroupId = monitorGroup.parentGroupId || null;
-                            tx.executorName = monitorGroup.name;
+                            tx.executorBotId = monitorBot._id;
+                            tx.managerBotId = monitorBot.parentBotId || null;
+                            tx.executorBotName = monitorBot.name;
                             tx.status = 'processing';
                             tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[فشل API - تم التحويل للمراقبة البشرية | السبب: ${apiResult.message}]`;
-                            if (apiResult.processLog) {
-                                tx.notes = tx.notes + `\n--- سجل الـ API\n${apiResult.processLog}`;
-                            }
                             await tx.save();
 
-                            // 🟢 تم استبدال إشعارات التيليجرام بـ Socket.IO لاحقاً
+                            const employees = await Employee.find({ botId: monitorBot._id, status: 'active' });
+                            const monitorAPI = new Telegram(monitorBot.token);
+                            
+                            let typeLabel = '📱 فودافون كاش'; if(tx.transferType === 'post_account') typeLabel = '📮 حساب بريد'; if(tx.transferType === 'post_card') typeLabel = '💳 بطاقة عميل';
+                            let accDetails = `📞 <b>الرقم/الحساب:</b> <code>${tx.vodafoneNumber || tx.accountNumber || '---'}</code>\n`;
+                            
+                            const fallbackMsg = `🚨 <b>تدخل بشري مطلوب! (فشل API)</b>\n\nحاول بوت (${executorBot.name}) تنفيذ العملية وفشل للسبب التالي:\n⚠️ <i>${apiResult.message}</i>\n\n${accDetails}💵 <b>المبلغ:</b> ${tx.amount} EGP\n🧾 <b>الطلب:</b> <code>${tx.customId}</code>`;
+                            const markup = { inline_keyboard: [[{ text: '🤝 قبول المهمة وتصحيحها يدوياً', callback_data: `accept_task_${tx._id}` }]] };
+                            
+                            for (const emp of employees) {
+                                if (emp.telegramId) {
+                                    try {
+                                        const sentMsg = await monitorAPI.sendMessage(emp.telegramId, fallbackMsg, { parse_mode: 'HTML', reply_markup: markup });
+                                        tx.broadcastMessages.push({ telegramId: emp.telegramId, messageId: sentMsg.message_id });
+                                    } catch (err) {}
+                                }
+                            }
+                            await tx.save();
                         }
                     } else {
                         // لا يوجد فريق بشري مرتبط -> إرجاع الطلب للإدارة
                         tx.status = 'pending'; 
                         tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[فشل التنفيذ الآلي: ${apiResult.message}]`;
-                        if (apiResult.processLog) {
-                            tx.notes = tx.notes + `\n--- سجل الـ API\n${apiResult.processLog}`;
-                        }
-                        tx.executorGroupId = undefined;
-                        tx.executorName = undefined;
+                        tx.executorBotId = undefined;
+                        tx.executorBotName = undefined;
                         await tx.save();
                     }
                 }
@@ -369,10 +225,40 @@ router.post('/transaction/:id/assign-executor', async (req, res) => {
             // 👨‍💻====================================================👨‍💻
             // المسار الكلاسيكي: للبوت البشري العادي
             // 👨‍💻====================================================👨‍💻
-            tx.executorGroupId = executorGroup._id; tx.managerGroupId = executorGroup.parentGroupId || null; tx.executorName = executorGroup.name; tx.status = 'processing'; tx.broadcastMessages = []; 
+            tx.executorBotId = executorBot._id; tx.managerBotId = executorBot.parentBotId || null; tx.executorBotName = executorBot.name; tx.status = 'processing'; tx.broadcastMessages = []; 
 
-            // 🟢 الإشعارات ستكون عبر Socket.IO
+            if (tx.adminMessages && tx.adminMessages.length > 0) {
+                const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
+                for (const adminMsg of tx.adminMessages) await adminAPI.deleteMessage(adminMsg.telegramId, adminMsg.messageId).catch(() => {});
+                tx.adminMessages = []; 
+            }
 
+            const employees = await Employee.find({ botId: executorBot._id, status: 'active' });
+            const execBotAPI = new Telegram(executorBot.token); 
+            
+            let typeLabel = '📱 فودافون كاش'; if(tx.transferType === 'post_account') typeLabel = '📮 حساب بريد'; if(tx.transferType === 'post_card') typeLabel = '💳 بطاقة عميل';
+            let accDetails = `📞 <b>الرقم/الحساب:</b> <code>${tx.vodafoneNumber || tx.accountNumber || '---'}</code>\n`; if(tx.accountName) accDetails += `👤 <b>الاسم:</b> ${tx.accountName}\n`;
+
+            const noteDisplay = tx.notes ? `\n📝 <b>الملاحظة:</b> ${tx.notes}` : '';
+            const msg = `🔔 <b>مهمة تحويل جديدة من الإدارة! (${typeLabel})</b>\n\n${accDetails}💵 <b>المبلغ:</b> ${tx.amount} EGP\n🧾 <b>رقم الطلب:</b> <code>${tx.customId || tx._id}</code>${noteDisplay}`;
+            
+            let idUrl = null;
+            if (tx.transferType === 'post_card' && tx.idCardImage) {
+                try { let cToken = process.env.CLIENT_BOT_TOKEN; if (tx.clientBotId) { const comp = await ClientBot.findById(tx.clientBotId); if (comp) cToken = comp.token; } const tempApi = new Telegram(cToken); idUrl = (await tempApi.getFileLink(tx.idCardImage)).href; } catch(e){}
+            }
+
+            for (const emp of employees) {
+                if (emp.telegramId) {
+                    try {
+                        const isManager = emp.role === 'manager'; const btnText = isManager ? '🤝 قبول المهمة (كمدير)' : '🤝 قبول المهمة'; const markup = { inline_keyboard: [[{ text: btnText, callback_data: `accept_task_${tx._id}` }]] };
+                        let sentMsg;
+                        if (idUrl) sentMsg = await execBotAPI.sendPhoto(emp.telegramId, { url: idUrl }, { caption: msg, parse_mode: 'HTML', reply_markup: markup }).catch(() => execBotAPI.sendMessage(emp.telegramId, msg, { parse_mode: 'HTML', reply_markup: markup }));
+                        else sentMsg = await execBotAPI.sendMessage(emp.telegramId, msg, { parse_mode: 'HTML', reply_markup: markup });
+
+                        if (sentMsg) tx.broadcastMessages.push({ telegramId: emp.telegramId, messageId: sentMsg.message_id });
+                    } catch (err) {}
+                }
+            }
             await tx.save();
         }
         res.redirect('/transactions');
@@ -383,12 +269,44 @@ router.post('/transaction/:id/pull-task', async (req, res) => {
     try {
         const tx = await Transaction.findById(req.params.id);
         if (tx && (tx.status === 'processing' || tx.status === 'accepted')) {
-            const oldGroupId = tx.executorGroupId; const displayId = tx.customId || tx._id.toString();
+            const oldBotId = tx.executorBotId; const oldOperatorId = tx.operatorId; const displayId = tx.customId || tx._id.toString(); const oldBroadcasts = tx.broadcastMessages || [];
 
-            tx.status = 'pending'; tx.executorGroupId = undefined; tx.managerGroupId = undefined; tx.executorName = undefined; tx.operatorId = undefined; tx.broadcastMessages = []; tx.adminMessages = []; tx.emergencyAlert = undefined; 
+            tx.status = 'pending'; tx.executorBotId = undefined; tx.managerBotId = undefined; tx.executorBotName = undefined; tx.executorName = '---'; tx.operatorId = undefined; tx.broadcastMessages = []; tx.adminMessages = []; tx.emergencyAlert = undefined; 
 
-            // 🟢 إشعارات الانسحاب عبر Socket.IO
+            if (oldBotId) {
+                try {
+                    const execBot = await ExecutorBot.findById(oldBotId);
+                    if (execBot) {
+                        const execAPI = new Telegram(execBot.token);
+                        if (oldOperatorId) await execAPI.sendMessage(oldOperatorId, `⚠️ <b>تنبيه من الإدارة العليا:</b>\nتم سحب الطلب رقم <code>${displayId}</code> منك وإعادته للإدارة!`, { parse_mode: 'HTML' }).catch(()=>{});
+                        for (const bMsg of oldBroadcasts) await execAPI.deleteMessage(bMsg.telegramId, bMsg.messageId).catch(()=>{});
+                    }
+                } catch (err) {}
+            }
 
+            const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN); const allAdmins = await Admin.find({});
+            let typeLabel = 'فودافون كاش'; if(tx.transferType === 'post_account') typeLabel = 'حساب بريد'; if(tx.transferType === 'post_card') typeLabel = 'بطاقة عميل';
+            const source = tx.companyName ? `🏢 الشركة: ${tx.companyName}\n👤 الموظف: ${tx.employeeName}` : `👤 العميل: ${tx.employeeName || 'فردي'}`;
+            let accDetails = `📞 المحفظة/الرقم: <code>${tx.vodafoneNumber || tx.accountNumber || '---'}</code>`; if (tx.accountName) accDetails += `\n👤 الاسم: ${tx.accountName}`;
+
+            const msgText = `🔄 <b>تم سحب الطلب للإدارة (${typeLabel}):</b>\n${source}\n${accDetails}\n💵 المبلغ: ${tx.amount} EGP\n💰 التكلفة: ${tx.costLYD} LYD\n🧾 رقم الطلب: <code>${displayId}</code>`;
+            const keyboard = { inline_keyboard: [[{ text: '🤖 تحويل لبوت تنفيذي', callback_data: `forward_${tx._id}` }], [{ text: '❌ إلغاء العملية', callback_data: `cancelReq_${tx._id}` }]]};
+
+            let idUrl = null;
+            if (tx.transferType === 'post_card' && tx.idCardImage) {
+                try { let cToken = process.env.CLIENT_BOT_TOKEN; if (tx.clientBotId) { const comp = await ClientBot.findById(tx.clientBotId); if (comp) cToken = comp.token; } const tempApi = new Telegram(cToken); idUrl = (await tempApi.getFileLink(tx.idCardImage)).href; } catch(e){}
+            }
+
+            for (const admin of allAdmins) {
+                if (admin.telegramId) {
+                    let sentAdminMsg;
+                    try {
+                        if (idUrl) sentAdminMsg = await adminAPI.sendPhoto(admin.telegramId, { url: idUrl }, { caption: msgText, parse_mode: 'HTML', reply_markup: keyboard });
+                        else sentAdminMsg = await adminAPI.sendMessage(admin.telegramId, msgText, { parse_mode: 'HTML', reply_markup: keyboard });
+                        if (sentAdminMsg) tx.adminMessages.push({ telegramId: admin.telegramId, messageId: sentAdminMsg.message_id });
+                    } catch(e) {}
+                }
+            }
             await tx.save();
         }
         res.redirect('/transactions');
@@ -402,8 +320,15 @@ router.post('/transaction/:id/emergency-alert', async (req, res) => {
         const alertMsg = req.body.alertMessage || `تنبيه عاجل من الإدارة للطلب رقم ${tx.customId || tx._id}! يرجى سرعة التنفيذ!`;
         await Transaction.updateOne({ _id: tx._id }, { $set: { emergencyAlert: alertMsg } }, { strict: false });
 
-        // 🟢 الإشعارات عبر Socket.IO
-
+        if (tx.executorBotId) {
+            const execBot = await ExecutorBot.findById(tx.executorBotId);
+            if (execBot) {
+                const execAPI = new Telegram(execBot.token); const displayId = tx.customId || tx._id.toString();
+                const teleMsg = `🚨🚨 <b>تـنـبـيـه طـارئ مـن الإدارة الـعـلـيـا (موقع الإدارة)</b> 🚨🚨\n\nالرجاء الإسراع في تنفيذ الطلب رقم <code>${displayId}</code> فوراً!\n\n💬 رسالة الإدارة: <b>${alertMsg}</b>`;
+                if (tx.status === 'accepted' && tx.operatorId) execAPI.sendMessage(tx.operatorId, teleMsg, { parse_mode: 'HTML' }).catch(()=>{});
+                else if (tx.status === 'processing') { const operators = await Employee.find({ botId: execBot._id, status: 'active' }); for (const op of operators) execAPI.sendMessage(op.telegramId, teleMsg, { parse_mode: 'HTML' }).catch(()=>{}); }
+            }
+        }
         res.redirect('/transactions');
     } catch (error) { res.redirect('/transactions'); }
 });
@@ -413,13 +338,15 @@ router.post('/transaction/:id/accept-deposit-web', async (req, res) => {
         const { imageBase64 } = req.body; const tx = await Transaction.findById(req.params.id);
         if (!tx || tx.status !== 'deposit_pending') return res.json({success: false, error: 'الطلب غير متاح'});
 
-        // 🟢 إزالة التيليجرام 
-        let fileId = `deposit_${Date.now()}.jpg`;
+        const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, ""); const imageBuffer = Buffer.from(base64Data, 'base64');
+        const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN); let fileId = null;
+        try { const sentMsg = await adminAPI.sendPhoto(process.env.ADMIN_TELEGRAM_ID, { source: imageBuffer }, { caption: `✅ إيصال إيداع (مقبول) للطلب ${tx.customId}` }); fileId = sentMsg.photo[sentMsg.photo.length - 1].file_id; } catch(err) { return res.json({success: false, error: 'حدث خطأ أثناء رفع الصورة لتيليجرام'}); }
 
         tx.status = 'deposit'; tx.proofImage = fileId; tx.updatedAt = new Date();
-        
+        const execBot = await ExecutorBot.findById(tx.executorBotId);
+        if (execBot) { const execAPI = new Telegram(execBot.token); await execAPI.sendPhoto(tx.operatorId, fileId, { caption: `✅ <b>تمت الموافقة على طلب الإيداع!</b>\nالمبلغ: ${tx.amount} EGP`, parse_mode: 'HTML' }).catch(()=>{}); }
         await Transaction.updateOne({ _id: tx._id }, { $set: { executorWebAlert: { type: 'success', text: `تم قبول طلب الإيداع بقيمة ${tx.amount} EGP وتمت إضافة الرصيد لحسابك بنجاح.`, imageUrl: `/proxy/image/${tx._id}/0` } } }, { strict: false });
-        await tx.save(); if (tx.executorGroupId) await syncBotBalance(tx.executorGroupId); 
+        await tx.save(); if (tx.executorBotId) await syncBotBalance(tx.executorBotId); 
         res.json({success: true});
     } catch(e) { res.json({success: false, error: e.message}); }
 });
@@ -430,6 +357,8 @@ router.post('/transaction/:id/reject-deposit-web', async (req, res) => {
         if (!tx || tx.status !== 'deposit_pending') return res.redirect('/transactions');
 
         tx.status = 'rejected'; tx.notes = `سبب الرفض: ${reason}`; tx.updatedAt = new Date();
+        const execBot = await ExecutorBot.findById(tx.executorBotId);
+        if (execBot) { const execAPI = new Telegram(execBot.token); await execAPI.sendMessage(tx.operatorId, `❌ <b>تم رفض طلب الإيداع!</b>\nالمبلغ: ${tx.amount} EGP\nالسبب: ${reason}`, { parse_mode: 'HTML' }).catch(()=>{}); }
         await Transaction.updateOne({ _id: tx._id }, { $set: { executorWebAlert: { type: 'error', text: `تم رفض طلب الإيداع بقيمة ${tx.amount} EGP.<br><b>السبب:</b> ${reason}` } } }, { strict: false });
         await tx.save(); res.redirect('/transactions');
     } catch(e) { res.redirect('/transactions'); }
@@ -443,8 +372,8 @@ router.post('/transaction/:id/edit-rate', async (req, res) => {
         if (!tx || ['rejected', 'cancelled_by_admin'].includes(tx.status)) return res.redirect('/transactions');
 
         const oldCost = tx.costLYD || 0; const newCost = tx.amount / newRate; const diff = newCost - oldCost; 
-        if (tx.companyId) { const company = await ClientCompany.findById(tx.companyId); if (company) { company.balance -= diff; await company.save(); } } 
-        else if (tx.userId) { const user = await User.findOne({ phone: tx.userId }); if (user) { user.balance -= diff; await user.save(); } }
+        if (tx.clientBotId) { const company = await ClientBot.findById(tx.clientBotId); if (company) { company.balance -= diff; await company.save(); } } 
+        else if (tx.userId) { const user = await User.findOne({ telegramId: tx.userId }); if (user) { user.balance -= diff; await user.save(); } }
 
         const adminName = req.session.adminName || 'الإدارة';
         tx.costLYD = newCost; const oldRate = oldCost > 0 ? (tx.amount / oldCost).toFixed(3) : '0';
@@ -464,13 +393,13 @@ router.post('/transaction/:id/edit-data', async (req, res) => {
 
         if (tx.status === 'deposit' || tx.status === 'deduction') {
             const diffAmount = newAmount - oldAmountEGP; const diffDeposit = (tx.status === 'deposit') ? diffAmount : -diffAmount;
-            if (tx.userId === 'admin' && tx.executorGroupId) {
+            if (tx.userId === 'admin' && tx.executorBotId) {
                 const newNotes = (tx.notes ? tx.notes + '\n' : '') + `[تم تعديل (المبلغ: ${newAmount}، التاريخ: ${newDate.toLocaleString('en-GB')}) بواسطة: ${adminName}]`;
                 await Transaction.updateOne({ _id: tx._id }, { $set: { amount: newAmount, createdAt: newDate, updatedAt: newDate, notes: newNotes } }, { timestamps: false });
-                await syncBotBalance(tx.executorGroupId); if (tx.managerGroupId) await syncBotBalance(tx.managerGroupId);
+                await syncBotBalance(tx.executorBotId); if (tx.managerBotId) await syncBotBalance(tx.managerBotId);
             } else {
-                if (tx.companyId) { const comp = await ClientCompany.findById(tx.companyId); if (comp) { comp.balance += diffDeposit; await comp.save(); } } 
-                else if (tx.userId) { const user = await User.findOne({ phone: tx.userId }); if (user) { user.balance += diffDeposit; await user.save(); } }
+                if (tx.clientBotId) { const comp = await ClientBot.findById(tx.clientBotId); if (comp) { comp.balance += diffDeposit; await comp.save(); } } 
+                else if (tx.userId) { const user = await User.findOne({ telegramId: tx.userId }); if (user) { user.balance += diffDeposit; await user.save(); } }
                 const newNotes = (tx.notes ? tx.notes + '\n' : '') + `[تم تعديل (المبلغ: ${newAmount}، التاريخ: ${newDate.toLocaleString('en-GB')}) بواسطة: ${adminName}]`;
                 await Transaction.updateOne({ _id: tx._id }, { $set: { amount: newAmount, createdAt: newDate, updatedAt: newDate, notes: newNotes } }, { timestamps: false });
             }
@@ -478,18 +407,28 @@ router.post('/transaction/:id/edit-data', async (req, res) => {
             const oldCostLYD = tx.costLYD; const newCostLYD = parseFloat((newAmount / tx.exchangeRate).toFixed(3));
             const diffEGP = newAmount - oldAmountEGP; const diffLYD = newCostLYD - oldCostLYD;
 
-            if (tx.companyId) { const comp = await ClientCompany.findById(tx.companyId); if (comp) { comp.balance -= diffLYD; await comp.save(); } } 
-            else if (tx.userId) { const user = await User.findOne({ phone: tx.userId }); if (user) { user.balance -= diffLYD; await user.save(); } }
+            if (tx.clientBotId) { const comp = await ClientBot.findById(tx.clientBotId); if (comp) { comp.balance -= diffLYD; await comp.save(); } } 
+            else if (tx.userId) { const user = await User.findOne({ telegramId: tx.userId }); if (user) { user.balance -= diffLYD; await user.save(); } }
 
-            if (tx.status === 'completed' && tx.executorGroupId) {
-                const execGroup = await ExecutorGroup.findById(tx.executorGroupId); if (execGroup) { execGroup.balance -= diffEGP; await execGroup.save(); }
-                if (tx.managerGroupId) { const mgrGroup = await ExecutorGroup.findById(tx.managerGroupId); if (mgrGroup) { mgrGroup.balance -= diffEGP; await mgrGroup.save(); } }
+            if (tx.status === 'completed' && tx.executorBotId) {
+                const execBot = await ExecutorBot.findById(tx.executorBotId); if (execBot) { execBot.balance -= diffEGP; await execBot.save(); }
+                if (tx.managerBotId) { const mgrBot = await ExecutorBot.findById(tx.managerBotId); if (mgrBot) { mgrBot.balance -= diffEGP; await mgrBot.save(); } }
             }
 
             const newNotes = (tx.notes ? tx.notes + '\n' : '') + `[تم تعديل (المبلغ: ${newAmount}EGP، التاريخ: ${newDate.toLocaleString('en-GB')}) بواسطة: ${adminName}]`;
             await Transaction.updateOne({ _id: tx._id }, { $set: { amount: newAmount, costLYD: newCostLYD, createdAt: newDate, updatedAt: newDate, notes: newNotes } }, { timestamps: false });
 
-            // 🟢 تم إزالة إشعارات التيليجرام للتعديلات
+            if (['processing', 'accepted'].includes(tx.status) && tx.executorBotId) {
+                try {
+                    const execBot = await ExecutorBot.findById(tx.executorBotId);
+                    if (execBot) {
+                        const execAPI = new Telegram(execBot.token);
+                        const alertMsg = `⚠️ <b>تنبيه من الإدارة:</b>\nتم تعديل بيانات الحوالة للطلب <code>${tx.customId}</code>\nالمبلغ القديم: <b>${oldAmountEGP} EGP</b>\nالمبلغ الجديد: <b>${newAmount} EGP</b>\nالرجاء الانتباه!`;
+                        if (tx.status === 'accepted' && tx.operatorId) await execAPI.sendMessage(tx.operatorId, alertMsg, { parse_mode: 'HTML' }).catch(()=>{});
+                        else if (tx.status === 'processing' && tx.broadcastMessages) for (const msg of tx.broadcastMessages) await execAPI.sendMessage(msg.telegramId, alertMsg, { parse_mode: 'HTML' }).catch(()=>{});
+                    }
+                } catch(e) {}
+            }
         }
         res.redirect('/transactions');
     } catch (error) { res.redirect('/transactions'); }
@@ -497,19 +436,15 @@ router.post('/transaction/:id/edit-data', async (req, res) => {
 
 router.post('/transaction/:id/global-cancel', async (req, res) => {
     try {
-        const reason = req.body.reason || 'إلغاء من الإدارة';
-        const adminName = req.session.adminName || 'الإدارة';
-        
-        // 🟢 استخدام خدمة الاسترجاع الموحدة لضمان الدبل إنتري والأحداث المتسلسلة
-        const result = await reversalService.reverseTransaction(req.params.id, reason, adminName);
-        if (result.success) {
-            const tx = await Transaction.findById(req.params.id);
-            if (tx) {
-                const groupId = tx.executorGroupId; 
-                const managerGroupId = tx.managerGroupId;
-                if (groupId) await syncBotBalance(groupId); 
-                if (managerGroupId) await syncBotBalance(managerGroupId);
+        const tx = await Transaction.findById(req.params.id);
+        if (tx) {
+            if (tx.status === 'completed' || tx.status === 'processing' || tx.status === 'accepted' || tx.status === 'pending') {
+                if (tx.clientBotId) await ClientBot.findByIdAndUpdate(tx.clientBotId, { $inc: { balance: tx.costLYD || 0 } });
+                else if (tx.userId) await User.findOneAndUpdate({ telegramId: tx.userId }, { $inc: { balance: tx.costLYD || 0 } });
             }
+            const botId = tx.executorBotId; const managerBotId = tx.managerBotId;
+            await Transaction.findByIdAndDelete(tx._id);
+            if(botId) await syncBotBalance(botId); if(managerBotId) await syncBotBalance(managerBotId); 
         }
         res.redirect('/transactions');
     } catch (e) { res.redirect('/transactions'); }
@@ -517,61 +452,25 @@ router.post('/transaction/:id/global-cancel', async (req, res) => {
 
 router.post('/transaction/:id/change-bot', async (req, res) => {
     try {
-        const txId = req.params.id; const newGroupId = req.body.newGroupId;
-        if (!newGroupId) return res.redirect('/transactions');
+        const txId = req.params.id; const newBotId = req.body.newBotId;
+        if (!newBotId) return res.redirect('/transactions');
         const tx = await Transaction.findById(req.params.id);
         if (!tx || tx.status !== 'completed') return res.redirect('/transactions');
-        if (tx.executorGroupId && tx.executorGroupId.toString() === newGroupId.toString()) return res.redirect('/transactions');
+        if (tx.executorBotId && tx.executorBotId.toString() === newBotId.toString()) return res.redirect('/transactions');
 
-        if (tx.executorGroupId) { const oldGroup = await ExecutorGroup.findById(tx.executorGroupId); if (oldGroup) { oldGroup.balance += tx.amount; await oldGroup.save(); } }
-        if (tx.managerGroupId) { const oldManager = await ExecutorGroup.findById(tx.managerGroupId); if (oldManager) { oldManager.balance += tx.amount; await oldManager.save(); } }
+        if (tx.executorBotId) { const oldBot = await ExecutorBot.findById(tx.executorBotId); if (oldBot) { oldBot.balance += tx.amount; await oldBot.save(); } }
+        if (tx.managerBotId) { const oldManager = await ExecutorBot.findById(tx.managerBotId); if (oldManager) { oldManager.balance += tx.amount; await oldManager.save(); } }
 
-        const newGroup = await ExecutorGroup.findById(newGroupId); let newManagerId = null;
-        if (newGroup) {
-            newGroup.balance -= tx.amount; await newGroup.save();
-            if (newGroup.parentGroupId) { const newManager = await ExecutorGroup.findById(newGroup.parentGroupId); if (newManager) { newManager.balance -= tx.amount; await newManager.save(); newManagerId = newManager._id; } }
+        const newBot = await ExecutorBot.findById(newBotId); let newManagerId = null;
+        if (newBot) {
+            newBot.balance -= tx.amount; await newBot.save();
+            if (newBot.parentBotId) { const newManager = await ExecutorBot.findById(newBot.parentBotId); if (newManager) { newManager.balance -= tx.amount; await newManager.save(); newManagerId = newManager._id; } }
         }
 
-        tx.executorGroupId = newGroupId; tx.managerGroupId = newManagerId; tx.executorName = newGroup ? newGroup.name : 'غير محدد';
-        tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[تم النقل محاسبياً إلى بوت: ${newGroup ? newGroup.name : 'غير معروف'}]`;
+        tx.executorBotId = newBotId; tx.managerBotId = newManagerId; tx.executorBotName = newBot ? newBot.name : 'غير محدد';
+        tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[تم النقل محاسبياً إلى بوت: ${newBot ? newBot.name : 'غير معروف'}]`;
         await tx.save(); res.redirect('/transactions');
     } catch (error) { res.redirect('/transactions'); }
-});
-
-// 🟢 تحديث حالة التحقق (KYC) للعميل من قبل الإدارة
-router.post('/admin/kyc/review', async (req, res) => {
-    try {
-        const { userId, status, reason } = req.body;
-        if (!userId || !['verified', 'rejected'].includes(status)) {
-            return res.status(400).json({ success: false, message: 'بيانات المراجعة غير صالحة' });
-        }
-
-        const { kycService } = require('../src/Application/Services/KycService');
-        await kycService.updateKycStatus(userId, status, reason);
-
-        return res.status(200).json({ success: true, message: 'تم تحديث حالة KYC بنجاح' });
-    } catch (e) {
-        return res.status(500).json({ success: false, message: 'حدث خطأ داخلي أثناء مراجعة KYC' });
-    }
-});
-
-// 🔍 الحصول على تفاصيل العملية الشاملة + قيود الدفتر المالي (Ledger)
-router.get('/transactions/:id/details', async (req, res) => {
-    try {
-        const tx = await Transaction.findById(req.params.id);
-        if (!tx) return res.status(404).json({ success: false, error: 'العملية غير موجودة' });
-        
-        let ledgerInfo = null;
-        if (tx.transferType === 'balance_transfer') {
-            const transferId = tx.customId.replace(/-[CD]$/, '');
-            ledgerInfo = await Ledger.find({ transactionId: transferId });
-        }
-        
-        res.json({ success: true, transaction: tx, ledgerInfo });
-    } catch (e) {
-        console.error('[adminTransactions/GET details] خطأ:', e.message);
-        res.status(500).json({ success: false, error: 'حدث خطأ أثناء تحميل تفاصيل العملية.' });
-    }
 });
 
 module.exports = router;

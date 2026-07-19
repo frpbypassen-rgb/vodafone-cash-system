@@ -119,7 +119,7 @@ const getLiveTasksForExecutor = async (executorBotId) => {
 const getClientTransactions = async (clientId, clientType, options = {}) => {
     const { limit = 50, skip = 0 } = options;
     const filter = clientType === 'client_company'
-        ? { companyId: clientId }
+        ? { clientBotId: clientId }
         : { userId: clientId };
 
     return Transaction.find(filter)

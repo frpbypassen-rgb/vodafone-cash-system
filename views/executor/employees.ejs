@@ -61,27 +61,13 @@
         .btn-create { background: linear-gradient(45deg, #10b981, #059669); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 800; font-size: 1rem; transition: 0.3s; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
         .btn-create:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4); filter: brightness(1.1); color: white; }
 
-        .emp-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; }
-        .emp-table th { font-size: 0.85rem; color: var(--text-muted); font-weight: 800; padding: 10px 15px; border: none; text-align: right; }
-        .emp-table tr { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-        .emp-table td { padding: 16px 15px; background: var(--glass-bg); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); font-weight: 700; font-size: 0.9rem; vertical-align: middle; transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02); }
-        [data-theme="dark"] .emp-table td { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); }
-        .emp-table tr td:first-child { border-radius: 0 14px 14px 0; border-right: 1px solid var(--glass-border); }
-        .emp-table tr td:last-child { border-radius: 14px 0 0 14px; border-left: 1px solid var(--glass-border); }
-
-        .emp-table tbody tr:hover { transform: translateY(-3px) scale(1.005); }
-        .emp-table tbody tr:hover td {
-            background: rgba(255, 255, 255, 0.98);
-            border-color: rgba(14, 165, 233, 0.3);
-            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
-        }
-        [data-theme="dark"] .emp-table tbody tr:hover td {
-            background: rgba(30, 41, 59, 0.98);
-            border-color: rgba(251, 191, 36, 0.3);
-            box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 15px -6px rgba(0, 0, 0, 0.35);
-        }
-
-        .role-badge { padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 800; display: inline-block; }
+        .emp-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .emp-table th { font-size: 0.8rem; color: var(--text-muted); font-weight: 800; padding: 10px 15px; border: none; text-align: right; }
+        .emp-table td { padding: 12px 15px; background: var(--glass-bg); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); font-weight: 700; font-size: 0.9rem; vertical-align: middle; }
+        .emp-table tr td:first-child { border-radius: 0 12px 12px 0; border-right: 1px solid var(--glass-border); }
+        .emp-table tr td:last-child { border-radius: 12px 0 0 12px; border-left: 1px solid var(--glass-border); }
+        
+        .role-badge { padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; }
         .role-operator { background: rgba(14, 165, 233, 0.1); color: var(--accent-blue); border: 1px solid rgba(14, 165, 233, 0.2); }
         .role-accountant { background: rgba(212, 175, 55, 0.1); color: var(--accent-gold); border: 1px solid rgba(212, 175, 55, 0.2); }
         .role-manager { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.2); }
@@ -102,188 +88,17 @@
         .swal2-popup { background: var(--glass-bg) !important; backdrop-filter: blur(15px); color: var(--text-main) !important; border: 1px solid var(--glass-border); border-radius: 20px !important; }
         .swal2-title, .swal2-html-container { color: var(--text-main) !important; }
 
-        /* 📱 شاشات الهواتف الذكية (Native App Layout) */
         @media (max-width: 768px) {
-            body {
-                padding-top: 75px !important;
-                padding-bottom: 90px !important;
-            }
-            
-            .navbar-glass {
-                position: fixed !important;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1050;
-                margin-bottom: 0 !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                padding: 10px 16px !important;
-                border-radius: 0 0 16px 16px !important;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-            }
-            .executor-info {
-                width: auto !important;
-                justify-content: flex-start !important;
-                gap: 8px !important;
-            }
-            .executor-avatar {
-                width: 36px !important;
-                height: 36px !important;
-                border-radius: 10px !important;
-                font-size: 1.1rem !important;
-            }
-            .executor-name {
-                font-size: 0.9rem !important;
-            }
-            .executor-role {
-                display: none !important;
-            }
-            .nav-actions {
-                width: auto !important;
-                justify-content: flex-end !important;
-                gap: 6px !important;
-            }
-            .nav-btn {
-                padding: 6px 10px !important;
-                font-size: 0.8rem !important;
-                border-radius: 8px !important;
-                flex: none !important;
-            }
-            .nav-btn span {
-                display: none; /* إخفاء النص لتوفير مساحة */
-            }
-            
+            .navbar-glass { flex-direction: column; gap: 15px; padding: 15px; border-radius: 0 0 20px 20px;}
+            .executor-info { width: 100%; justify-content: center; }
+            .nav-actions { width: 100%; justify-content: center; }
+            .nav-btn { flex: 1 1 calc(25% - 8px); padding: 8px 5px; font-size: 0.8rem; }
             .page-card { padding: 15px; border-radius: 16px; }
             .emp-table { font-size: 0.8rem; }
             .emp-table th, .emp-table td { padding: 8px 10px; }
             .table-responsive { border-radius: 12px; }
         }
-
-        /* 📱 شريط التنقل السفلي للهواتف */
-        .bottom-nav-mobile {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 64px;
-            background: var(--nav-gradient);
-            backdrop-filter: blur(20px) saturate(1.2);
-            -webkit-backdrop-filter: blur(20px) saturate(1.2);
-            border-top: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .bottom-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            color: var(--text-muted);
-            text-decoration: none;
-            flex: 1;
-            height: 100%;
-            transition: all 0.2s ease;
-            font-size: 0.72rem;
-            font-weight: 700;
-        }
-        .bottom-nav-item i {
-            font-size: 1.25rem;
-            transition: transform 0.2s ease;
-        }
-        .bottom-nav-item:hover {
-            color: var(--text-main);
-        }
-        .bottom-nav-item.active {
-            color: var(--accent-gold);
-        }
-        .bottom-nav-item.active i {
-            transform: translateY(-2px);
-        }
-
-        /* بطاقات الموظفين للهاتف */
-        .mobile-emp-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-            transition: transform 0.15s ease;
-        }
-        .mobile-emp-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        .emp-card-name {
-            font-size: 1.05rem;
-            font-weight: 800;
-            color: var(--text-main);
-            display: block;
-        }
-        .emp-card-username {
-            font-size: 0.78rem;
-            font-weight: 700;
-            font-family: monospace;
-        }
-        .mobile-emp-body {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.02);
-            padding: 10px;
-            border-radius: 12px;
-        }
-        [data-theme="dark"] .mobile-emp-body {
-            background: rgba(255, 255, 255, 0.02);
-        }
-        .emp-info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .emp-info-item .info-label {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            font-weight: 700;
-        }
-        .emp-info-item .info-value {
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: var(--text-main);
-        }
-        .mobile-emp-actions {
-            display: flex;
-            gap: 6px;
-            border-top: 1px dashed var(--glass-border);
-        }
-        .mobile-emp-actions .btn-action {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            padding: 8px 6px;
-            border-radius: 8px;
-            font-weight: 700;
-        }
     </style>
-
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
-    <!-- End PWA Setup -->
 </head>
 <body>
 
@@ -292,12 +107,14 @@
         <div class="executor-avatar"><i class="fa-solid fa-user-astronaut"></i></div>
         <div>
             <h4 class="executor-name"><%= emp.name %></h4>
-            <span class="executor-role"><i class="fa-solid fa-network-wired me-1"></i> غرفة العمليات: <%= emp.groupId ? emp.groupId.name : 'غير محدد' %></span>
+            <span class="executor-role"><i class="fa-solid fa-network-wired me-1"></i> غرفة العمليات: <%= emp.botId.name %></span>
         </div>
     </div>
     <div class="nav-actions">
-        <span class="nav-btn text-success border border-success border-opacity-25" style="cursor: default; font-weight: 800;" title="المبلغ المتاح"><i class="fa-solid fa-wallet me-1"></i> <%= emp.groupId ? emp.groupId.balance.toFixed(2) : '0.00' %> EGP</span>
         <button class="nav-btn btn-theme shadow-sm" onclick="toggleTheme()" title="المظهر"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+        <a href="/executor-portal/dashboard" class="nav-btn"><i class="fa-solid fa-satellite-dish me-1"></i> <span class="d-none d-sm-inline">الرادار</span></a>
+        <a href="/executor-portal/reports" class="nav-btn"><i class="fa-solid fa-file-invoice me-1"></i> <span class="d-none d-sm-inline">السجل</span></a>
+        <a href="/executor-portal/employees" class="nav-btn active" style="border-color: var(--accent-gold); color: var(--accent-gold);"><i class="fa-solid fa-users-gear me-1"></i> <span class="d-none d-sm-inline">الموظفين</span></a>
         <a href="/executor-portal/logout" class="nav-btn btn-logout"><i class="fa-solid fa-power-off"></i></a>
     </div>
 </nav>
@@ -349,7 +166,7 @@
     <div class="page-card">
         <h5 class="section-title"><i class="fa-solid fa-users"></i> فريق العمل (<span id="empCount">0</span>)</h5>
         
-        <div class="table-responsive d-none d-md-block">
+        <div class="table-responsive">
             <table class="emp-table">
                 <thead>
                     <tr>
@@ -358,6 +175,7 @@
                         <th>الهاتف</th>
                         <th>الوظيفة</th>
                         <th>الحالة</th>
+                        <th>تليجرام</th>
                         <th>إجراءات</th>
                     </tr>
                 </thead>
@@ -365,8 +183,6 @@
                 </tbody>
             </table>
         </div>
-        <!-- قائمة الموظفين للموبايل (تظهر كبطاقات تطبيق) -->
-        <div class="mobile-emp-list d-flex flex-column gap-3 d-md-none" id="mobileEmpList"></div>
         <div id="emptyState" class="empty-state d-none">
             <i class="fa-solid fa-users-slash d-block"></i>
             <p class="fw-bold">لا يوجد موظفين حالياً</p>
@@ -408,7 +224,7 @@
         Swal.fire({ title: 'جاري الإنشاء...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
-            const res = await fetch('/executor-portal/api/employees/create', {
+            const res = await fetch('/executor-portal/employees/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, phone, role, webUsername: username, webPassword: password })
@@ -435,85 +251,48 @@
     });
 
     // تحميل قائمة الموظفين
-    // تحميل قائمة الموظفين
     async function loadEmployees() {
         try {
-            const res = await fetch('/executor-portal/api/employees');
+            const res = await fetch('/executor-portal/employees/list');
             const data = await res.json();
             const tbody = document.getElementById('empTableBody');
-            const mobileList = document.getElementById('mobileEmpList');
             const emptyState = document.getElementById('emptyState');
             document.getElementById('empCount').textContent = data.employees.length;
 
-            tbody.innerHTML = '';
-            if (mobileList) mobileList.innerHTML = '';
-
             if (data.employees.length === 0) {
+                tbody.innerHTML = '';
                 emptyState.classList.remove('d-none');
                 return;
             }
             emptyState.classList.add('d-none');
 
-            data.employees.forEach(emp => {
+            tbody.innerHTML = data.employees.map(emp => {
                 const roleLabel = emp.role === 'operator' ? 'موظف تنفيذ' : (emp.role === 'accountant' ? 'محاسب' : (emp.role === 'manager' ? 'مدير' : emp.role));
                 const roleClass = emp.role === 'operator' ? 'role-operator' : (emp.role === 'accountant' ? 'role-accountant' : 'role-manager');
                 const statusIcon = emp.status === 'active' ? '<i class="fa-solid fa-circle-check status-active"></i> فعّال' : '<i class="fa-solid fa-circle-xmark status-suspended"></i> معلق';
+                const telegramIcon = emp.telegramId ? '<i class="fa-brands fa-telegram text-info fs-5"></i>' : '<span class="text-muted small">غير مفعّل</span>';
                 const toggleClass = emp.status === 'active' ? 'btn-toggle-active' : 'btn-toggle-suspended';
                 const toggleIcon = emp.status === 'active' ? 'fa-ban' : 'fa-check';
                 const toggleTitle = emp.status === 'active' ? 'تعليق' : 'تفعيل';
 
-                const rowHtml = `<tr>
+                return `<tr>
                     <td class="fw-bold">${emp.name}</td>
                     <td dir="ltr" class="font-monospace small">${emp.webUsername || '---'}</td>
                     <td dir="ltr">${emp.phone || '---'}</td>
                     <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
                     <td>${statusIcon}</td>
+                    <td class="text-center">${telegramIcon}</td>
                     <td>
                         <div class="d-flex gap-1 flex-wrap">
                             ${emp.role !== 'manager' ? `
                                 <button onclick="toggleEmployee('${emp._id}')" class="btn-action ${toggleClass}" title="${toggleTitle}"><i class="fa-solid ${toggleIcon}"></i></button>
-                                <button onclick="toggleReports('${emp._id}')" class="btn-action ${emp.canViewAllReports ? 'text-success border-success' : 'text-muted'}" title="${emp.canViewAllReports ? 'تعطيل التقارير الشاملة' : 'السماح برؤية التقارير الشاملة'}"><i class="fa-solid fa-file-invoice"></i></button>
                                 <button onclick="resetPassword('${emp._id}', '${emp.name}')" class="btn-action btn-reset" title="إعادة تعيين كلمة المرور"><i class="fa-solid fa-key"></i></button>
                                 <button onclick="deleteEmployee('${emp._id}', '${emp.name}')" class="btn-action btn-delete" title="حذف"><i class="fa-solid fa-trash"></i></button>
                             ` : '<span class="small text-muted">المدير</span>'}
                         </div>
                     </td>
                 </tr>`;
-
-                tbody.innerHTML += rowHtml;
-
-                if (mobileList) {
-                    mobileList.innerHTML += `
-                    <div class="mobile-emp-card">
-                        <div class="mobile-emp-header">
-                            <div>
-                                <span class="emp-card-name">${emp.name}</span>
-                                <div class="emp-card-username text-muted">@${emp.webUsername || '---'}</div>
-                            </div>
-                            <span class="role-badge ${roleClass}">${roleLabel}</span>
-                        </div>
-                        <div class="mobile-emp-body">
-                            <div class="emp-info-item">
-                                <span class="info-label"><i class="fa-solid fa-phone"></i> الهاتف</span>
-                                <span class="info-value" dir="ltr">${emp.phone || '---'}</span>
-                            </div>
-                            <div class="emp-info-item">
-                                <span class="info-label"><i class="fa-solid fa-circle-info"></i> الحالة</span>
-                                <span class="info-value">${statusIcon}</span>
-                            </div>
-                        </div>
-                        <div class="mobile-emp-actions mt-3 pt-2">
-                            ${emp.role !== 'manager' ? `
-                                <button onclick="toggleEmployee('${emp._id}')" class="btn-action ${toggleClass} flex-grow-1" title="${toggleTitle}"><i class="fa-solid ${toggleIcon} me-1"></i> ${toggleTitle}</button>
-                                <button onclick="toggleReports('${emp._id}')" class="btn-action ${emp.canViewAllReports ? 'text-success border-success' : 'text-muted'} flex-grow-1" title="صلاحية التقارير"><i class="fa-solid fa-file-invoice me-1"></i> التقارير</button>
-                                <button onclick="resetPassword('${emp._id}', '${emp.name}')" class="btn-action btn-reset flex-grow-1" title="كلمة المرور"><i class="fa-solid fa-key me-1"></i> كلمة المرور</button>
-                                <button onclick="deleteEmployee('${emp._id}', '${emp.name}')" class="btn-action btn-delete" style="padding: 6px 10px;" title="حذف"><i class="fa-solid fa-trash"></i></button>
-                            ` : '<span class="small text-muted w-100 text-center py-2">المدير</span>'}
-                        </div>
-                    </div>
-                    `;
-                }
-            });
+            }).join('');
         } catch (e) {
             console.error(e);
         }
@@ -521,27 +300,11 @@
 
     // تعليق / تفعيل موظف
     async function toggleEmployee(id) {
-        const res = await fetch('/executor-portal/api/employees/toggle/' + id, { method: 'POST' });
+        const res = await fetch('/executor-portal/employees/toggle/' + id, { method: 'POST' });
         const data = await res.json();
         if (data.success) {
             Swal.fire({ icon: 'success', title: 'تم التحديث', timer: 1200, showConfirmButton: false });
             loadEmployees();
-        }
-    }
-
-    // تفعيل / تعطيل التقارير الشاملة
-    async function toggleReports(id) {
-        try {
-            const res = await fetch('/executor-portal/api/employees/toggle-reports/' + id, { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                Swal.fire({ icon: 'success', title: 'تم تحديث صلاحية التقارير', timer: 1200, showConfirmButton: false });
-                loadEmployees();
-            } else {
-                Swal.fire('خطأ', data.error || 'حدث خطأ', 'error');
-            }
-        } catch (e) {
-            Swal.fire('خطأ', 'تعذر الاتصال بالخادم', 'error');
         }
     }
 
@@ -559,7 +322,7 @@
             inputValidator: (val) => { if (!val || val.length < 4) return 'كلمة المرور يجب أن تكون 4 أحرف على الأقل'; }
         });
         if (newPass) {
-            const res = await fetch('/executor-portal/api/employees/reset-password/' + id, {
+            const res = await fetch('/executor-portal/employees/reset-password/' + id, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ newPassword: newPass })
@@ -581,7 +344,7 @@
             confirmButtonColor: '#ef4444'
         });
         if (result.isConfirmed) {
-            const res = await fetch('/executor-portal/api/employees/delete/' + id, { method: 'POST' });
+            const res = await fetch('/executor-portal/employees/delete/' + id, { method: 'POST' });
             const data = await res.json();
             if (data.success) {
                 Swal.fire({ icon: 'success', title: 'تم الحذف', timer: 1200, showConfirmButton: false });
@@ -589,45 +352,6 @@
             }
         }
     }
-        </script>
-        
-        <!-- شريط التنقل السفلي للهواتف (App-like Bottom Navigation) -->
-        <!-- شريط التنقل السفلي للهواتف (App-like Bottom Navigation) -->
-        <div class="bottom-nav-mobile d-md-none">
-            <!-- حسابي (الملف الشخصي والمنجزات) -->
-            <a href="/executor-portal/dashboard#profile" class="bottom-nav-item" id="nav-profile">
-                <i class="fa-solid fa-circle-user"></i>
-                <span>حسابي</span>
-            </a>
-            <!-- الرادار -->
-            <a href="/executor-portal/dashboard#radar" class="bottom-nav-item" id="nav-dash">
-                <i class="fa-solid fa-satellite-dish"></i>
-                <span>الرادار</span>
-            </a>
-            <!-- التقارير -->
-            <a href="/executor-portal/reports" class="bottom-nav-item" id="nav-rep">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>التقارير</span>
-            </a>
-            <% if (emp.role === 'manager') { %>
-            <!-- الموظفين -->
-            <a href="/executor-portal/employees" class="bottom-nav-item" id="nav-emp">
-                <i class="fa-solid fa-users"></i>
-                <span>الموظفين</span>
-            </a>
-            <% } %>
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const path = window.location.pathname;
-                if (path.includes('/dashboard')) {
-                    document.getElementById('nav-dash')?.classList.add('active');
-                } else if (path.includes('/reports')) {
-                    document.getElementById('nav-rep')?.classList.add('active');
-                } else if (path.includes('/employees')) {
-                    document.getElementById('nav-emp')?.classList.add('active');
-                }
-            });
-        </script>
+</script>
 </body>
 </html>

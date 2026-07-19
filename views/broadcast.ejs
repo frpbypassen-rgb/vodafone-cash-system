@@ -96,14 +96,6 @@
         .input-icon-label { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; font-size: 0.95rem; }
         .alert-3d { border-radius: 16px; border: none; font-weight: bold; box-shadow: 0 8px 15px rgba(0,0,0,0.05); padding: 15px 20px; display: flex; align-items: center; gap: 10px; }
     </style>
-
-    <!-- PWA Setup -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#001a4d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Al-Ahram">
-    <!-- End PWA Setup -->
 </head>
 <body>
 
@@ -115,7 +107,7 @@
 <div class="main-content">
     <div class="container-fluid">
         <div class="admin-nav mb-4">
-            <h3 class="fw-bold m-0 text-dark"><i class="fa-solid fa-satellite-dish text-primary me-2"></i> مركز الإذاعة والمراسلة (الإشعارات الداخلية)</h3>
+            <h3 class="fw-bold m-0 text-dark"><i class="fa-solid fa-satellite-dish text-primary me-2"></i> مركز الإذاعة والمراسلة (Telegram Broadcast)</h3>
         </div>
 
         <% if (query.success) { %>
@@ -165,7 +157,7 @@
                             <div id="specificUserField" class="input-section" style="display:none; border-right: 4px solid #f59e0b;">
                                 <div class="input-icon-label text-warning"><i class="fa-solid fa-user"></i> اختر العميل الفردي</div>
                                 <select name="specificUserId" class="form-select shadow-sm text-center">
-                                    <% users.forEach(u => { %><option value="<%= u.phone || u.webUsername %>"><%= u.name %> (<%= u.phone %>)</option><% }) %>
+                                    <% users.forEach(u => { %><option value="<%= u.telegramId %>"><%= u.name %> (<%= u.phone %>)</option><% }) %>
                                 </select>
                             </div>
 

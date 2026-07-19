@@ -3,17 +3,17 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const clientEmployeeSchema = new mongoose.Schema({
-    companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'ClientCompany', required: true },
+    telegramId: { type: String, required: true },
+    clientBotId: { type: mongoose.Schema.Types.ObjectId, ref: 'ClientBot', required: true },
     name: { type: String, required: true },
     phone: { type: String },
     status: { type: String, default: 'active' }, // active, banned
     
     // بيانات موقع العملاء
-    webUsername: { type: String, unique: true, required: true }, 
-    webPassword: { type: String, required: true },
+    webUsername: { type: String, sparse: true }, 
+    webPassword: { type: String },
     otpCode: { type: String },
-    otpExpires: { type: Date },
-    canViewAllReports: { type: Boolean, default: false } // السماح برؤية جميع تقارير الشركة
+    otpExpires: { type: Date }
 }, { timestamps: true });
 
 // 🔐 تشفير كلمة المرور قبل الحفظ

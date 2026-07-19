@@ -12,7 +12,6 @@ const subAccountSchema = new mongoose.Schema({
     customMargin: { type: Number, default: 0 }, 
     cardMargin: { type: Number, default: 0 }, 
     balance: { type: Number, default: 0 }, 
-    accountCode: { type: String, trim: true, unique: true, sparse: true },
     creditLimit: { type: Number, default: 0 }, 
     status: { type: String, default: 'active' } 
 }, { timestamps: true });
