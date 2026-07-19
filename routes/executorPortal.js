@@ -15,6 +15,7 @@ const ClientEmployee = require('../models/ClientEmployee');
 const Admin = require('../models/Admin');
 const SupportTicket = require('../models/SupportTicket');
 const { escapeRegex, verifyAndUpgradePassword, getTodayString } = require('../utils/helpers');
+const { getProofReference, trySendLocalProof } = require('../utils/proofImages');
 
 const requireExecutorAuth = (req, res, next) => {
     if (req.session.isExecutorLoggedIn && req.session.executorId) return next();
@@ -203,10 +204,9 @@ router.get(['/proxy/image/:id', '/proxy/image/:id/:index'], requireExecutorAuth,
              return res.status(403).send('Forbidden');
         }
         const index = req.params.index ? parseInt(req.params.index) : 0;
-        let photoId = null;
-        if (tx.proofImages && tx.proofImages.length > index) { photoId = tx.proofImages[index]; }
-        else if (tx.proofImage && index === 0) { photoId = tx.proofImage; }
+        const photoId = getProofReference(tx, index);
         if (!photoId) return res.status(404).send('No photo');
+        if (trySendLocalProof(res, photoId)) return;
 
         let tokensToTry = [process.env.ADMIN_BOT_TOKEN, process.env.CLIENT_BOT_TOKEN];
         if (tx.executorBotId) { const execBot = await ExecutorBot.findById(tx.executorBotId); if (execBot && execBot.token) tokensToTry.push(execBot.token); }

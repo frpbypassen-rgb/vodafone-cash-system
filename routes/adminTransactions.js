@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const { Telegram } = require('telegraf');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
@@ -19,7 +21,7 @@ const { syncBotBalance } = require('../utils/helpers');
 const { escapeRegex } = require('../middlewares/sanitize');
 
 // 🚀 استدعاء محرك الـ API 
-const { executeTransferViaApi } = require('../services/externalApiService');
+const { executeTransferViaApi, generateCustomReceipt } = require('../services/externalApiService');
 
 router.use(requireAuth);
 
@@ -149,6 +151,24 @@ router.post('/transaction/:id/assign-executor', async (req, res) => {
                     tx.status = 'completed';
                     tx.executorName = 'تنفيذ آلي (API)';
                     tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[مرجع الشركة الآلي: ${apiResult.external_transaction_id}]`;
+
+                    try {
+                        const receiptBuffer = await generateCustomReceipt(tx, apiResult);
+                        if (receiptBuffer) {
+                            const uploadDir = path.join(process.cwd(), 'uploads', 'proofs');
+                            if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+                            const fileName = `api_proof_${tx._id}_${Date.now()}.jpg`;
+                            const fullLocalPath = path.join(uploadDir, fileName);
+                            fs.writeFileSync(fullLocalPath, receiptBuffer);
+                            const localImagePath = `/uploads/proofs/${fileName}`;
+                            tx.proofImage = localImagePath;
+                            tx.proofImages = [localImagePath];
+                            tx.set('localProofImage', localImagePath, { strict: false });
+                        }
+                    } catch (receiptErr) {
+                        console.error('[adminTransactions/API receipt] تعذر إنشاء إيصال API:', receiptErr.message);
+                    }
+
                     await tx.save();
 
                     executorBot.balance -= tx.amount;

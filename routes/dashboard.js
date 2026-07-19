@@ -8,6 +8,7 @@ const ClientBot = require('../models/ClientBot');
 const User = require('../models/User');
 const Employee = require('../models/Employee');
 const { requireAuth } = require('../middlewares/auth');
+const { getProofReference, trySendLocalProof } = require('../utils/proofImages');
 
 router.get(['/proxy/image/:id', '/proxy/image/:id/:index'], requireAuth, async (req, res) => {
     try {
@@ -15,11 +16,10 @@ router.get(['/proxy/image/:id', '/proxy/image/:id/:index'], requireAuth, async (
         if (!tx) return res.status(404).send('لا توجد صورة إثبات');
 
         const index = req.params.index ? parseInt(req.params.index) : 0;
-        let photoId = null;
-        if (tx.proofImages && tx.proofImages.length > index) photoId = tx.proofImages[index];
-        else if (tx.proofImage && index === 0) photoId = tx.proofImage; 
+        const photoId = getProofReference(tx, index);
 
         if (!photoId) return res.status(404).send('لا توجد صورة إثبات');
+        if (trySendLocalProof(res, photoId)) return;
 
         let tokensToTry = [];
         if (process.env.ADMIN_BOT_TOKEN) tokensToTry.push(process.env.ADMIN_BOT_TOKEN);

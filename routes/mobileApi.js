@@ -29,6 +29,7 @@ const {
     completeTaskValidator,
     refreshTokenValidator
 } = require('../validators/mobileValidators');
+const { getLocalProofPublicUrl, getProofReference } = require('../utils/proofImages');
 
 // =======================================================
 // 🛡️ Rate Limiters مخصصة لكل مسار حساس
@@ -643,8 +644,13 @@ router.get('/transaction/image/:id', authenticateJWT, async (req, res) => {
 
         if (!hasAccess) return res.status(403).json({ success: false, message: 'غير مصرح لك بعرض هذا المرفق' });
 
-        let photoId = tx.proofImages && tx.proofImages.length > 0 ? tx.proofImages[0] : tx.proofImage;
+        let photoId = getProofReference(tx, 0);
         if (!photoId) return res.status(404).json({ success: false, message: 'لا توجد صورة إثبات' });
+
+        const localProofUrl = getLocalProofPublicUrl(photoId);
+        if (localProofUrl) {
+            return res.json({ success: true, url: `${req.protocol}://${req.get('host')}${localProofUrl}` });
+        }
 
         let fileLink = null;
         let tokensToTry = [process.env.ADMIN_BOT_TOKEN, process.env.CLIENT_BOT_TOKEN];

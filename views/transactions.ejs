@@ -33,6 +33,108 @@
         .btn-action-sm.api-log { color: #10b981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);}
         .btn-action-sm.api-log:hover { background: #10b981; color: white; border-color: #10b981; }
 
+        .proof-thumb-btn {
+            border: 0;
+            background: transparent;
+            color: var(--text-main);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 0;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .proof-thumb-frame {
+            width: 72px;
+            height: 56px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            background: var(--input-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow-soft);
+        }
+        .proof-thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .proof-thumb-fallback {
+            display: none;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            color: var(--brand-gold);
+            font-size: 1.25rem;
+        }
+        .proof-thumb-count {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            min-width: 22px;
+            height: 20px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.82);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+        }
+        .proof-thumb-label {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 900;
+        }
+        .proof-empty {
+            color: var(--text-muted);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            opacity: 0.75;
+        }
+        .proof-mobile-btn {
+            width: 100%;
+            border: 1px solid var(--border-glass);
+            background: var(--input-bg);
+            color: var(--text-main);
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: right;
+            cursor: pointer;
+        }
+        .proof-mobile-btn .proof-thumb-frame {
+            width: 78px;
+            height: 62px;
+            flex: 0 0 auto;
+        }
+        .proof-mobile-title {
+            display: block;
+            font-weight: 900;
+            color: var(--text-main);
+        }
+        .proof-mobile-subtitle {
+            display: block;
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
         .badge-st { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; }
         .st-done { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);}
         .st-wait { background: rgba(245, 158, 11, 0.1); color: #d97706; border-color: rgba(245, 158, 11, 0.2);} [data-theme="dark"] .st-wait { color: var(--brand-gold);}
@@ -243,14 +345,15 @@
                             <th>بوت التنفيذ</th>
                             <th>الملاحظة</th>
                             <th>الحالة</th>
+                            <th>الإثبات</th>
                             <th>اجراء</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% if (transactions.length === 0) { %>
-                            <tr><td colspan="9" class="py-5 text-muted fw-bold border-0 fs-5"><i class="fa-solid fa-folder-open fs-1 d-block mb-3 opacity-25"></i> لا توجد عمليات مطابقة.</td></tr>
+                            <tr><td colspan="10" class="py-5 text-muted fw-bold border-0 fs-5"><i class="fa-solid fa-folder-open fs-1 d-block mb-3 opacity-25"></i> لا توجد عمليات مطابقة.</td></tr>
                         <% } %>
-                        <% transactions.forEach(tx => { %>
+                        <% transactions.forEach(tx => { const txProofCount = tx.proofImages && tx.proofImages.length > 0 ? tx.proofImages.length : (tx.proofImage ? 1 : 0); %>
                             <tr style="<%= tx.status === 'deposit_pending' ? 'background: rgba(245, 158, 11, 0.05);' : (tx.status === 'deposit' ? 'background: rgba(16, 185, 129, 0.05);' : (tx.status === 'deduction' ? 'background: rgba(239, 68, 68, 0.05);' : '')) %>">
                             
                             <td>
@@ -335,6 +438,21 @@
                             </td>
 
                             <td>
+                                <% if (txProofCount > 0) { %>
+                                    <button type="button" class="proof-thumb-btn" data-tx='<%- JSON.stringify(tx).replace(/'/g, "&#39;") %>' onclick="viewTransactionDetails(this)" title="عرض صور الإثبات">
+                                        <span class="proof-thumb-frame">
+                                            <img class="proof-thumb-img" src="/proxy/image/<%= tx._id %>/0" loading="lazy" alt="إثبات العملية <%= tx.customId || tx._id.toString().slice(-6) %>" onerror="handleProofThumbError(this)">
+                                            <span class="proof-thumb-fallback"><i class="fa-solid fa-image"></i></span>
+                                            <% if (txProofCount > 1) { %><span class="proof-thumb-count"><%= txProofCount %></span><% } %>
+                                        </span>
+                                        <span class="proof-thumb-label">عرض الإثبات</span>
+                                    </button>
+                                <% } else { %>
+                                    <span class="proof-empty"><i class="fa-regular fa-image"></i> لا يوجد</span>
+                                <% } %>
+                            </td>
+
+                            <td>
                                 <div class="d-flex align-items-center justify-content-center gap-2">
                                     <% if (tx.status === 'deposit_pending') { %>
                                         <button class="btn btn-sm btn-success fw-bold rounded-3" onclick="showAcceptDepositModal('<%= tx._id %>')"><i class="fa-solid fa-check"></i> قبول</button>
@@ -407,7 +525,7 @@
                         لا توجد عمليات مطابقة.
                     </div>
                 <% } %>
-                <% transactions.forEach(tx => { %>
+                <% transactions.forEach(tx => { const txProofCount = tx.proofImages && tx.proofImages.length > 0 ? tx.proofImages.length : (tx.proofImage ? 1 : 0); %>
                     <div class="mobile-tx-card">
                         <div class="mobile-card-row">
                             <div>
@@ -457,6 +575,21 @@
                                 <span class="mobile-card-value mono-num" dir="ltr"><%= tx.createdAt.toLocaleDateString('en-GB') %> <%= tx.createdAt.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) %></span>
                             </div>
                         </div>
+                        <% if (txProofCount > 0) { %>
+                            <div class="mobile-card-row" style="grid-template-columns: 1fr;">
+                                <button type="button" class="proof-mobile-btn" data-tx='<%- JSON.stringify(tx).replace(/'/g, "&#39;") %>' onclick="viewTransactionDetails(this)">
+                                    <span class="proof-thumb-frame">
+                                        <img class="proof-thumb-img" src="/proxy/image/<%= tx._id %>/0" loading="lazy" alt="إثبات العملية <%= tx.customId || tx._id.toString().slice(-6) %>" onerror="handleProofThumbError(this)">
+                                        <span class="proof-thumb-fallback"><i class="fa-solid fa-image"></i></span>
+                                        <% if (txProofCount > 1) { %><span class="proof-thumb-count"><%= txProofCount %></span><% } %>
+                                    </span>
+                                    <span>
+                                        <span class="proof-mobile-title">صور الإثبات</span>
+                                        <span class="proof-mobile-subtitle">اضغط لعرض الإيصال بحجم كامل</span>
+                                    </span>
+                                </button>
+                            </div>
+                        <% } %>
                         <div class="mobile-card-row" style="grid-template-columns: 1fr;">
                             <div class="mobile-card-actions">
                                 <% if (tx.status === 'deposit_pending') { %>
@@ -779,6 +912,12 @@
         document.getElementById('editRateForm').action = '/transaction/' + txId + '/edit-rate';
         document.getElementById('newRateInput').value = (currentRate && currentRate !== '0') ? currentRate : '';
         new bootstrap.Modal(document.getElementById('editRateModal')).show();
+    }
+
+    function handleProofThumbError(img) {
+        img.style.display = 'none';
+        const fallback = img.parentElement ? img.parentElement.querySelector('.proof-thumb-fallback') : null;
+        if (fallback) fallback.style.display = 'flex';
     }
 
     function viewTransactionDetails(el) {

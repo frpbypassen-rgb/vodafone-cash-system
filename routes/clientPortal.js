@@ -24,6 +24,7 @@ const Ledger = require('../models/Ledger'); // 🟢 استدعاء دفتر ال
 
 const { updateBalanceWithLedger } = require('../services/walletService');
 const RegistrationRequest = require('../models/RegistrationRequest'); 
+const { getProofReference, trySendLocalProof } = require('../utils/proofImages');
 
 const getArgb = (hex) => 'FF' + (hex || '#FFFFFF').replace('#', '').toUpperCase();
 
@@ -584,15 +585,10 @@ router.get(['/proxy/image/:id', '/proxy/image/:id/:index'], requireClientAuth, a
         if (!hasAccess) return res.status(403).send('غير مصرح لك بعرض هذه الصورة أو الإيصال');
 
         const index = req.params.index ? parseInt(req.params.index) : 0;
-        let photoId = null;
-        
-        if (tx.proofImages && tx.proofImages.length > index) {
-            photoId = tx.proofImages[index];
-        } else if (tx.proofImage && index === 0) {
-            photoId = tx.proofImage; 
-        }
+        const photoId = getProofReference(tx, index);
 
         if (!photoId) return res.status(404).send('لا توجد صورة إثبات');
+        if (trySendLocalProof(res, photoId)) return;
 
         let tokensToTry = [process.env.ADMIN_BOT_TOKEN, process.env.CLIENT_BOT_TOKEN];
 
