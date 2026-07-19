@@ -1,3 +1,4 @@
+@media (max-width: 991.98px) {
 html {
     width: 100%;
     max-width: 100%;
@@ -56,6 +57,7 @@ textarea {
 body > .mobile-nav-toggle:not(.no-print),
 body > .sidebar-overlay:not(#sidebarOverlay) {
     display: none !important;
+}
 }
 
 @media (max-width: 991.98px) {
