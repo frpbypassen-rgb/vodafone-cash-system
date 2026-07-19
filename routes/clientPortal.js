@@ -17,6 +17,8 @@ const Admin = require('../models/Admin');
 const ExecutorBot = require('../models/ExecutorBot');
 const SupportTicket = require('../models/SupportTicket'); 
 const Card = require('../models/Card');
+const StoreCategory = require('../models/StoreCategory');
+const StoreProduct = require('../models/StoreProduct');
 
 const SubAccount = require('../models/SubAccount');
 const Counter = require('../models/Counter'); 
@@ -125,6 +127,79 @@ const requireClientAuth = (req, res, next) => {
     if (req.session.isClientLoggedIn && req.session.clientId) return next();
     if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) return res.status(401).json({ error: 'Unauthorized' });
     res.redirect('/client/login');
+};
+
+const getClientSupportContext = async (req) => {
+    const accountType = req.session.accountType;
+    let account = null;
+    let company = null;
+
+    if (accountType === 'company') {
+        account = await ClientEmployee.findById(req.session.clientId).lean();
+        if (!account) return null;
+        company = await ClientBot.findById(account.clientBotId).lean();
+        return {
+            entityType: 'client_company',
+            entityId: company ? company._id : account._id,
+            telegramId: account.telegramId || `web-company-${account._id}`,
+            name: `${company ? company.name : 'شركة'} - ${account.name}`,
+            phone: account.phone || (company && company.phone) || 'غير مسجل',
+            botToken: company ? company.token : process.env.CLIENT_BOT_TOKEN
+        };
+    }
+
+    if (accountType === 'sub_client') {
+        account = await SubAccount.findById(req.session.clientId).lean();
+        if (!account) return null;
+
+        if (account.masterType === 'company') {
+            company = await ClientBot.findById(account.masterId).lean();
+        }
+
+        const masterUser = account.masterType === 'user'
+            ? await User.findById(account.masterId).lean()
+            : null;
+        const masterName = (company && company.name) || (masterUser && masterUser.name) || 'حساب رئيسي';
+
+        return {
+            entityType: company ? 'client_company' : 'client_user',
+            entityId: account._id,
+            telegramId: account.telegramId || `web-sub-${account._id}`,
+            name: `${masterName} - ${account.name}`,
+            phone: account.phone || (company && company.phone) || (masterUser && masterUser.phone) || 'غير مسجل',
+            botToken: company ? company.token : process.env.CLIENT_BOT_TOKEN
+        };
+    }
+
+    account = await User.findById(req.session.clientId).lean();
+    if (!account) return null;
+
+    return {
+        entityType: 'client_user',
+        entityId: account._id,
+        telegramId: account.telegramId || `web-user-${account._id}`,
+        name: account.name || 'عميل فردي',
+        phone: account.phone || 'غير مسجل',
+        botToken: process.env.CLIENT_BOT_TOKEN
+    };
+};
+
+const notifyAdminsAboutSupportMessage = async ({ name, phone, text, imageBase64 }) => {
+    const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
+    const admins = await Admin.find({}).lean();
+    const message = `🚨 <b>رسالة دعم فني جديدة</b>\n\n👤 <b>العميل:</b> ${name}\n📞 <b>رقم الهاتف:</b> <code>${phone || 'غير مسجل'}</code>\n💬 <b>الرسالة:</b> ${text || 'صورة مرفقة'}\n\nيرجى مراجعة لوحة الإدارة للرد.`;
+
+    for (const admin of admins) {
+        if (!admin.telegramId) continue;
+        try {
+            if (imageBase64) {
+                const buffer = Buffer.from(imageBase64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+                await adminAPI.sendPhoto(admin.telegramId, { source: buffer }, { caption: message, parse_mode: 'HTML' });
+            } else {
+                await adminAPI.sendMessage(admin.telegramId, message, { parse_mode: 'HTML' });
+            }
+        } catch (e) {}
+    }
 };
 
 // ===============================================
@@ -796,6 +871,85 @@ router.get('/dashboard', requireClientAuth, async (req, res) => {
             isSubAccount, isMaster: !isSubAccount, masterTotalProfit, transactions: combinedTransactions, currentRate, totals, targetDate, dateLabel, showMonth, search, query: req.query, storeCatalog 
         });
     } catch (error) { res.redirect('/client/login'); }
+});
+
+router.get('/support', requireClientAuth, async (req, res) => {
+    try {
+        res.render('client/support');
+    } catch (error) {
+        res.redirect('/client/dashboard');
+    }
+});
+
+router.get('/api/support/messages', requireClientAuth, async (req, res) => {
+    try {
+        const context = await getClientSupportContext(req);
+        if (!context) return res.status(404).json({ success: false, error: 'الحساب غير موجود' });
+
+        const ticket = await SupportTicket.findOne({ telegramId: context.telegramId }).sort({ createdAt: -1 });
+        if (!ticket) return res.json({ success: true, messages: [], status: 'closed', phone: context.phone });
+
+        ticket.unreadUser = 0;
+        await ticket.save();
+        return res.json({ success: true, messages: ticket.messages, status: ticket.status, phone: ticket.phone || context.phone });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+router.post('/api/support/messages', requireClientAuth, async (req, res) => {
+    try {
+        const { text, imageBase64 } = req.body;
+        if (!text && !imageBase64) return res.json({ success: false, error: 'الرسالة فارغة' });
+
+        const context = await getClientSupportContext(req);
+        if (!context) return res.status(404).json({ success: false, error: 'الحساب غير موجود' });
+
+        let ticket = await SupportTicket.findOne({
+            telegramId: context.telegramId,
+            status: { $ne: 'closed' }
+        });
+
+        if (!ticket) {
+            ticket = new SupportTicket({
+                entityType: context.entityType,
+                entityId: context.entityId,
+                telegramId: context.telegramId,
+                name: context.name,
+                phone: context.phone,
+                botToken: context.botToken,
+                messages: []
+            });
+        } else {
+            ticket.name = context.name;
+            ticket.phone = context.phone;
+            ticket.botToken = context.botToken;
+        }
+
+        const newMessage = {
+            sender: 'user',
+            senderName: context.name,
+            text: text || '',
+            imageUrl: imageBase64 || '',
+            createdAt: new Date()
+        };
+
+        ticket.messages.push(newMessage);
+        ticket.status = 'open';
+        ticket.unreadAdmin = (ticket.unreadAdmin || 0) + 1;
+        await ticket.save();
+
+        await notifyAdminsAboutSupportMessage({
+            name: context.name,
+            phone: context.phone,
+            text,
+            imageBase64
+        });
+
+        return res.json({ success: true, message: newMessage });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 // ===============================================

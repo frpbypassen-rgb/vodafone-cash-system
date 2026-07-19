@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>السجل المالي | منظومة الأهرام</title>
+    <script>
+        const savedTheme = localStorage.getItem('ahram_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        .page-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .page-title h3 {
+            color: var(--text-main);
+            font-weight: 900;
+            margin: 0;
+        }
+        .page-title small { color: var(--text-muted); font-weight: 700; }
+
+        .readonly-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(16,185,129,0.25);
+            background: rgba(16,185,129,0.1);
+            color: #10b981;
+            border-radius: 999px;
+            padding: 9px 14px;
+            font-weight: 900;
+            font-size: 0.85rem;
+        }
+
+        .stat-box {
+            min-height: 118px;
+            border-radius: 18px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            inset-inline-start: 0;
+            top: 0;
+            width: 5px;
+            height: 100%;
+        }
+        .stat-box.credit::after { background: #10b981; }
+        .stat-box.debit::after { background: #ef4444; }
+        .stat-box.net::after { background: #3b82f6; }
+        .stat-box.count::after { background: #f59e0b; }
+        .stat-label { color: var(--text-muted); font-weight: 800; font-size: 0.82rem; }
+        .stat-value {
+            color: var(--text-main);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.55rem;
+            font-weight: 900;
+            direction: ltr;
+            text-align: right;
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--input-bg);
+            border: 1px solid var(--border-glass);
+            color: var(--brand-gold);
+            flex-shrink: 0;
+        }
+
+        .filter-panel {
+            border-radius: 18px;
+            padding: 18px;
+        }
+        .filter-panel label {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            background: var(--input-bg);
+            color: var(--text-main);
+            border-color: var(--border-glass);
+            min-height: 46px;
+            font-weight: 800;
+        }
+
+        .ledger-table-wrap {
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            background: var(--card-bg);
+        }
+        .ledger-table { margin: 0; color: var(--text-main); }
+        .ledger-table thead th {
+            background: var(--input-bg);
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-glass);
+            font-size: 0.78rem;
+            font-weight: 900;
+            white-space: nowrap;
+            padding: 14px 16px;
+        }
+        .ledger-table tbody td {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-glass);
+            vertical-align: middle;
+            padding: 14px 16px;
+            font-weight: 700;
+        }
+        .ledger-table tbody tr:hover td { background: rgba(212, 175, 55, 0.05); }
+        .mono-num { font-family: 'JetBrains Mono', monospace; direction: ltr; }
+
+        .type-badge,
+        .direction-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 11px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+        .type-DEPOSIT { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+        .type-DEDUCTION { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+        .type-TRANSFER { background: rgba(59,130,246,0.12); color: #3b82f6; border: 1px solid rgba(59,130,246,0.25); }
+        .type-COMMISSION { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+        .type-REFUND { background: rgba(139,92,246,0.12); color: #8b5cf6; border: 1px solid rgba(139,92,246,0.25); }
+        .dir-credit { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+        .dir-debit { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+
+        .btn-details {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            background: var(--input-bg);
+            color: var(--text-main);
+        }
+        .btn-details:hover { background: var(--brand-gold); color: #000; border-color: var(--brand-gold); }
+
+        .ledger-mobile-list { display: none; }
+        .ledger-mobile-card {
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            background: var(--card-bg);
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .mobile-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            border-top: 1px dashed var(--border-glass);
+            padding-top: 10px;
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.84rem;
+        }
+        .mobile-row strong { color: var(--text-main); text-align: left; }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .detail-card {
+            border: 1px solid var(--border-glass);
+            background: var(--input-bg);
+            border-radius: 14px;
+            padding: 14px;
+        }
+        .detail-card.full { grid-column: 1 / -1; }
+        .detail-title {
+            color: var(--text-muted);
+            font-size: 0.74rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+        .detail-value {
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 900;
+            word-break: break-word;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-color: var(--border-glass);
+        }
+
+        @media (max-width: 991px) {
+            .page-title { align-items: flex-start; }
+            .stat-value { font-size: 1.25rem; }
+            .desktop-ledger { display: none; }
+            .ledger-mobile-list { display: block; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .filter-panel { padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+<%- include('partials/sidebar', { activePage: 'financial_log' }) %>
+
+<%
+    const selectedEntityKey = filters.entityKey || (filters.entityModel && filters.entityId ? `${filters.entityModel}:${filters.entityId}` : '');
+    const money = (value) => Number(value || 0).toFixed(2);
+    const dateText = (value) => value ? new Date(value).toLocaleString('en-GB').replace(',', '') : '---';
+    const safeJson = (value) => JSON.stringify(value)
+        .replace(/</g, '\\u003c')
+        .replace(/>/g, '\\u003e')
+        .replace(/&/g, '\\u0026')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029');
+    const pageUrl = (targetPage) => {
+        const pairs = [];
+        const values = { ...filters, limit, page: targetPage };
+        Object.keys(values).forEach((key) => {
+            if (values[key]) pairs.push(`${encodeURIComponent(key)}=${encodeURIComponent(values[key])}`);
+        });
+        return `/financial-log?${pairs.join('&')}`;
+    };
+%>
+
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="page-title">
+            <div>
+                <h3><i class="fa-solid fa-clipboard-list me-2" style="color: var(--brand-gold);"></i> السجل المالي</h3>
+                <small>دفتر متابعة كل حركة رصيد داخل المنظومة، للعرض والمراجعة فقط</small>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="readonly-badge"><i class="fa-solid fa-lock"></i> قراءة فقط وغير قابل للتعديل</span>
+                <a href="/financial-log" class="btn btn-sm btn-outline-secondary fw-bold"><i class="fa-solid fa-rotate me-1"></i> تحديث</a>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-box credit data-card">
+                    <div>
+                        <div class="stat-label">إجمالي الإضافات</div>
+                        <div class="stat-value"><%= money(stats.totalCredits) %></div>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-box debit data-card">
+                    <div>
+                        <div class="stat-label">إجمالي الخصومات</div>
+                        <div class="stat-value"><%= money(stats.totalDebits) %></div>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-box net data-card">
+                    <div>
+                        <div class="stat-label">الصافي حسب الفلتر</div>
+                        <div class="stat-value"><%= money(stats.net) %></div>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-box count data-card">
+                    <div>
+                        <div class="stat-label">عدد الحركات</div>
+                        <div class="stat-value"><%= Number(stats.movements || 0) %></div>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-list-ol"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <form class="filter-panel data-card mb-4" method="GET" action="/financial-log">
+            <div class="row g-3 align-items-end">
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label><i class="fa-solid fa-magnifying-glass me-1"></i> بحث برقم العملية أو البيان</label>
+                    <input type="text" name="search" value="<%= filters.search %>" class="form-control" placeholder="ATT-2607 أو بيان الحركة">
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <label><i class="fa-solid fa-layer-group me-1"></i> نوع الحساب</label>
+                    <select name="entityModel" class="form-select">
+                        <option value="">كل الحسابات</option>
+                        <% Object.keys(modelLabels).forEach(model => { %>
+                            <option value="<%= model %>" <%= filters.entityModel === model ? 'selected' : '' %>><%= modelLabels[model] %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label><i class="fa-solid fa-user-tag me-1"></i> حساب محدد</label>
+                    <select name="entityKey" class="form-select">
+                        <option value="">كل العملاء والشركات</option>
+                        <optgroup label="العملاء الأفراد">
+                            <% entityOptions.users.forEach(option => { %>
+                                <option value="<%= option.value %>" <%= selectedEntityKey === option.value ? 'selected' : '' %>><%= option.label %><%= option.phone ? ` - ${option.phone}` : '' %></option>
+                            <% }) %>
+                        </optgroup>
+                        <optgroup label="الشركات والوكلاء">
+                            <% entityOptions.companies.forEach(option => { %>
+                                <option value="<%= option.value %>" <%= selectedEntityKey === option.value ? 'selected' : '' %>><%= option.label %><%= option.phone ? ` - ${option.phone}` : '' %></option>
+                            <% }) %>
+                        </optgroup>
+                        <optgroup label="نقاط البيع">
+                            <% entityOptions.subAccounts.forEach(option => { %>
+                                <option value="<%= option.value %>" <%= selectedEntityKey === option.value ? 'selected' : '' %>><%= option.label %><%= option.phone ? ` - ${option.phone}` : '' %></option>
+                            <% }) %>
+                        </optgroup>
+                        <optgroup label="منفذو التحويل">
+                            <% entityOptions.executors.forEach(option => { %>
+                                <option value="<%= option.value %>" <%= selectedEntityKey === option.value ? 'selected' : '' %>><%= option.label %></option>
+                            <% }) %>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <label><i class="fa-solid fa-money-bill-transfer me-1"></i> نوع الحركة</label>
+                    <select name="type" class="form-select">
+                        <option value="">كل الحركات</option>
+                        <% Object.keys(typeLabels).forEach(type => { %>
+                            <option value="<%= type %>" <%= filters.type === type ? 'selected' : '' %>><%= typeLabels[type] %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <label><i class="fa-solid fa-right-left me-1"></i> الاتجاه</label>
+                    <select name="direction" class="form-select">
+                        <option value="">إضافة وخصم</option>
+                        <option value="credit" <%= filters.direction === 'credit' ? 'selected' : '' %>>إضافات فقط</option>
+                        <option value="debit" <%= filters.direction === 'debit' ? 'selected' : '' %>>خصومات فقط</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label><i class="fa-solid fa-calendar-day me-1"></i> من تاريخ</label>
+                    <input type="date" name="dateFrom" value="<%= filters.dateFrom %>" class="form-control">
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label><i class="fa-solid fa-calendar-check me-1"></i> إلى تاريخ</label>
+                    <input type="date" name="dateTo" value="<%= filters.dateTo %>" class="form-control">
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label><i class="fa-solid fa-table-list me-1"></i> عدد النتائج</label>
+                    <select name="limit" class="form-select">
+                        <% [20, 50, 100].forEach(size => { %>
+                            <option value="<%= size %>" <%= Number(limit) === size ? 'selected' : '' %>><%= size %> حركة</option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6 d-flex gap-2">
+                    <button class="btn btn-primary fw-bold flex-fill" type="submit"><i class="fa-solid fa-filter me-1"></i> تطبيق</button>
+                    <a href="/financial-log" class="btn btn-outline-secondary fw-bold"><i class="fa-solid fa-xmark"></i></a>
+                </div>
+            </div>
+        </form>
+
+        <div class="ledger-table-wrap desktop-ledger">
+            <div class="table-responsive">
+                <table class="table ledger-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>رقم العملية</th>
+                            <th>نوع الحركة</th>
+                            <th>الحساب</th>
+                            <th>قبل</th>
+                            <th>الحركة</th>
+                            <th>بعد</th>
+                            <th>البيان</th>
+                            <th class="text-center">التفاصيل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (!ledgers.length) { %>
+                            <tr>
+                                <td colspan="9" class="text-center py-5 text-muted fw-bold">
+                                    <i class="fa-solid fa-folder-open fs-1 d-block mb-2 opacity-25"></i>
+                                    لا توجد حركات مطابقة للفلاتر الحالية
+                                </td>
+                            </tr>
+                        <% } %>
+                        <% ledgers.forEach(entry => { const isCredit = Number(entry.amount || 0) >= 0; %>
+                            <tr>
+                                <td class="mono-num small"><%= dateText(entry.createdAt) %></td>
+                                <td><span class="mono-num fw-bold">#<%= entry.transactionId %></span></td>
+                                <td><span class="type-badge type-<%= entry.type %>"><i class="fa-solid fa-circle-dot"></i> <%= entry.typeLabel %></span></td>
+                                <td>
+                                    <div class="fw-bold"><%= entry.entityLabel %></div>
+                                    <small class="text-muted"><%= entry.entityModelLabel %><%= entry.entityPhone ? ` - ${entry.entityPhone}` : '' %></small>
+                                </td>
+                                <td class="mono-num"><%= money(entry.balanceBefore) %></td>
+                                <td>
+                                    <span class="direction-badge <%= isCredit ? 'dir-credit' : 'dir-debit' %>">
+                                        <i class="fa-solid <%= isCredit ? 'fa-plus' : 'fa-minus' %>"></i>
+                                        <span class="mono-num"><%= money(entry.amountAbs) %></span>
+                                    </span>
+                                </td>
+                                <td class="mono-num"><%= money(entry.balanceAfter) %></td>
+                                <td class="text-muted" style="max-width: 260px;"><%= entry.description || '---' %></td>
+                                <td class="text-center">
+                                    <button class="btn-details" type="button" onclick="openLedgerDetails('<%= entry._id %>')" title="عرض التفاصيل">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="ledger-mobile-list">
+            <% if (!ledgers.length) { %>
+                <div class="ledger-mobile-card text-center text-muted fw-bold py-5">
+                    <i class="fa-solid fa-folder-open fs-1 d-block mb-2 opacity-25"></i>
+                    لا توجد حركات مطابقة للفلاتر الحالية
+                </div>
+            <% } %>
+            <% ledgers.forEach(entry => { const isCredit = Number(entry.amount || 0) >= 0; %>
+                <div class="ledger-mobile-card">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div>
+                            <div class="mono-num fw-bold">#<%= entry.transactionId %></div>
+                            <small class="text-muted"><%= dateText(entry.createdAt) %></small>
+                        </div>
+                        <span class="type-badge type-<%= entry.type %>"><%= entry.typeLabel %></span>
+                    </div>
+                    <div class="mobile-row">
+                        <span>الحساب</span>
+                        <strong><%= entry.entityLabel %></strong>
+                    </div>
+                    <div class="mobile-row">
+                        <span>الحركة</span>
+                        <strong class="mono-num" style="color:<%= isCredit ? '#10b981' : '#ef4444' %>"><%= isCredit ? '+' : '-' %><%= money(entry.amountAbs) %></strong>
+                    </div>
+                    <div class="mobile-row">
+                        <span>الرصيد بعد</span>
+                        <strong class="mono-num"><%= money(entry.balanceAfter) %></strong>
+                    </div>
+                    <button class="btn btn-primary fw-bold w-100 mt-3" type="button" onclick="openLedgerDetails('<%= entry._id %>')">
+                        <i class="fa-solid fa-eye me-1"></i> عرض التفاصيل
+                    </button>
+                </div>
+            <% }) %>
+        </div>
+
+        <% if (totalPages > 1) { %>
+            <nav class="mt-4" aria-label="صفحات السجل المالي">
+                <ul class="pagination justify-content-center flex-wrap gap-1">
+                    <li class="page-item <%= page <= 1 ? 'disabled' : '' %>">
+                        <a class="page-link" href="<%= pageUrl(page - 1) %>">السابق</a>
+                    </li>
+                    <% for (let p = Math.max(1, page - 2); p <= Math.min(totalPages, page + 2); p++) { %>
+                        <li class="page-item <%= p === page ? 'active' : '' %>">
+                            <a class="page-link" href="<%= pageUrl(p) %>"><%= p %></a>
+                        </li>
+                    <% } %>
+                    <li class="page-item <%= page >= totalPages ? 'disabled' : '' %>">
+                        <a class="page-link" href="<%= pageUrl(page + 1) %>">التالي</a>
+                    </li>
+                </ul>
+            </nav>
+        <% } %>
+    </div>
+</div>
+
+<div class="modal fade" id="ledgerDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title fw-bold" id="detailTitle">تفاصيل الحركة المالية</h5>
+                    <small class="text-muted">كل البيانات المعروضة من دفتر مالي للقراءة فقط</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <div class="detail-title">رقم القيد</div>
+                        <div class="detail-value mono-num" id="dLedgerId">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">رقم العملية</div>
+                        <div class="detail-value mono-num" id="dTransactionId">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">نوع الحركة</div>
+                        <div class="detail-value" id="dType">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">الاتجاه</div>
+                        <div class="detail-value" id="dDirection">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">الحساب المتأثر</div>
+                        <div class="detail-value" id="dEntity">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">نوع الحساب</div>
+                        <div class="detail-value" id="dEntityType">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">رقم الهاتف</div>
+                        <div class="detail-value mono-num" id="dPhone">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">وقت التسجيل</div>
+                        <div class="detail-value mono-num" id="dCreatedAt">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">الرصيد قبل</div>
+                        <div class="detail-value mono-num" id="dBefore">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">قيمة الحركة</div>
+                        <div class="detail-value mono-num" id="dAmount">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">الرصيد بعد</div>
+                        <div class="detail-value mono-num" id="dAfter">---</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">حالة العملية المرتبطة</div>
+                        <div class="detail-value" id="dTxStatus">---</div>
+                    </div>
+                    <div class="detail-card full" id="dTxBox">
+                        <div class="detail-title">بيانات العملية المرتبطة</div>
+                        <div class="detail-value" id="dTxDetails">---</div>
+                    </div>
+                    <div class="detail-card full">
+                        <div class="detail-title">بيان الحركة</div>
+                        <div class="detail-value" id="dDescription">---</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <span class="readonly-badge me-auto"><i class="fa-solid fa-shield-halved"></i> لا توجد صلاحية تعديل لهذا السجل</span>
+                <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">إغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script>
+    const financialEntries = <%- safeJson(ledgers) %>;
+
+    function escapeHtml(value) {
+        return String(value === undefined || value === null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function money(value) {
+        return Number(value || 0).toFixed(2);
+    }
+
+    function dateText(value) {
+        return value ? new Date(value).toLocaleString('en-GB').replace(',', '') : '---';
+    }
+
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+
+    function setHtml(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = value;
+    }
+
+    function statusText(status) {
+        const map = {
+            completed: 'مكتملة',
+            pending: 'معلقة',
+            processing: 'قيد التوجيه',
+            accepted: 'قيد التنفيذ',
+            deposit: 'إيداع',
+            deduction: 'خصم',
+            rejected: 'ملغاة',
+            deposit_pending: 'طلب إيداع'
+        };
+        return map[status] || status || 'غير متوفر';
+    }
+
+    function openLedgerDetails(id) {
+        const entry = financialEntries.find(item => item._id === id);
+        if (!entry) return;
+
+        const isCredit = Number(entry.amount || 0) >= 0;
+        setText('detailTitle', `تفاصيل الحركة #${entry.transactionId || entry._id.slice(-6)}`);
+        setText('dLedgerId', entry._id);
+        setText('dTransactionId', entry.transactionId || '---');
+        setHtml('dType', `<span class="type-badge type-${escapeHtml(entry.type)}"><i class="fa-solid fa-circle-dot"></i> ${escapeHtml(entry.typeLabel)}</span>`);
+        setHtml('dDirection', `<span class="direction-badge ${isCredit ? 'dir-credit' : 'dir-debit'}"><i class="fa-solid ${isCredit ? 'fa-plus' : 'fa-minus'}"></i> ${escapeHtml(entry.directionLabel)}</span>`);
+        setText('dEntity', entry.entityLabel || 'حساب غير معروف');
+        setText('dEntityType', entry.entityModelLabel || entry.entityModel || '---');
+        setText('dPhone', entry.entityPhone || 'غير مسجل');
+        setText('dCreatedAt', dateText(entry.createdAt));
+        setText('dBefore', money(entry.balanceBefore));
+        setText('dAmount', `${isCredit ? '+' : '-'}${money(entry.amountAbs)}`);
+        setText('dAfter', money(entry.balanceAfter));
+        setText('dDescription', entry.description || 'لا يوجد بيان مسجل');
+
+        if (entry.transaction) {
+            const tx = entry.transaction;
+            setText('dTxStatus', statusText(tx.status));
+            setHtml('dTxDetails', `
+                <div class="row g-3">
+                    <div class="col-md-4"><span class="text-muted d-block small">الجهة / الشركة</span>${escapeHtml(tx.companyName || 'عميل فردي')}</div>
+                    <div class="col-md-4"><span class="text-muted d-block small">طالب العملية</span>${escapeHtml(tx.employeeName || 'غير مسجل')}</div>
+                    <div class="col-md-4"><span class="text-muted d-block small">الرقم / الحساب</span><span dir="ltr">${escapeHtml(tx.vodafoneNumber || tx.accountNumber || '---')}</span></div>
+                    <div class="col-md-4"><span class="text-muted d-block small">المبلغ المصري</span><span class="mono-num">${money(tx.amount)} EGP</span></div>
+                    <div class="col-md-4"><span class="text-muted d-block small">التكلفة الليبية</span><span class="mono-num">${money(tx.costLYD)} LYD</span></div>
+                    <div class="col-md-4"><span class="text-muted d-block small">المنفذ</span>${escapeHtml(tx.executorName || tx.executorBotName || 'غير محدد')}</div>
+                </div>
+            `);
+            document.getElementById('dTxBox').style.display = '';
+        } else {
+            setText('dTxStatus', 'لا توجد عملية مرتبطة');
+            setText('dTxDetails', 'هذا القيد مسجل كحركة دفترية مستقلة أو تسوية داخلية.');
+            document.getElementById('dTxBox').style.display = '';
+        }
+
+        new bootstrap.Modal(document.getElementById('ledgerDetailModal')).show();
+    }
+</script>
+</body>
+</html>

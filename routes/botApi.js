@@ -11,6 +11,7 @@ const Transaction = require('../models/Transaction');
 const Settings = require('../models/Settings');
 const Counter = require('../models/Counter');
 const Admin = require('../models/Admin');
+const SupportTicket = require('../models/SupportTicket');
 const { Telegram } = require('telegraf');
 const { sendProofToClientRecipients } = require('../services/proofDeliveryService');
 
@@ -590,8 +591,9 @@ router.post('/client/support/ticket', async (req, res) => {
         
         const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
         const admins = await Admin.find({});
+        const phoneLine = phone ? `\n📞 <b>رقم الهاتف:</b> <code>${phone}</code>` : '';
         for (const admin of admins) {
-            await adminAPI.sendMessage(admin.telegramId, `🚨 <b>رسالة دعم فني جديدة!</b>\n\n👤 من: ${name}\n💬 الرسالة: ${text || 'صورة'}\n\nيرجى مراجعة لوحة التحكم للرد.`, { parse_mode: 'HTML' }).catch(()=>{});
+            await adminAPI.sendMessage(admin.telegramId, `🚨 <b>رسالة دعم فني جديدة!</b>\n\n👤 من: ${name}${phoneLine}\n💬 الرسالة: ${text || 'صورة'}\n\nيرجى مراجعة لوحة التحكم للرد.`, { parse_mode: 'HTML' }).catch(()=>{});
         }
         
         res.json({ success: true });
@@ -830,19 +832,35 @@ router.post('/executor/transactions/phone', async (req, res) => {
 router.post('/executor/support/ticket', async (req, res) => {
     try {
         const { telegramId, message, type } = req.body;
-        const Notification = require('../models/Notification'); // Ensure require
-        const SupportTicket = require('../models/SupportTicket');
-        
-        let subjectName = "مجهول";
-        if (type === 'executor') {
-            const emp = await Employee.findOne({ telegramId });
-            if (emp) subjectName = emp.name;
+        if (req.botContext.type !== 'executor' || type !== 'executor') {
+            return res.status(403).json({ success: false });
         }
-        
-        await SupportTicket.create({
-            telegramId, subjectName, message,
-            status: 'open', source: type, botId: req.botContext.botData._id
+
+        const emp = await Employee.findOne({ telegramId, botId: req.botContext.botData._id });
+        if (!emp) return res.status(404).json({ success: false });
+
+        let ticket = await SupportTicket.findOne({ telegramId, status: { $ne: 'closed' } });
+        if (!ticket) {
+            ticket = new SupportTicket({
+                entityType: 'executor',
+                entityId: emp._id,
+                telegramId,
+                name: emp.name || 'منفذ',
+                phone: emp.phone || 'غير مسجل',
+                botToken: req.botContext.botData.token,
+                messages: []
+            });
+        }
+
+        ticket.messages.push({
+            sender: 'user',
+            senderName: emp.name || 'منفذ',
+            text: message || '',
+            createdAt: new Date()
         });
+        ticket.status = 'open';
+        ticket.unreadAdmin = (ticket.unreadAdmin || 0) + 1;
+        await ticket.save();
         
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false }); }

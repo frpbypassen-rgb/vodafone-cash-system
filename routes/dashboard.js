@@ -39,9 +39,103 @@ router.get(['/proxy/image/:id', '/proxy/image/:id/:index'], requireAuth, async (
 
 router.get('/', requireAuth, async (req, res) => {
     try {
-        const usersCount = await User.countDocuments(); const companiesCount = await ClientBot.countDocuments(); const executorsCount = await Employee.countDocuments();
-        const pendingTxs = await Transaction.countDocuments({ status: 'pending' }); const processingTxs = await Transaction.countDocuments({ status: { $in: ['processing', 'accepted'] } }); const completedTxs = await Transaction.countDocuments({ status: 'completed' });
-        res.render('index', { usersCount, companiesCount, executorsCount, pendingTxs, processingTxs, completedTxs, adminName: req.session.adminName });
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        monthStart.setHours(0, 0, 0, 0);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        monthEnd.setHours(0, 0, 0, 0);
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+        const [
+            usersCount,
+            companiesCount,
+            executorsCount,
+            pendingTxs,
+            processingTxs,
+            completedTxs,
+            monthlyAgg,
+            regularClients
+        ] = await Promise.all([
+            User.countDocuments(),
+            ClientBot.countDocuments(),
+            Employee.countDocuments(),
+            Transaction.countDocuments({ status: 'pending' }),
+            Transaction.countDocuments({ status: { $in: ['processing', 'accepted'] } }),
+            Transaction.countDocuments({ status: 'completed' }),
+            Transaction.aggregate([
+                { $match: { status: 'completed', updatedAt: { $gte: monthStart, $lt: monthEnd } } },
+                {
+                    $group: {
+                        _id: { $dayOfMonth: '$updatedAt' },
+                        count: { $sum: 1 },
+                        totalAmount: { $sum: '$amount' },
+                        totalCost: { $sum: '$costLYD' }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]),
+            Transaction.aggregate([
+                { $match: { status: 'completed', updatedAt: { $gte: monthStart, $lt: monthEnd } } },
+                {
+                    $group: {
+                        _id: {
+                            clientBotId: '$clientBotId',
+                            userId: '$userId',
+                            companyName: '$companyName',
+                            employeeName: '$employeeName'
+                        },
+                        count: { $sum: 1 },
+                        totalAmount: { $sum: '$amount' },
+                        totalCost: { $sum: '$costLYD' },
+                        activeDays: { $addToSet: { $dateToString: { format: '%Y-%m-%d', date: '$updatedAt' } } }
+                    }
+                },
+                {
+                    $project: {
+                        count: 1,
+                        totalAmount: 1,
+                        totalCost: 1,
+                        companyName: '$_id.companyName',
+                        employeeName: '$_id.employeeName',
+                        activeDaysCount: { $size: '$activeDays' }
+                    }
+                },
+                { $sort: { activeDaysCount: -1, count: -1, totalAmount: -1 } },
+                { $limit: 8 }
+            ])
+        ]);
+
+        const byDay = new Map(monthlyAgg.map(row => [Number(row._id), row]));
+        const monthlyClientChart = {
+            labels: Array.from({ length: daysInMonth }, (_, index) => `${index + 1}/${now.getMonth() + 1}`),
+            counts: Array.from({ length: daysInMonth }, (_, index) => byDay.get(index + 1)?.count || 0),
+            amounts: Array.from({ length: daysInMonth }, (_, index) => Number((byDay.get(index + 1)?.totalAmount || 0).toFixed(2))),
+            costs: Array.from({ length: daysInMonth }, (_, index) => Number((byDay.get(index + 1)?.totalCost || 0).toFixed(2))),
+            monthLabel: now.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' })
+        };
+
+        const regularClientRows = regularClients.map(row => ({
+            name: row.companyName && row.companyName !== 'عميل فردي'
+                ? row.companyName
+                : (row.employeeName || 'عميل فردي'),
+            requester: row.employeeName || 'غير مسجل',
+            activeDaysCount: row.activeDaysCount || 0,
+            count: row.count || 0,
+            totalAmount: row.totalAmount || 0,
+            totalCost: row.totalCost || 0
+        }));
+
+        res.render('index', {
+            usersCount,
+            companiesCount,
+            executorsCount,
+            pendingTxs,
+            processingTxs,
+            completedTxs,
+            monthlyClientChart,
+            regularClientRows,
+            adminName: req.session.adminName
+        });
     } catch (e) { res.status(500).send('خطأ داخلي'); }
 });
 

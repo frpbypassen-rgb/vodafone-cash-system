@@ -139,7 +139,7 @@ const completeTask = async (req, res) => {
         const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
 
         let typeLabel = tx.transferType === 'post_account' ? 'حساب بريد' : (tx.transferType === 'post_card' ? 'بطاقة عميل' : 'فودافون كاش');
-        let senderPhoneDisplay = senderPhone ? `\n📞 <b>رقم المُرسل:</b> <code>${senderPhone}</code>` : '';
+        let senderPhoneDisplay = senderPhone ? `\n📞 <b>الرقم المرجعي:</b> <code>${senderPhone}</code>` : '';
         const adminMsgCaption = `✅ <b>تم تنفيذ طلب تحويل (${typeLabel}) بنجاح!</b>\n\n🧾 <b>رقم الطلب:</b> <code>${tx.customId}</code>\n📞 <b>الرقم/الحساب:</b> <code>${tx.vodafoneNumber}</code>\n💵 <b>المبلغ:</b> ${tx.amount} EGP\n👨‍💻 <b>المنفذ:</b> ${emp.name}${senderPhoneDisplay}`;
 
         let savedFileId = null;

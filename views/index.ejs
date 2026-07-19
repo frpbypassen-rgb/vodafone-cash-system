@@ -33,6 +33,31 @@
         .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 900; line-height: 1; margin: 0; color: var(--text-main);}
         .stat-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 5px; color: var(--text-muted); }
 
+        .dashboard-panel { border-radius: 20px; padding: 24px; height: 100%; }
+        .chart-frame { height: 360px; width: 100%; }
+        .regular-client-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .regular-client-item:last-child { border-bottom: 0; }
+        .regular-client-name { color: var(--text-main); font-weight: 900; line-height: 1.25; }
+        .regular-client-meta { color: var(--text-muted); font-size: 0.78rem; font-weight: 800; }
+        .regular-client-score {
+            min-width: 72px;
+            border-radius: 14px;
+            padding: 8px 10px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            text-align: center;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
         .user-time-widget { position: fixed; bottom: 25px; left: 25px; border-radius: 20px; padding: 15px 25px; z-index: 1040; min-width: 260px; display: flex; flex-direction: column; align-items: center; gap: 10px; border-bottom: 4px solid var(--brand-gold);}
         .clock-display { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 900; letter-spacing: 1px; color: var(--brand-primary);}
         [data-theme="dark"] .clock-display { color: var(--brand-gold); }
@@ -40,6 +65,8 @@
         @media (max-width: 991px) {
             .top-header { flex-direction: column; gap: 15px; text-align: center; }
             .user-time-widget { position: static; margin-top: 30px; width: 100%; border-bottom: none; border-top: 4px solid var(--brand-gold);}
+            .chart-frame { height: 320px; }
+            .dashboard-panel { padding: 18px; }
         }
     </style>
 </head>
@@ -155,13 +182,48 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="data-card p-4 rounded-4 border-0">
-                    <h5 class="fw-bold mb-4" style="color: var(--text-main);"><i class="fa-solid fa-chart-line text-primary me-2"></i> مسار عمليات اليوم</h5>
-                    <div style="height: 350px; width: 100%;">
+        <div class="row g-4">
+            <div class="col-xl-8">
+                <div class="dashboard-panel data-card border-0">
+                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
+                        <div>
+                            <h5 class="fw-bold mb-1" style="color: var(--text-main);"><i class="fa-solid fa-chart-line text-primary me-2"></i> عمليات العملاء خلال الشهر</h5>
+                            <small class="fw-bold" style="color: var(--text-muted);"><%= typeof monthlyClientChart !== 'undefined' ? monthlyClientChart.monthLabel : '' %></small>
+                        </div>
+                        <span class="badge rounded-pill px-3 py-2" style="background: rgba(212,175,55,0.12); color: var(--brand-gold); border: 1px solid rgba(212,175,55,0.25);">
+                            <i class="fa-solid fa-calendar-days me-1"></i> استهلاك شهري
+                        </span>
+                    </div>
+                    <div class="chart-frame">
                         <canvas id="transactionsChart"></canvas>
                     </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="dashboard-panel data-card border-0">
+                    <h5 class="fw-bold mb-1" style="color: var(--text-main);"><i class="fa-solid fa-user-check text-success me-2"></i> العملاء المنتظمون</h5>
+                    <small class="fw-bold d-block mb-3" style="color: var(--text-muted);">حسب أيام النشاط وعدد العمليات خلال الشهر</small>
+                    <% const regularRows = typeof regularClientRows !== 'undefined' ? regularClientRows : []; %>
+                    <% if (!regularRows.length) { %>
+                        <div class="text-center text-muted fw-bold py-5">
+                            <i class="fa-solid fa-chart-simple fs-1 d-block mb-2 opacity-25"></i>
+                            لا توجد عمليات مكتملة هذا الشهر حتى الآن
+                        </div>
+                    <% } %>
+                    <% regularRows.forEach((client, index) => { %>
+                        <div class="regular-client-item">
+                            <div>
+                                <div class="regular-client-name"><%= index + 1 %>. <%= client.name %></div>
+                                <div class="regular-client-meta">
+                                    <%= client.count %> عملية · <span dir="ltr"><%= Number(client.totalAmount || 0).toFixed(2) %> EGP</span>
+                                </div>
+                            </div>
+                            <div class="regular-client-score">
+                                <%= client.activeDaysCount %>
+                                <div style="font-family: Tajawal, sans-serif; font-size: 0.68rem;">أيام</div>
+                            </div>
+                        </div>
+                    <% }) %>
                 </div>
             </div>
         </div>
@@ -219,21 +281,79 @@
         const ctx = document.getElementById('transactionsChart').getContext('2d');
         const theme = localStorage.getItem('ahram_theme') || 'light';
         const chartColor = theme === 'dark' ? '#94a3b8' : '#64748b';
+        const monthlyClientChart = <%- JSON.stringify(typeof monthlyClientChart !== 'undefined' ? monthlyClientChart : { labels: [], counts: [], amounts: [], costs: [], monthLabel: '' }).replace(/[<>&]/g, (char) => ({ '<': '\\u003c', '>': '\\u003e', '&': '\\u0026' }[char])) %>;
         Chart.defaults.color = chartColor;
         Chart.defaults.font.family = 'Tajawal';
 
         window.myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['العمليات المعلقة', 'قيد التوجيه', 'العمليات المكتملة'],
-                datasets: [{
-                    label: 'العدد',
-                    data: [Number('<%= typeof pendingTxs !== "undefined" ? pendingTxs : 0 %>'), Number('<%= typeof processingTxs !== "undefined" ? processingTxs : 0 %>'), Number('<%= typeof completedTxs !== "undefined" ? completedTxs : 0 %>')],
-                    backgroundColor: ['#f59e0b', '#0ea5e9', '#10b981'],
-                    borderWidth: 0, borderRadius: 12, barPercentage: 0.5
-                }]
+                labels: monthlyClientChart.labels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'عدد العمليات',
+                        data: monthlyClientChart.counts,
+                        backgroundColor: 'rgba(59, 130, 246, 0.72)',
+                        borderColor: '#3b82f6',
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        barPercentage: 0.58,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: 'استهلاك العملاء EGP',
+                        data: monthlyClientChart.amounts,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.14)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        yAxisID: 'yAmount'
+                    }
+                ]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'JetBrains Mono' } }, grid: { color: 'rgba(100,116,139,0.1)' } }, x: { grid: { display: false } } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: true, labels: { usePointStyle: true, boxWidth: 8 } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.yAxisID === 'yAmount') {
+                                    return `${context.dataset.label}: ${Number(context.raw || 0).toFixed(2)} EGP`;
+                                }
+                                return `${context.dataset.label}: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: { display: true, text: 'عدد العمليات' },
+                        ticks: { stepSize: 1, font: { family: 'JetBrains Mono' } },
+                        grid: { color: 'rgba(100,116,139,0.1)' }
+                    },
+                    yAmount: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: { display: true, text: 'الاستهلاك EGP' },
+                        ticks: {
+                            font: { family: 'JetBrains Mono' },
+                            callback: function(value) { return Number(value).toLocaleString('en-US'); }
+                        },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } }
+                }
+            }
         });
     });
 </script>

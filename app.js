@@ -179,6 +179,7 @@ app.use('/api/bot', require('./routes/botApi')); // 🟢 مسار البوتات
 app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/dashboard'));
 app.use('/', require('./routes/adminTransactions'));
+app.use('/', require('./routes/financialLog'));
 app.use('/', require('./routes/executors'));
 app.use('/', require('./routes/clients'));
 app.use('/admin-reports', require('./routes/adminReports'));

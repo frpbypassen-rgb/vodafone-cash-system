@@ -379,6 +379,7 @@
     const sidebarPageTitles = {
         dashboard: 'لوحة القيادة',
         transactions: 'سجل العمليات',
+        financial_log: 'السجل المالي',
         admin_reports: 'الكشوفات والتقارير',
         closing: 'التقفيل والأرشيف',
         support: 'الدعم الفني',
@@ -457,6 +458,9 @@
         <a href="/transactions" class="<%= typeof activePage !== 'undefined' && activePage === 'transactions' ? 'active' : '' %>">
             <i class="fa-solid fa-list-check"></i> سجل العمليات المباشر
         </a>
+        <a href="/financial-log" class="<%= typeof activePage !== 'undefined' && activePage === 'financial_log' ? 'active' : '' %>">
+            <i class="fa-solid fa-clipboard-list"></i> السجل المالي
+        </a>
         <a href="/admin-reports" class="<%= typeof activePage !== 'undefined' && activePage === 'admin_reports' ? 'active' : '' %>">
             <i class="fa-solid fa-file-invoice-dollar"></i> الكشوفات والتقارير
         </a>
@@ -530,6 +534,7 @@
             Chart.defaults.color = color;
             if(window.myChart.options.scales.x) window.myChart.options.scales.x.ticks.color = color;
             if(window.myChart.options.scales.y) window.myChart.options.scales.y.ticks.color = color;
+            if(window.myChart.options.scales.yAmount) window.myChart.options.scales.yAmount.ticks.color = color;
             window.myChart.update();
         }
     }

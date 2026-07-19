@@ -18,4 +18,24 @@ ledgerSchema.index({ transactionId: 1 });
 ledgerSchema.index({ entityId: 1, type: 1, createdAt: -1 }); // فلتر نوع العملية + ترتيب زمني
 ledgerSchema.index({ type: 1, createdAt: -1 });               // تقارير نوع محدد
 
+ledgerSchema.pre('save', function(next) {
+    if (!this.isNew && this.isModified()) {
+        return next(new Error('LEDGER_IMMUTABLE'));
+    }
+    return next();
+});
+
+const blockLedgerMutation = function(next) {
+    return next(new Error('LEDGER_IMMUTABLE'));
+};
+
+ledgerSchema.pre('updateOne', blockLedgerMutation);
+ledgerSchema.pre('updateMany', blockLedgerMutation);
+ledgerSchema.pre('findOneAndUpdate', blockLedgerMutation);
+ledgerSchema.pre('replaceOne', blockLedgerMutation);
+ledgerSchema.pre('deleteOne', blockLedgerMutation);
+ledgerSchema.pre('deleteMany', blockLedgerMutation);
+ledgerSchema.pre('findOneAndDelete', blockLedgerMutation);
+ledgerSchema.pre('findOneAndReplace', blockLedgerMutation);
+
 module.exports = mongoose.model('Ledger', ledgerSchema);

@@ -597,8 +597,8 @@ router.post('/api/complete-task/:id', requireExecutorAuth, async (req, res) => {
 
         let senderPhoneDisplay = '';
         if (senderPhone && senderPhone.trim() !== '') {
-            tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[رقم المحول: ${senderPhone.trim()}]`;
-            senderPhoneDisplay = `\n📞 <b>رقم المُرسل:</b> <code>${senderPhone.trim()}</code>`;
+            tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[الرقم المرجعي: ${senderPhone.trim()}]`;
+            senderPhoneDisplay = `\n📞 <b>الرقم المرجعي:</b> <code>${senderPhone.trim()}</code>`;
         }
 
         let clientNoteDisplay = tx.notes ? `\n📝 <b>ملاحظة:</b> ${tx.notes}` : '';
@@ -947,7 +947,7 @@ router.post('/api/support/messages', requireExecutorAuth, async (req, res) => {
 
         const adminAPI = new Telegram(process.env.ADMIN_BOT_TOKEN);
         const admins = await Admin.find({});
-        const notifyMsg = `🚨 <b>رسالة دعم فني (ويب التنفيذ)!</b>\n\n👤 من: ${emp.name}\n💬 الرسالة: ${text || 'صورة مرفقة'}\n\nيرجى مراجعة لوحة التحكم للرد.`;
+        const notifyMsg = `🚨 <b>رسالة دعم فني (ويب التنفيذ)!</b>\n\n👤 من: ${emp.name}\n📞 <b>رقم الهاتف:</b> <code>${emp.phone || 'غير مسجل'}</code>\n💬 الرسالة: ${text || 'صورة مرفقة'}\n\nيرجى مراجعة لوحة التحكم للرد.`;
 
         for (const admin of admins) {
             if (imageBase64) {
