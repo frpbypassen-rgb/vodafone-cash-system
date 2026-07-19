@@ -157,7 +157,378 @@
         .data-line { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-glass); padding: 12px 0; font-size: 0.9rem; }
         .mobile-tx-card { display: none; }
 
+        .tx-detail-modal .modal-dialog {
+            max-width: min(1180px, calc(100vw - 32px));
+        }
+        .tx-detail-modal .modal-content {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-glass) !important;
+            border-radius: 18px;
+            box-shadow: 0 28px 90px rgba(15, 23, 42, 0.28);
+            overflow: hidden;
+        }
+        .tx-detail-header {
+            min-height: 86px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-glass);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto auto;
+            align-items: center;
+            gap: 14px;
+            background:
+                linear-gradient(135deg, rgba(59, 130, 246, 0.10), rgba(16, 185, 129, 0.05)),
+                var(--card-bg);
+        }
+        .tx-detail-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+        .tx-detail-title-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.12);
+            color: #2563eb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            font-size: 1.15rem;
+        }
+        .tx-detail-kicker {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 900;
+            margin-bottom: 3px;
+        }
+        .tx-detail-heading {
+            font-size: 1.05rem;
+            font-weight: 900;
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+        .tx-detail-ref {
+            direction: ltr;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--brand-primary);
+        }
+        .tx-detail-close {
+            position: static !important;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background-color: var(--input-bg);
+            opacity: 1;
+            filter: none !important;
+        }
+        .tx-detail-print {
+            border-radius: 10px;
+            min-height: 38px;
+            color: #111827 !important;
+        }
+        .tx-detail-header #m_header_status {
+            justify-self: end;
+        }
+        .tx-detail-body {
+            padding: 20px;
+            background: rgba(148, 163, 184, 0.06);
+        }
+        [data-theme="dark"] .tx-detail-body {
+            background: rgba(2, 6, 23, 0.18);
+        }
+        .tx-overview {
+            display: grid;
+            grid-template-columns: minmax(260px, 1.1fr) repeat(3, minmax(150px, 0.7fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .tx-overview-card,
+        .tx-section,
+        .tx-proof-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            box-shadow: var(--shadow-soft);
+        }
+        .tx-overview-card {
+            padding: 14px;
+            min-height: 96px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .tx-overview-main {
+            border-right: 4px solid var(--brand-primary);
+        }
+        .tx-label {
+            color: var(--text-muted);
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+        .tx-value {
+            color: var(--text-main);
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 900;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+        .tx-value-lg {
+            font-size: 1.15rem;
+        }
+        .tx-value-money {
+            direction: ltr;
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0;
+        }
+        .tx-detail-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+            gap: 16px;
+            align-items: start;
+        }
+        .tx-section {
+            padding: 16px;
+        }
+        .tx-section + .tx-section {
+            margin-top: 16px;
+        }
+        .tx-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .tx-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 900;
+        }
+        .tx-section-title i {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.10);
+            color: #2563eb;
+        }
+        .tx-field-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .tx-field {
+            min-height: 78px;
+            padding: 12px;
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            background: var(--input-bg);
+        }
+        .tx-field.wide {
+            grid-column: 1 / -1;
+        }
+        .tx-note-box,
+        .tx-account-box {
+            white-space: pre-line;
+            line-height: 1.75;
+        }
+        .tx-bot-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .tx-bot-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            min-width: 0;
+        }
+        .tx-bot-actions .input-group {
+            width: min(260px, 100%);
+        }
+        .tx-stage-list {
+            display: grid;
+            gap: 10px;
+        }
+        .tx-stage-item {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr);
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            background: var(--input-bg);
+            position: relative;
+        }
+        .tx-stage-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(148, 163, 184, 0.16);
+            color: var(--text-muted);
+        }
+        .tx-stage-name {
+            color: var(--text-main);
+            font-weight: 900;
+            margin-bottom: 3px;
+        }
+        .tx-stage-meta {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 800;
+            direction: ltr;
+            text-align: right;
+        }
+        .tx-stage-item.is-done .tx-stage-icon {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+        }
+        .tx-stage-item.is-active .tx-stage-icon {
+            background: rgba(245, 158, 11, 0.16);
+            color: #d97706;
+        }
+        .tx-stage-item.is-failed .tx-stage-icon {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+        }
+        .tx-proof-panel {
+            padding: 14px;
+        }
+        .tx-proof-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .tx-proof-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 0;
+            font-size: 0.92rem;
+            font-weight: 900;
+        }
+        .tx-proof-container {
+            min-height: 300px;
+            border: 1px dashed var(--border-glass);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        [data-theme="dark"] .tx-proof-container {
+            background: rgba(2, 6, 23, 0.36);
+        }
+        .tx-proof-container img {
+            display: block;
+            width: auto;
+            max-width: 100%;
+            max-height: 560px;
+            object-fit: contain;
+        }
+
         @media (max-width: 991.98px) {
+            .tx-detail-modal .modal-dialog {
+                max-width: none;
+                width: 100%;
+                margin: 0;
+                min-height: 100vh;
+                align-items: stretch;
+            }
+            .tx-detail-modal .modal-content {
+                min-height: 100vh;
+                border-radius: 0;
+            }
+            .tx-detail-header {
+                grid-template-columns: minmax(0, 1fr) auto;
+                padding: 14px;
+                gap: 10px;
+                position: sticky;
+                top: 0;
+                z-index: 5;
+            }
+            .tx-detail-title-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+            }
+            .tx-detail-heading {
+                font-size: 0.92rem;
+            }
+            .tx-detail-kicker {
+                font-size: 0.68rem;
+            }
+            .tx-detail-print {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+            .tx-detail-header #m_header_status {
+                grid-column: 1 / -1;
+                justify-self: start;
+            }
+            .tx-detail-close {
+                grid-column: 2;
+                grid-row: 1;
+            }
+            .tx-detail-body {
+                padding: 12px;
+            }
+            .tx-overview {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+            .tx-overview-main {
+                grid-column: 1 / -1;
+            }
+            .tx-detail-grid,
+            .tx-field-grid {
+                grid-template-columns: 1fr;
+            }
+            .tx-section {
+                padding: 12px;
+                border-radius: 12px;
+            }
+            .tx-field {
+                min-height: 70px;
+            }
+            .tx-bot-control {
+                align-items: stretch;
+                flex-direction: column;
+            }
+            .tx-bot-actions {
+                align-items: stretch;
+            }
+            .tx-bot-actions .input-group {
+                width: 100%;
+            }
+            .tx-proof-container {
+                min-height: 240px;
+            }
             .tx-page-title {
                 align-items: stretch !important;
                 gap: 10px;
@@ -702,37 +1073,102 @@
     </div>
 </div>
 
-<div class="modal fade" id="txModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+<div class="modal fade tx-detail-modal" id="txModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0">
-            <div class="modal-header border-0 pb-0 justify-content-center position-relative">
-                <button type="button" class="btn-close position-absolute" style="left:20px; filter:invert(0.5);" data-bs-dismiss="modal"></button>
-                <h5 class="fw-bold m-0 text-center text-primary"><i class="fa-solid fa-receipt me-2"></i> تـفـاصـيـل الـعـمـلـيـة الـشـامـلـة</h5>
-                <button class="btn btn-warning btn-sm fw-bold shadow-sm position-absolute" style="right:20px; border-radius: 8px; color: #000;" onclick="printInvoice()">
+            <div class="tx-detail-header">
+                <div class="tx-detail-title">
+                    <span class="tx-detail-title-icon"><i class="fa-solid fa-receipt"></i></span>
+                    <div class="min-w-0">
+                        <div class="tx-detail-kicker">ملف العملية المركزي</div>
+                        <h5 class="tx-detail-heading">تفاصيل العملية <span id="m_header_id" class="tx-detail-ref"></span></h5>
+                    </div>
+                </div>
+                <div id="m_header_status"></div>
+                <button class="btn btn-warning btn-sm fw-bold shadow-sm tx-detail-print" onclick="printInvoice()">
                     <i class="fa-solid fa-print me-1"></i> الفاتورة
                 </button>
+                <button type="button" class="btn-close tx-detail-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
-                <div class="row g-4">
-                    <div class="col-md-7">
-                        <div class="info-panel">
-                            <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar ms-2"></i> بيانات الطلب والجهة</div>
-                            
-                            <div class="data-line"><span class="data-val" id="m_entity"></span><span class="data-label">الجهة/الشركة:</span></div>
-                            <div class="data-line"><span class="data-val" id="m_requester"></span><span class="data-label">الموظف الطالب:</span></div>
-                            
-                            <div class="data-line">
-                                <span class="data-val text-primary d-flex flex-column align-items-end gap-1">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <button id="m_bot_edit_btn" class="btn btn-sm btn-outline-warning py-0 px-2 fw-bold" style="display:none; font-size: 0.7rem; border-radius: 6px;" onclick="document.getElementById('m_bot_edit_form').style.display='block'; this.style.display='none';"><i class="fa-solid fa-right-left"></i> نقل</button>
-                                        <span id="m_bot_name_text" class="fw-bold"></span>
-                                    </div>
-                                    <div id="m_bot_edit_form" style="display:none; margin-top: 5px;">
+            <div class="modal-body tx-detail-body">
+                <div class="tx-overview">
+                    <div class="tx-overview-card tx-overview-main">
+                        <span class="tx-label">الجهة / الحساب</span>
+                        <span class="tx-value tx-value-lg" id="m_entity"></span>
+                        <span class="text-muted fw-bold small" id="m_header_entity"></span>
+                    </div>
+                    <div class="tx-overview-card">
+                        <span class="tx-label">المبلغ المحول</span>
+                        <span class="tx-value tx-value-lg tx-value-money text-success" id="m_egp"></span>
+                    </div>
+                    <div class="tx-overview-card">
+                        <span class="tx-label">التكلفة النهائية</span>
+                        <span class="tx-value tx-value-lg tx-value-money text-danger" id="m_lyd"></span>
+                    </div>
+                    <div class="tx-overview-card">
+                        <span class="tx-label">تاريخ الإنشاء</span>
+                        <span class="tx-value mono-num" id="m_header_created"></span>
+                    </div>
+                </div>
+
+                <div class="tx-detail-grid">
+                    <div>
+                        <div class="tx-section">
+                            <div class="tx-section-header">
+                                <h6 class="tx-section-title"><i class="fa-solid fa-id-card-clip"></i> بيانات العميل والمستفيد</h6>
+                                <div id="m_type"></div>
+                            </div>
+                            <div class="tx-field-grid">
+                                <div class="tx-field">
+                                    <span class="tx-label">الموظف / الطالب</span>
+                                    <span class="tx-value" id="m_requester"></span>
+                                </div>
+                                <div class="tx-field">
+                                    <span class="tx-label">الرقم / الحساب</span>
+                                    <span class="tx-value mono-num" id="m_phone" dir="ltr"></span>
+                                </div>
+                                <div class="tx-field wide" id="m_account_name_box" style="display:none;">
+                                    <span class="tx-label">بيانات مستلم البريد</span>
+                                    <span class="tx-value tx-account-box" id="m_account_name"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tx-section">
+                            <div class="tx-section-header">
+                                <h6 class="tx-section-title"><i class="fa-solid fa-scale-balanced"></i> التسوية المالية</h6>
+                            </div>
+                            <div class="tx-field-grid">
+                                <div class="tx-field">
+                                    <span class="tx-label">سعر الصرف</span>
+                                    <span class="tx-value mono-num text-warning" id="m_rate"></span>
+                                </div>
+                                <div class="tx-field">
+                                    <span class="tx-label">حالة العملية</span>
+                                    <span class="tx-value" id="m_t_status"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tx-section">
+                            <div class="tx-section-header">
+                                <h6 class="tx-section-title"><i class="fa-solid fa-robot"></i> بيانات التنفيذ</h6>
+                            </div>
+                            <div class="tx-field tx-bot-control">
+                                <div>
+                                    <span class="tx-label">بوت التنفيذ</span>
+                                    <span class="tx-value text-primary" id="m_bot_name_text"></span>
+                                </div>
+                                <div class="tx-bot-actions">
+                                    <button id="m_bot_edit_btn" class="btn btn-sm btn-outline-warning fw-bold" style="display:none;" onclick="document.getElementById('m_bot_edit_form').style.display='block'; this.style.display='none';">
+                                        <i class="fa-solid fa-right-left me-1"></i> نقل العملية
+                                    </button>
+                                    <div id="m_bot_edit_form" style="display:none;">
                                         <form id="changeBotForm" method="POST" onsubmit="return confirm('سيتم نقل العملية وتعديل أرصدة البوتات والوكلاء محاسبياً. هل أنت متأكد؟')">
                                             <div class="input-group input-group-sm">
-                                                <button type="submit" class="btn btn-success border-0 px-2"><i class="fa-solid fa-check"></i></button>
-                                                <select name="newBotId" class="form-select border-0 fw-bold text-end" style="font-size: 0.75rem;" required>
-                                                    <option value="">- اختر بوت -</option>
+                                                <button type="submit" class="btn btn-success border-0 px-3"><i class="fa-solid fa-check"></i></button>
+                                                <select name="newBotId" class="form-select border-0 fw-bold text-end" required>
+                                                    <option value="">اختر بوت التنفيذ</option>
                                                     <% if(typeof executorBots !== 'undefined') { %>
                                                         <% executorBots.forEach(bot => { %><option value="<%= bot._id %>"><%= bot.name %></option><% }) %>
                                                     <% } %>
@@ -740,44 +1176,63 @@
                                             </div>
                                         </form>
                                     </div>
-                                </span>
-                                <span class="data-label">بوت التنفيذ:</span>
-                            </div>
-
-                            <div class="data-line"><span class="data-val fw-bold" id="m_type"></span><span class="data-label">نوع التحويل:</span></div>
-                            <div class="data-line"><span class="data-val mono-num fs-6" id="m_phone" style="direction: ltr;"></span><span class="data-label">الرقم/الحساب:</span></div>
-                            <div class="data-line"><span class="data-val text-success mono-num fs-5" id="m_egp"></span><span class="data-label">المبلغ (EGP):</span></div>
-                            <div class="data-line"><span class="data-val mono-num text-warning" id="m_rate"></span><span class="data-label">سعر الصرف:</span></div>
-                            <div class="data-line"><span class="data-val text-danger mono-num fs-5" id="m_lyd"></span><span class="data-label">الإجمالي (LYD):</span></div>
-                             
-                            <div class="col-12" id="m_account_name_box" style="display:none; margin-top: 15px;">
-                                <div class="p-3" style="background-color: rgba(245, 158, 11, 0.1); border-right: 4px solid #f59e0b; border-radius: 8px;">
-                                    <div class="fw-bold mb-2 text-warning"><i class="fa-solid fa-address-card me-2"></i> بيانات مستلم البريد:</div>
-                                    <div id="m_account_name" class="fw-bold" style="line-height: 1.8; font-size: 0.95rem;"></div>
                                 </div>
                             </div>
-                            
-                            <div class="mt-4 pt-3 border-top">
-                                <span class="panel-title text-muted mb-2"><i class="fa-solid fa-comment-dots ms-2"></i> ملاحظات العملية:</span>
-                                <div id="m_note" class="fw-bold small" style="white-space: pre-line; line-height: 1.6;">لا توجد ملاحظات إضافية.</div>
+                        </div>
+
+                        <div class="tx-section">
+                            <div class="tx-section-header">
+                                <h6 class="tx-section-title"><i class="fa-solid fa-comment-dots"></i> ملاحظات العملية</h6>
                             </div>
+                            <div class="tx-note-box fw-bold small" id="m_note">لا توجد ملاحظات إضافية.</div>
                         </div>
                     </div>
-                    <div class="col-lg-5">
-                        <div class="info-panel">
-                            <div class="panel-title text-danger"><i class="fa-solid fa-microchip ms-2"></i> تتبع دورة حياة التنفيذ</div>
-                            <div class="timeline-box">
-                                <div class="timeline-item"><span class="data-label">وقت إنشاء الطلب:</span><span class="data-val small mono-num text-muted" id="m_t_created"></span></div>
-                                <div class="timeline-item"><span class="data-label">الموظف المنفذ:</span><span class="data-val text-primary" id="m_t_executor"></span></div>
-                                <div class="timeline-item"><span class="data-label">وقت القبول:</span><span class="data-val small mono-num text-muted" id="m_t_accepted"></span></div>
-                                <div class="timeline-item"><span class="data-label">وقت الإكمال النهائي:</span><span class="data-val small text-success mono-num" id="m_t_completed"></span></div>
-                                <div class="timeline-item" style="padding:0;"><span class="data-label">حالة العملية:</span><div id="m_t_status"></div></div>
+
+                    <div>
+                        <div class="tx-section">
+                            <div class="tx-section-header">
+                                <h6 class="tx-section-title"><i class="fa-solid fa-route"></i> مراحل التنفيذ</h6>
+                            </div>
+                            <div class="tx-stage-list">
+                                <div class="tx-stage-item" id="m_stage_created">
+                                    <span class="tx-stage-icon"><i class="fa-solid fa-file-circle-plus"></i></span>
+                                    <div>
+                                        <div class="tx-stage-name">إنشاء الطلب</div>
+                                        <div class="tx-stage-meta mono-num" id="m_t_created"></div>
+                                    </div>
+                                </div>
+                                <div class="tx-stage-item" id="m_stage_routed">
+                                    <span class="tx-stage-icon"><i class="fa-solid fa-share-nodes"></i></span>
+                                    <div>
+                                        <div class="tx-stage-name">التوجيه للمنفذ</div>
+                                        <div class="tx-stage-meta" id="m_t_executor"></div>
+                                    </div>
+                                </div>
+                                <div class="tx-stage-item" id="m_stage_accepted">
+                                    <span class="tx-stage-icon"><i class="fa-solid fa-user-check"></i></span>
+                                    <div>
+                                        <div class="tx-stage-name">قبول التنفيذ</div>
+                                        <div class="tx-stage-meta mono-num" id="m_t_accepted"></div>
+                                    </div>
+                                </div>
+                                <div class="tx-stage-item" id="m_stage_completed">
+                                    <span class="tx-stage-icon"><i class="fa-solid fa-circle-check"></i></span>
+                                    <div>
+                                        <div class="tx-stage-name">الإغلاق النهائي</div>
+                                        <div class="tx-stage-meta mono-num" id="m_t_completed"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="mt-4 text-center fw-bold mb-3 text-primary"><i class="fa-solid fa-camera-retro me-2"></i> إثباتات التنفيذ (Screenshots)</div>
-                        <div class="position-relative p-2 border rounded-4" id="m_proof_container" style="background: rgba(0,0,0,0.02); min-height: 200px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                            <div class="text-muted text-center"><i class="fa-solid fa-image fs-1 d-block mb-2 opacity-25"></i> جاري التحميل...</div>
+
+                        <div class="tx-proof-panel mt-3">
+                            <div class="tx-proof-header">
+                                <h6 class="tx-proof-title"><i class="fa-solid fa-image text-primary"></i> إثبات التنفيذ</h6>
+                                <span class="badge-st st-proc" id="m_proof_count">0</span>
+                            </div>
+                            <div class="tx-proof-container" id="m_proof_container">
+                                <div class="text-muted text-center"><i class="fa-solid fa-image fs-1 d-block mb-2 opacity-25"></i> جاري التحميل...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -920,90 +1375,152 @@
         if (fallback) fallback.style.display = 'flex';
     }
 
-    function viewTransactionDetails(el) {
-        const tx = JSON.parse(el.getAttribute('data-tx'));
-        window.currentTxToPrint = tx; 
-        const f = (d) => d ? new Date(d).toLocaleString('en-GB').replace(',', '') : '---';
-        const entityName = (tx.companyName && tx.companyName !== 'عميل فردي') ? tx.companyName : (tx.employeeName || 'عميل فردي');
-        
-        document.getElementById('m_entity').innerText = entityName;
-        document.getElementById('m_requester').innerText = tx.employeeName || '---';
-        document.getElementById('m_bot_name_text').innerText = tx.executorBotName || (tx.executorBotId ? allBotsMap[tx.executorBotId] : 'غير محدد');
-        
-        const editBtn = document.getElementById('m_bot_edit_btn');
-        const editForm = document.getElementById('m_bot_edit_form'); 
-        editForm.style.display = 'none'; 
-        if (tx.status === 'completed' && tx.executorBotId) { editBtn.style.display = 'inline-block';
-        document.getElementById('changeBotForm').action = '/transaction/' + tx._id + '/change-bot'; } else { editBtn.style.display = 'none';
-        }
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = value || '---';
+    }
 
-        let typeHtml = '';
-        if(tx.transferType === 'post_account') typeHtml = '<span class="badge-st st-wait"><i class="fa-solid fa-envelope"></i> حساب بريد</span>';
-        else if(tx.transferType === 'post_card') typeHtml = '<span class="badge-st st-proc"><i class="fa-solid fa-id-card"></i> بطاقة عميل</span>';
-        else if(tx.status === 'deposit' || tx.status === 'deduction') typeHtml = '<span class="badge-st" style="background: rgba(100,116,139,0.1); color:#64748b;"><i class="fa-solid fa-money-bill-wave"></i> تسوية مالية</span>';
-        else typeHtml = '<span class="badge-st st-fail"><i class="fa-solid fa-mobile-screen"></i> فودافون كاش</span>';
-        document.getElementById('m_type').innerHTML = typeHtml;
+    function setHtml(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = value || '';
+    }
 
-        document.getElementById('m_phone').innerText = tx.vodafoneNumber || tx.accountNumber || '---';
-        const accBox = document.getElementById('m_account_name_box');
-        if(tx.accountName && tx.transferType !== 'vodafone') { document.getElementById('m_account_name').innerHTML = tx.accountName.replace(/\n/g, '<br>'); accBox.style.display = 'block';
-        } else { accBox.style.display = 'none'; }
+    function escapeHtmlValue(value) {
+        return String(value === undefined || value === null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
-        document.getElementById('m_egp').innerText = tx.amount.toFixed(2) + ' EGP';
-        document.getElementById('m_rate').innerText = tx.exchangeRate ? Number(tx.exchangeRate).toFixed(2) : (tx.costLYD ? (tx.amount / tx.costLYD).toFixed(2) : '---');
-        document.getElementById('m_lyd').innerText = (tx.costLYD ? tx.costLYD.toFixed(2) : '---') + ' LYD';
-        
-        // 🟢 تنظيف الملاحظات من لوج الـ API 
-        let displayNote = tx.notes || 'لا توجد ملاحظات إضافية.';
+    function amountText(value, currency) {
+        const numeric = Number(value || 0);
+        return `${numeric.toFixed(2)} ${currency}`;
+    }
+
+    function getStatusBadge(status) {
+        const badges = {
+            completed: '<span class="badge-st st-done"><i class="fa-solid fa-circle-check"></i> مكتمل</span>',
+            pending: '<span class="badge-st st-wait"><i class="fa-solid fa-circle-pause"></i> معلق</span>',
+            processing: '<span class="badge-st st-proc"><i class="fa-solid fa-spinner fa-spin"></i> توجيه</span>',
+            accepted: '<span class="badge-st st-work"><i class="fa-solid fa-user-check"></i> قيد العمل</span>',
+            deposit_pending: '<span class="badge-st st-wait"><i class="fa-solid fa-hand-holding-dollar"></i> طلب إيداع</span>',
+            deposit: '<span class="badge-st st-done"><i class="fa-solid fa-arrow-down"></i> إيداع</span>',
+            deduction: '<span class="badge-st st-fail"><i class="fa-solid fa-arrow-up"></i> خصم</span>',
+            rejected: '<span class="badge-st st-fail"><i class="fa-solid fa-ban"></i> ملغي</span>'
+        };
+        return badges[status] || `<span class="badge-st st-fail"><i class="fa-solid fa-circle-exclamation"></i> ${escapeHtmlValue(status || 'غير محدد')}</span>`;
+    }
+
+    function getTypeBadge(tx) {
+        if (tx.transferType === 'post_account') return '<span class="badge-st st-wait"><i class="fa-solid fa-envelope"></i> حساب بريد</span>';
+        if (tx.transferType === 'post_card') return '<span class="badge-st st-proc"><i class="fa-solid fa-id-card"></i> بطاقة عميل</span>';
+        if (tx.status === 'deposit' || tx.status === 'deduction') return '<span class="badge-st" style="background: rgba(100,116,139,0.1); color:#64748b;"><i class="fa-solid fa-money-bill-wave"></i> تسوية مالية</span>';
+        return '<span class="badge-st st-fail"><i class="fa-solid fa-mobile-screen"></i> فودافون كاش</span>';
+    }
+
+    function cleanTransactionNote(notes) {
+        let displayNote = notes || 'لا توجد ملاحظات إضافية.';
         if (displayNote.includes('--- سجل الـ API')) {
             displayNote = displayNote.split('--- سجل الـ API')[0].trim();
         }
-        document.getElementById('m_note').innerText = displayNote;
-        
-        document.getElementById('m_t_created').innerText = f(tx.createdAt);
-        document.getElementById('m_t_executor').innerText = tx.executorName || 'قيد الانتظار';
-        document.getElementById('m_t_accepted').innerText = tx.status !== 'pending' ? f(tx.updatedAt) : '---';
-        document.getElementById('m_t_completed').innerText = tx.status === 'completed' ? f(tx.updatedAt) : '---';
-        
-        let b = ''; const s = tx.status;
-        if(s === 'completed') b = '<span class="badge-st st-done"><i class="fa-solid fa-circle-check"></i> مكتمل</span>';
-        else if(s === 'pending') b = '<span class="badge-st st-wait"><i class="fa-solid fa-circle-pause"></i> معلق</span>';
-        else if(s === 'processing') b = '<span class="badge-st st-proc"><i class="fa-solid fa-spinner fa-spin"></i> توجيه</span>';
-        else if(s === 'accepted') b = '<span class="badge-st" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fa-solid fa-user-check"></i> قيد العمل</span>';
-        else if(s === 'deposit_pending') b = '<span class="badge bg-warning text-dark px-3 py-2"><i class="fa-solid fa-hand-holding-dollar"></i> طلب إيداع</span>';
-        else if(s === 'deposit') b = '<span class="badge-st st-done"><i class="fa-solid fa-arrow-down"></i> إيداع</span>';
-        else if(s === 'deduction') b = '<span class="badge-st st-fail"><i class="fa-solid fa-arrow-up"></i> خصم</span>';
-        else b = '<span class="badge-st st-fail"><i class="fa-solid fa-ban"></i> ملغي</span>';
-        document.getElementById('m_t_status').innerHTML = b;
+        return displayNote || 'لا توجد ملاحظات إضافية.';
+    }
 
+    function setStage(id, state) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = `tx-stage-item${state ? ` is-${state}` : ''}`;
+    }
+
+    function getProofList(tx) {
+        if (Array.isArray(tx.proofImages) && tx.proofImages.length > 0) return tx.proofImages.filter(Boolean);
+        if (tx.proofImage && String(tx.proofImage).trim() !== '') return [tx.proofImage];
+        return [];
+    }
+
+    function viewTransactionDetails(el) {
+        const tx = JSON.parse(el.getAttribute('data-tx'));
+        window.currentTxToPrint = tx;
+
+        const f = (d) => d ? new Date(d).toLocaleString('en-GB').replace(',', '') : '---';
+        const displayId = tx.customId || (tx._id ? String(tx._id).slice(-6) : '---');
+        const isCompany = tx.companyName && tx.companyName !== 'عميل فردي';
+        const entityName = isCompany ? tx.companyName : (tx.employeeName || 'عميل فردي');
+        const requesterName = tx.employeeName || (isCompany ? 'غير محدد' : entityName);
+        const botName = tx.executorBotName || (tx.executorBotId ? allBotsMap[tx.executorBotId] : 'غير محدد');
+        const rate = tx.exchangeRate ? Number(tx.exchangeRate).toFixed(2) : (tx.costLYD ? (Number(tx.amount || 0) / Number(tx.costLYD || 1)).toFixed(2) : '---');
+        const statusBadge = getStatusBadge(tx.status);
+
+        setText('m_header_id', `#${displayId}`);
+        setHtml('m_header_status', statusBadge);
+        setText('m_entity', entityName);
+        setText('m_header_entity', isCompany ? `طالب العملية: ${requesterName}` : 'عميل فردي');
+        setText('m_header_created', f(tx.createdAt));
+        setText('m_requester', requesterName);
+        setText('m_bot_name_text', botName);
+        setHtml('m_type', getTypeBadge(tx));
+        setText('m_phone', tx.vodafoneNumber || tx.accountNumber || '---');
+        setText('m_egp', amountText(tx.amount, 'EGP'));
+        setText('m_rate', rate);
+        setText('m_lyd', tx.costLYD ? amountText(tx.costLYD, 'LYD') : '---');
+        setText('m_note', cleanTransactionNote(tx.notes));
+        setHtml('m_t_status', statusBadge);
+
+        const accountBox = document.getElementById('m_account_name_box');
+        if (tx.accountName && tx.transferType !== 'vodafone') {
+            setText('m_account_name', tx.accountName);
+            accountBox.style.display = 'block';
+        } else {
+            accountBox.style.display = 'none';
+        }
+
+        const editBtn = document.getElementById('m_bot_edit_btn');
+        const editForm = document.getElementById('m_bot_edit_form');
+        editForm.style.display = 'none';
+        if (tx.status === 'completed' && tx.executorBotId) {
+            editBtn.style.display = 'inline-flex';
+            document.getElementById('changeBotForm').action = '/transaction/' + tx._id + '/change-bot';
+        } else {
+            editBtn.style.display = 'none';
+        }
+
+        setText('m_t_created', f(tx.createdAt));
+        setText('m_t_executor', tx.executorName ? `${botName} / ${tx.executorName}` : botName);
+        setText('m_t_accepted', ['accepted', 'completed', 'deposit', 'deduction'].includes(tx.status) ? f(tx.updatedAt) : 'في انتظار القبول');
+        setText('m_t_completed', ['completed', 'deposit', 'deduction'].includes(tx.status) ? f(tx.updatedAt) : (tx.status === 'rejected' ? 'تم إيقاف العملية' : 'لم تكتمل بعد'));
+
+        setStage('m_stage_created', 'done');
+        setStage('m_stage_routed', tx.executorBotId || ['processing', 'accepted', 'completed'].includes(tx.status) ? (tx.status === 'processing' ? 'active' : 'done') : '');
+        setStage('m_stage_accepted', tx.status === 'accepted' ? 'active' : (['completed', 'deposit', 'deduction'].includes(tx.status) ? 'done' : ''));
+        setStage('m_stage_completed', tx.status === 'rejected' ? 'failed' : (['completed', 'deposit', 'deduction'].includes(tx.status) ? 'done' : ''));
+
+        const proofs = getProofList(tx);
+        setText('m_proof_count', proofs.length ? `${proofs.length} صورة` : 'لا يوجد');
         const container = document.getElementById('m_proof_container');
-        if(container) {
-            let proofs = [];
-            if (tx.proofImages && tx.proofImages.length > 0) proofs = tx.proofImages;
-            else if (tx.proofImage && tx.proofImage.trim() !== '') proofs = [tx.proofImage];
-            
-            if (proofs.length > 0) {
-                if (proofs.length === 1) {
-                    container.innerHTML = `<img src="/proxy/image/${tx._id}/0" style="display:block; border-radius: 12px; max-height: 500px; max-width: 100%; margin: 0 auto; object-fit: contain;">`;
-                } else {
-                    let indicators = '';
-                    let items = '';
-                    proofs.forEach((p, i) => {
-                        indicators += `<button type="button" data-bs-target="#proofCarousel" data-bs-slide-to="${i}" class="${i===0?'active':''}" style="background-color: var(--brand-primary);"></button>`;
-                        items += `<div class="carousel-item ${i===0?'active':''}"><img src="/proxy/image/${tx._id}/${i}" class="d-block w-100" style="border-radius: 12px; max-height: 500px; object-fit: contain; margin: 0 auto;"></div>`;
-                    });
-                    container.innerHTML = `
-                        <div id="proofCarousel" class="carousel slide" data-bs-ride="carousel" style="width: 100%; background: rgba(0,0,0,0.5); border-radius: 12px; overflow:hidden;">
-                            <div class="carousel-indicators" style="bottom: 10px;">${indicators}</div>
-                            <div class="carousel-inner">${items}</div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#proofCarousel" data-bs-slide="prev" style="width: 10%; background: rgba(0,0,0,0.3);"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#proofCarousel" data-bs-slide="next" style="width: 10%; background: rgba(0,0,0,0.3);"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
-                        </div>`;
-                }
+        if (container) {
+            if (proofs.length === 1) {
+                container.innerHTML = `<img src="/proxy/image/${tx._id}/0" alt="إثبات العملية ${escapeHtmlValue(displayId)}">`;
+            } else if (proofs.length > 1) {
+                let indicators = '';
+                let items = '';
+                proofs.forEach((proof, index) => {
+                    indicators += `<button type="button" data-bs-target="#proofCarousel" data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}" aria-label="صورة ${index + 1}"></button>`;
+                    items += `<div class="carousel-item ${index === 0 ? 'active' : ''}"><img src="/proxy/image/${tx._id}/${index}" class="d-block mx-auto" alt="إثبات العملية ${escapeHtmlValue(displayId)} - ${index + 1}"></div>`;
+                });
+                container.innerHTML = `
+                    <div id="proofCarousel" class="carousel slide w-100" data-bs-ride="carousel">
+                        <div class="carousel-indicators">${indicators}</div>
+                        <div class="carousel-inner">${items}</div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#proofCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#proofCarousel" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
+                    </div>`;
             } else {
                 container.innerHTML = '<div class="text-muted text-center"><i class="fa-solid fa-image fs-1 d-block mb-2 opacity-25"></i> لم يتم إرفاق إثبات تنفيذ بعد</div>';
             }
         }
+
         new bootstrap.Modal(document.getElementById('txModal')).show();
     }
 
