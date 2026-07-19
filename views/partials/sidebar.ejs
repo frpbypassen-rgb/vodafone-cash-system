@@ -191,8 +191,11 @@
         <a href="/transactions" class="<%= typeof activePage !== 'undefined' && activePage === 'transactions' ? 'active' : '' %>">
             <i class="fa-solid fa-list-check"></i> سجل العمليات المباشر
         </a>
-        <a href="/reports" class="<%= typeof activePage !== 'undefined' && activePage === 'reports' ? 'active' : '' %>">
-            <i class="fa-solid fa-file-invoice-dollar"></i> سجل الكشوفات والتقفيل
+        <a href="/admin-reports" class="<%= typeof activePage !== 'undefined' && activePage === 'admin_reports' ? 'active' : '' %>">
+            <i class="fa-solid fa-file-invoice-dollar"></i> الكشوفات والتقارير
+        </a>
+        <a href="/closing" class="<%= typeof activePage !== 'undefined' && activePage === 'closing' ? 'active' : '' %>">
+            <i class="fa-solid fa-box-archive"></i> التقفيل والأرشيف
         </a>
         <a href="/support" class="<%= typeof activePage !== 'undefined' && activePage === 'support' ? 'active' : '' %> d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-headset"></i> الدعم الفني</span>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>التقارير التفصيلية | الأهرام</title>
+
+    <script>
+        const savedTheme = localStorage.getItem('ahram_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .summary-row { display: flex !important; flex-wrap: wrap !important; gap: 15px; margin-bottom: 20px !important; }
+        .summary-col { flex: 1; min-width: 150px; }
+        .summary-box { padding: 20px; border-radius: 16px; text-align: center; border-bottom: 4px solid transparent; height: 100%; transition: 0.3s; }
+        .summary-box:hover { transform: translateY(-5px); }
+        .mono-num { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 900; line-height: 1; margin: 10px 0 0 0;}
+        .clickable-id { cursor: pointer; transition: 0.2s; text-decoration: none !important; font-family: 'JetBrains Mono', monospace; font-weight: 800;}
+
+        /* 🖨️ تنسيقات الطباعة الجديدة */
+        @media print {
+            .no-print, .sidebar, .mobile-nav-toggle, .admin-nav, .summary-row { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; margin: 0 !important; font-size: 11pt !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+            .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
+            .data-card { box-shadow: none !important; border: none !important; padding: 0 !important; margin-bottom: 20px !important; }
+            .table { width: 100% !important; border-collapse: collapse !important; margin-top: 15px;}
+            .table th, .table td { border: 1px solid #ccc !important; font-size: 10pt !important; padding: 6px !important; color: black !important;}
+            .table th { background-color: #f1f5f9 !important; color: #001a4d !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 3px double #001a4d; padding-bottom: 10px;}
+
+            /* 🟢 جدول الأرصدة المخصص للطباعة فقط */
+            .print-only-summary { display: table !important; width: 100%; margin-bottom: 20px; border-collapse: collapse; page-break-inside: avoid;}
+            .print-only-summary th, .print-only-summary td { border: 2px solid #001a4d !important; padding: 10px; text-align: center; }
+            .print-only-summary th { background-color: #f0f0f0 !important; font-size: 11pt !important; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-only-summary td { font-size: 14pt !important; font-weight: bold; font-family: monospace; }
+        }
+        .print-header, .print-only-summary { display: none; }
+
+        @media (max-width: 767.98px) {
+            .admin-nav h3 {
+                font-size: 1.15rem;
+                line-height: 1.5;
+            }
+            .data-card {
+                padding: 14px !important;
+            }
+            .data-card.p-0 {
+                padding: 0 !important;
+            }
+            .summary-row {
+                gap: 10px !important;
+            }
+            .summary-col {
+                flex: 0 0 100%;
+                min-width: 100%;
+            }
+            .summary-box {
+                padding: 14px;
+                border-radius: 12px;
+                transform: none !important;
+            }
+            .mono-num {
+                font-size: 1.15rem;
+                overflow-wrap: anywhere;
+            }
+            .d-flex.justify-content-end.gap-2.mb-4.no-print {
+                flex-direction: column;
+            }
+            .d-flex.justify-content-end.gap-2.mb-4.no-print .btn,
+            .d-flex.justify-content-end.gap-2.mb-4.no-print form {
+                width: 100%;
+            }
+            .table {
+                min-width: 720px;
+            }
+            .modal-dialog {
+                margin: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<button class="mobile-nav-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<%- include('partials/sidebar', { activePage: 'admin_reports' }) %>
+
+<div class="main-content">
+    <div class="container-fluid">
+
+        <div class="print-header">
+            <h2 style="font-weight: 900; color: #000; margin: 0;">شركة الأهرام للخدمات الرقمية</h2>
+            <h4 style="margin: 5px 0;">التقرير المحاسبي للجهة: <%= typeof targetName !== 'undefined' ? targetName : '---' %></h4>
+            <p style="margin: 0; font-weight: bold;">الفترة: <%= (typeof bulkDateLabel !== 'undefined' && bulkDateLabel) ? bulkDateLabel : ((fromDate && toDate) ? `من ${fromDate} إلى ${toDate}` : 'تقرير مفتوح') %></p>
+        </div>
+
+        <% if (typeof type !== 'undefined' && type && typeof entityId !== 'undefined' && entityId) { %>
+        <table class="print-only-summary">
+            <tr>
+                <th>الرصيد السابق</th>
+                <th>إجمالي المسدد</th>
+                <th>مسحوب (خصم)</th>
+                <th>إجمالي التحويلات</th>
+                <th>الرصيد الختامي</th>
+            </tr>
+            <tr>
+                <td><%= typeof openingBalance !== 'undefined' ? openingBalance.toFixed(2) : '0.00' %></td>
+                <td><%= typeof totals !== 'undefined' ? totals.depositsEGP.toFixed(2) : '0.00' %></td>
+                <td><%= typeof totals !== 'undefined' ? totals.deductionsEGP.toFixed(2) : '0.00' %></td>
+                <td><%= (typeof totals !== 'undefined') ? ((type==='client' || type==='user') ? totals.transfersLYD.toFixed(2) : totals.transfersEGP.toFixed(2)) : '0.00' %></td>
+                <td style="font-size: 18pt !important;"><%= typeof closingBalance !== 'undefined' ? closingBalance.toFixed(2) : '0.00' %></td>
+            </tr>
+        </table>
+        <% } %>
+
+        <div class="admin-nav mb-4 no-print">
+            <h3 class="fw-bold m-0 text-dark"><i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i> التقارير التفصيلية المباشرة</h3>
+        </div>
+
+        <% if (typeof isPdfExport === 'undefined' || !isPdfExport) { %>
+        <div class="data-card mb-4 no-print border-start border-4 border-success">
+            <h6 class="fw-bold text-success mb-3"><i class="fa-solid fa-paper-plane me-2"></i> التقفيل الشامل وإرسال التقارير للجميع</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <form action="/admin-reports/bulk-send" method="POST" onsubmit="return confirm('إرسال ملفات PDF لعمليات اليوم لجميع الجهات؟');" class="p-3 rounded-4 border bg-light">
+                        <input type="hidden" name="bulkType" value="daily">
+                        <label class="form-label fw-bold small text-muted mb-2">تقفيل اليوم</label>
+                        <div class="input-group">
+                            <input type="date" name="bulkDate" class="form-control" required>
+                            <button type="submit" class="btn btn-success fw-bold px-4"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <form action="/admin-reports/bulk-send" method="POST" onsubmit="return confirm('إرسال ملفات PDF لعمليات الشهر لجميع الجهات؟');" class="p-3 rounded-4 border bg-light">
+                        <input type="hidden" name="bulkType" value="monthly">
+                        <label class="form-label fw-bold small text-muted mb-2">تقفيل الشهر</label>
+                        <div class="input-group">
+                            <input type="month" name="bulkMonth" class="form-control" required>
+                            <button type="submit" class="btn btn-dark fw-bold px-4" style="background: var(--brand-gold); color: black; border: none;"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <div class="data-card mb-4 no-print border-start border-4 border-info">
+            <form action="/admin-reports" method="GET" class="row g-3 align-items-end">
+                <div class="col-12 col-md-3">
+                    <select name="type" id="entityType" class="form-select fw-bold" required onchange="toggleSelects()">
+                        <option value="" disabled selected>نوع الجهة...</option>
+                        <option value="client" <%= typeof type !== 'undefined' && type === 'client' ? 'selected' : '' %>>🏢 بوت عميل (شركة)</option>
+                        <option value="user" <%= typeof type !== 'undefined' && type === 'user' ? 'selected' : '' %>>👤 عميل فردي</option>
+                        <option value="executor" <%= typeof type !== 'undefined' && type === 'executor' ? 'selected' : '' %>>⚙️ بوت تنفيذ</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3" id="clientSelectDiv" style="display: <%= typeof type !== 'undefined' && type === 'client' ? 'block' : 'none' %>;">
+                    <select name="entityIdClient" id="clientSelect" class="form-select fw-bold">
+                        <option value="" disabled selected>اختر الشركة...</option>
+                        <% if(typeof clientBots !== 'undefined') { clientBots.forEach(b => { %><option value="<%= b._id %>" <%= typeof entityId !== 'undefined' && entityId == b._id ? 'selected' : '' %>><%= b.name %></option><% }) } %>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3" id="userSelectDiv" style="display: <%= typeof type !== 'undefined' && type === 'user' ? 'block' : 'none' %>;">
+                    <select name="entityIdUser" id="userSelect" class="form-select fw-bold">
+                        <option value="" disabled selected>اختر العميل...</option>
+                        <% if(typeof users !== 'undefined') { users.forEach(u => { %><option value="<%= u._id %>" <%= typeof entityId !== 'undefined' && entityId == u._id ? 'selected' : '' %>><%= u.name %></option><% }) } %>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3" id="executorSelectDiv" style="display: <%= typeof type !== 'undefined' && type === 'executor' ? 'block' : 'none' %>;">
+                    <select name="entityIdExecutor" id="executorSelect" class="form-select fw-bold">
+                        <option value="" disabled selected>اختر المنفذ...</option>
+                        <% if(typeof executorBots !== 'undefined') { executorBots.forEach(b => { %><option value="<%= b._id %>" <%= typeof entityId !== 'undefined' && entityId == b._id ? 'selected' : '' %>><%= b.name %></option><% }) } %>
+                    </select>
+                </div>
+
+                <input type="hidden" name="entityId" id="finalEntityId" value="<%= typeof entityId !== 'undefined' ? entityId : '' %>">
+
+                <div class="col-6 col-md-2">
+                    <input type="date" name="fromDate" class="form-control fw-bold" title="من تاريخ" value="<%= typeof fromDate !== 'undefined' ? fromDate : '' %>">
+                </div>
+                <div class="col-6 col-md-2">
+                    <input type="date" name="toDate" class="form-control fw-bold" title="إلى تاريخ" value="<%= typeof toDate !== 'undefined' ? toDate : '' %>">
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <button type="submit" class="btn btn-primary fw-bold w-100 py-2 rounded-3" onclick="setFinalId()"><i class="fa-solid fa-magnifying-glass me-1"></i> عرض السجل</button>
+                </div>
+            </form>
+        </div>
+
+        <% if (typeof type !== 'undefined' && type && typeof entityId !== 'undefined' && entityId) { %>
+
+            <div class="summary-row no-print">
+                <div class="summary-col">
+                    <div class="data-card summary-box" style="border-bottom-color: #64748b;">
+                        <h6 class="fw-bold text-muted mb-0 small">القيمة السابقة</h6>
+                        <div class="mono-num text-secondary"><%= openingBalance.toFixed(2) %></div>
+                    </div>
+                </div>
+                <% if (totals.depositsEGP > 0) { %>
+                <div class="summary-col">
+                    <div class="data-card summary-box" style="border-bottom-color: #3b82f6;">
+                        <h6 class="fw-bold text-muted mb-0 small">المسدد (إيداعات)</h6>
+                        <div class="mono-num text-primary"><%= totals.depositsEGP.toFixed(2) %></div>
+                    </div>
+                </div>
+                <% } %>
+                <% if (totals.deductionsEGP > 0) { %>
+                <div class="summary-col">
+                    <div class="data-card summary-box" style="border-bottom-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+                        <h6 class="fw-bold text-danger mb-0 small">مسحوب (خصومات)</h6>
+                        <div class="mono-num text-danger"><%= totals.deductionsEGP.toFixed(2) %></div>
+                    </div>
+                </div>
+                <% } %>
+                <div class="summary-col">
+                    <div class="data-card summary-box" style="border-bottom-color: #10b981;">
+                        <h6 class="fw-bold text-muted mb-0 small">إجمالي التحويلات</h6>
+                        <div class="mono-num text-success"><%= (type==='client' || type==='user') ? totals.transfersLYD.toFixed(2) : totals.transfersEGP.toFixed(2) %></div>
+                    </div>
+                </div>
+                <div class="summary-col">
+                    <div class="data-card summary-box" style="border-bottom-color: var(--brand-gold);">
+                        <h6 class="fw-bold mb-0 small text-warning">الرصيد الختامي</h6>
+                        <div class="mono-num text-warning"><%= closingBalance.toFixed(2) %></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mb-4 no-print">
+                <button onclick="window.print()" class="btn btn-light border fw-bold px-4 rounded-3 shadow-sm"><i class="fa-solid fa-print me-1"></i> طباعة كشف</button>
+                <form action="/admin-reports/send" method="POST" class="m-0" onsubmit="return confirm('إرسال ملف PDF لهذا العميل في التيليجرام؟')">
+                    <input type="hidden" name="type" value="<%= type %>">
+                    <input type="hidden" name="entityId" value="<%= entityId %>">
+                    <input type="hidden" name="fromDate" value="<%= fromDate %>">
+                    <input type="hidden" name="toDate" value="<%= toDate %>">
+                    <button type="submit" class="btn btn-primary fw-bold px-4 rounded-3 shadow-sm"><i class="fa-brands fa-telegram me-1"></i> إرسال PDF</button>
+                </form>
+            </div>
+
+            <%
+                const execTxs = typeof transactions !== 'undefined' ? transactions.filter(t => t.status === 'completed') : [];
+                const depositTxs = typeof transactions !== 'undefined' ? transactions.filter(t => t.status === 'deposit') : [];
+                const deductionTxs = typeof transactions !== 'undefined' ? transactions.filter(t => t.status === 'deduction') : [];
+            %>
+
+            <h5 class="fw-bold text-primary mb-3 mt-4 print-section-title"><i class="fa-solid fa-list-check me-2"></i> سجل التحويلات المنفذة</h5>
+            <div class="data-card p-0 overflow-hidden mb-5 border-start border-4 border-primary">
+                <div class="table-responsive m-0 border-0">
+                    <table class="table text-center align-middle mb-0 table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>الرقم</th>
+                                <th>الرقم/الحساب</th>
+                                <th>المبلغ (EGP)</th>
+                                <% if (type !== 'executor') { %>
+                                    <th>سعر الصرف</th>
+                                    <th>التكلفة (LYD)</th>
+                                <% } %>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (execTxs.length === 0) { %>
+                                <tr><td colspan="<%= type !== 'executor' ? 6 : 4 %>" class="py-5 text-muted fw-bold">لا توجد عمليات تحويل.</td></tr>
+                            <% } else { %>
+                                <% execTxs.forEach(tx => { %>
+                                    <tr>
+                                        <td>
+                                            <% if (tx.proofImage || (tx.proofImages && tx.proofImages.length > 0)) { %>
+                                                <a href="javascript:void(0)" onclick="showProofImage('<%= tx._id %>')" class="clickable-id text-primary no-print">#<%= tx.customId || tx._id.toString().slice(-6) %> <i class="fa-solid fa-image ms-1 text-muted"></i></a>
+                                                <span class="mono-num fs-6 opacity-75 print-only" style="display:none;">#<%= tx.customId || tx._id.toString().slice(-6) %></span>
+                                            <% } else { %>
+                                                <span class="mono-num fs-6 opacity-75">#<%= tx.customId || tx._id.toString().slice(-6) %></span>
+                                            <% } %>
+                                        </td>
+                                        <td class="mono-num fs-6 text-dark" dir="ltr"><%= tx.vodafoneNumber || tx.accountNumber || '---' %></td>
+                                        <td class="mono-num fs-5 text-success"><%= tx.amount.toFixed(2) %></td>
+                                        <% if (type !== 'executor') { %>
+                                            <td class="mono-num fs-6" style="color: var(--brand-gold);"><%= tx.exchangeRate ? tx.exchangeRate.toFixed(3) : (tx.costLYD ? (tx.amount / tx.costLYD).toFixed(3) : '---') %></td>
+                                            <td class="mono-num fs-5 text-danger"><%= tx.costLYD ? tx.costLYD.toFixed(2) : '---' %></td>
+                                        <% } %>
+                                        <td class="small opacity-75 mono-num"><%= new Date(tx.updatedAt).toLocaleDateString('en-GB') %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <% if (depositTxs.length > 0) { %>
+            <h5 class="fw-bold text-info mb-3 print-section-title"><i class="fa-solid fa-arrow-down me-2"></i> سجل الإيداعات والتسديد</h5>
+            <div class="data-card p-0 overflow-hidden mb-5 border-start border-4 border-info">
+                <div class="table-responsive m-0 border-0">
+                    <table class="table text-center align-middle mb-0 table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>الرقم</th>
+                                <th>البيان</th>
+                                <th>المبلغ (EGP)</th>
+                                <th>الملاحظة</th>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% depositTxs.forEach(tx => { %>
+                                <tr style="background: rgba(14, 165, 233, 0.05);">
+                                    <td>
+                                        <% if (tx.proofImage || (tx.proofImages && tx.proofImages.length > 0)) { %>
+                                            <a href="javascript:void(0)" onclick="showProofImage('<%= tx._id %>')" class="clickable-id text-info no-print">#<%= tx.customId || tx._id.toString().slice(-6) %> <i class="fa-solid fa-image ms-1 text-muted"></i></a>
+                                            <span class="mono-num fs-6 opacity-75 print-only" style="display:none;">#<%= tx.customId || tx._id.toString().slice(-6) %></span>
+                                        <% } else { %>
+                                            <span class="mono-num fs-6 opacity-75">#<%= tx.customId || tx._id.toString().slice(-6) %></span>
+                                        <% } %>
+                                    </td>
+                                    <td class="fw-bold text-info"><i class="fa-solid fa-check-circle me-1 no-print"></i> إيداع نقدي / سداد</td>
+                                    <td class="mono-num fs-5 text-info"><%= tx.amount.toFixed(2) %></td>
+                                    <td class="small opacity-75 text-wrap" style="max-width: 150px;"><%= tx.notes || '---' %></td>
+                                    <td class="small opacity-75 mono-num"><%= new Date(tx.updatedAt).toLocaleDateString('en-GB') %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (deductionTxs.length > 0) { %>
+            <h5 class="fw-bold text-danger mb-3 print-section-title"><i class="fa-solid fa-arrow-up me-2"></i> سجل الخصومات</h5>
+            <div class="data-card p-0 overflow-hidden mb-5 border-start border-4 border-danger">
+                <div class="table-responsive m-0 border-0">
+                    <table class="table text-center align-middle mb-0 table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>الرقم</th>
+                                <th>البيان</th>
+                                <th>المبلغ (EGP)</th>
+                                <th>الملاحظة</th>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% deductionTxs.forEach(tx => { %>
+                                <tr style="background: rgba(239, 68, 68, 0.05);">
+                                    <td>
+                                        <% if (tx.proofImage || (tx.proofImages && tx.proofImages.length > 0)) { %>
+                                            <a href="javascript:void(0)" onclick="showProofImage('<%= tx._id %>')" class="clickable-id text-danger no-print">#<%= tx.customId || tx._id.toString().slice(-6) %> <i class="fa-solid fa-image ms-1 text-muted"></i></a>
+                                            <span class="mono-num fs-6 opacity-75 print-only" style="display:none;">#<%= tx.customId || tx._id.toString().slice(-6) %></span>
+                                        <% } else { %>
+                                            <span class="mono-num fs-6 opacity-75">#<%= tx.customId || tx._id.toString().slice(-6) %></span>
+                                        <% } %>
+                                    </td>
+                                    <td class="fw-bold text-danger"><i class="fa-solid fa-minus me-1 no-print"></i> خصم رصيد</td>
+                                    <td class="mono-num fs-5 text-danger"><%= tx.amount.toFixed(2) %></td>
+                                    <td class="small opacity-75 text-wrap" style="max-width: 150px;"><%= tx.notes || '---' %></td>
+                                    <td class="small opacity-75 mono-num"><%= new Date(tx.updatedAt).toLocaleDateString('en-GB') %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <% } %>
+
+        <% } %>
+    </div>
+</div>
+
+<div class="modal fade" id="proofModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="modal-header border-0 pb-0 justify-content-center">
+                <button type="button" class="btn-close position-absolute" style="left:20px; filter:invert(0.5);" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" id="proofContainer" style="min-height: 300px; display: flex; align-items: center; justify-content: center; background-color: var(--input-bg);"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
+
+    function toggleSelects() {
+        const type = document.getElementById('entityType').value;
+        document.getElementById('clientSelectDiv').style.display = type === 'client' ? 'block' : 'none';
+        document.getElementById('userSelectDiv').style.display = type === 'user' ? 'block' : 'none';
+        document.getElementById('executorSelectDiv').style.display = type === 'executor' ? 'block' : 'none';
+    }
+
+    function setFinalId() {
+        const type = document.getElementById('entityType').value;
+        const finalInput = document.getElementById('finalEntityId');
+        if (type === 'client') { finalInput.value = document.getElementById('clientSelect').value; }
+        else if (type === 'user') { finalInput.value = document.getElementById('userSelect').value; }
+        else if (type === 'executor') { finalInput.value = document.getElementById('executorSelect').value; }
+    }
+
+    function showProofImage(txId) {
+        const container = document.getElementById('proofContainer');
+        container.innerHTML = '<div class="text-muted fw-bold text-center w-100 py-5"><i class="fa-solid fa-spinner fa-spin fa-2x mb-3 d-block mx-auto text-primary"></i> جاري جلب الإيصالات...</div>';
+        new bootstrap.Modal(document.getElementById('proofModal')).show();
+
+        container.innerHTML = `
+            <div id="carouselExample" class="carousel slide w-100 p-2">
+                <div class="carousel-inner" style="border-radius: 16px; overflow: hidden; background: rgba(0,0,0,0.1);">
+                    <div class="carousel-item active"><img src="/proxy/image/${txId}/0" class="d-block w-100" style="max-height: 75vh; object-fit: contain;" onerror="this.src='/images/no-image.png'"></div>
+                    <div class="carousel-item"><img src="/proxy/image/${txId}/1" class="d-block w-100" style="max-height: 75vh; object-fit: contain;" onerror="this.parentElement.remove()"></div>
+                    <div class="carousel-item"><img src="/proxy/image/${txId}/2" class="d-block w-100" style="max-height: 75vh; object-fit: contain;" onerror="this.parentElement.remove()"></div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+            </div>`;
+    }
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('success') === 'sent') {
+            Swal.fire('تم الإرسال', '✅ تم إرسال التقرير بنجاح.', 'success');
+        } else if (urlParams.get('success') === 'bulk_started') {
+            Swal.fire({ title: 'بدء التقفيل 🚀', text: 'تم البدء في إرسال التقارير لجميع الجهات في الخلفية.', icon: 'info', confirmButtonColor: '#001a4d' });
+        }
+    };
+
+    // إخفاء الروابط وعرض نصوص عادية أثناء الطباعة
+    window.onbeforeprint = function() {
+        document.querySelectorAll('.clickable-id').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.print-only').forEach(el => el.style.display = 'inline');
+    };
+    window.onafterprint = function() {
+        document.querySelectorAll('.clickable-id').forEach(el => el.style.display = 'inline');
+        document.querySelectorAll('.print-only').forEach(el => el.style.display = 'none');
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
